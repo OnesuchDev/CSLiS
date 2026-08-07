@@ -108,10 +108,12 @@ void reader(void)
 		datbuf.buf = (char *)&buf;
 		flags = 0;
 
-		if (getmsg(fd2, NULL, &datbuf, &flags) < 0)
+		if (getmsg(fd2, NULL, &datbuf, &flags) < 0) {
 			perror("reader: getmsg()");
-		else
-			printf("%c", buf[0]); fflush(stdout);
+		} else {
+			printf("%c", buf[0]);
+			fflush(stdout);
+		}
 	}
 }
 
