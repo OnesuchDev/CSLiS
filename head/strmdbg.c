@@ -347,14 +347,20 @@ void	_RP lis_free(void *ptr, char *file_name, int line_nr)
     mem_link_t	*p ;
     mem_link_space_t	*pp ;
     lis_flags_t  psw;
+#if defined(CONFIG_DEV)
     int		 rslt ;
+#endif
 
     if (ptr == NULL) return ;
 
 
     LisUpCount(MEMFREES) ;			/* stats array */
     if (LIS_DEBUG_MONITOR_MEM)
-	rslt = lis_check_mem() ;		/* check all mem areas */
+#if defined(CONFIG_DEV)
+        rslt = lis_check_mem() ;		/* check all mem areas */
+#else
+        lis_check_mem() ;		/* check all mem areas */
+#endif
 #if defined(CONFIG_DEV)
     else
 	rslt = lis_check_guard(ptr, file_name) ;/* check the guard word */
@@ -509,7 +515,7 @@ void	_RP lis_print_block(void *ptr)
     pp = ((mem_link_space_t *) ptr) - 1 ;
     p = (mem_link_t *) pp ;
 
-    if (p->file_name != NULL)
+    if (p->file_name[0])
     {
 	switch (p->line_nr)
 	{
