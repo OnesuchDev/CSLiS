@@ -521,10 +521,7 @@ mux_wput (queue_t *q, mblk_t *mp)
 static void
 mux_messenger_service(queue_t *q)
 {
-    mux_tbl_t	*muxp ;
     mblk_t	*mp;
-
-    muxp = (mux_tbl_t *) q->q_ptr;
 
     while ((mp = getq(q)) != NULL)
     {
