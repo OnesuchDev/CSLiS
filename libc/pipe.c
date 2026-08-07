@@ -19,7 +19,7 @@
 #define DUMMY_STREAM "/dev/fifo.0"    /* FIXME: /dev/stream,... */
 #define DUMMY_MODE   O_RDWR|O_NONBLOCK
 
-int pipe( int *fd )
+int pipe(int fd[2])
 {
     int ffd, error = 0;
 
