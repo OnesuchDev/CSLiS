@@ -52,7 +52,7 @@ static void usage( char *progname, char opt )
 		 "%s: option '-%c' not recognized.\n", progname, opt );
     }
     fprintf( stderr,
-	     "usage: %s [-n<n>][-i][-w<ms>][-q][-?]\n", progname );
+	     "usage: %s [-n<n>][-i][-q][-?]\n", progname );
 	
     exit(1);
 }
@@ -62,14 +62,11 @@ int main( int argc, char *argv[] )
 {
     int fd[2], sfd, rfd;
     struct stat stat;
-    int c, wt = -1, ignore_recv = 0, not_same = 0;
+    int c, ignore_recv = 0, not_same = 0;
     struct strrecvfd recv;
 
-    while ((c = getopt( argc, argv, "w:inq?" )) > 0) {
+    while ((c = getopt( argc, argv, "inq?" )) > 0) {
 	switch (c) {
-	case 'w':
-	    wt = atoi(optarg);
-	    break;
 	case 'i':
 	    ignore_recv = 1;
 	    break;
