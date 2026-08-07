@@ -788,7 +788,8 @@ static int _RP unregister_module(fmodsw_t *slot)
 	return -EBUSY;
     }
 
-    strncpy(name, slot->f_name, LIS_NAMESZ);
+    strncpy(name, slot->f_name, LIS_NAMESZ + 1);
+    name[LIS_NAMESZ] = 0;
     id = slot - lis_fmod_sw;
 
     if ((err = lis_down(&slot->f_sem)) < 0)
@@ -930,8 +931,10 @@ lis_loadmod(const char *name)
 {
 	int id = lis_findmod(name);
 	int err;
+#ifdef LIS_LOADABLE_SUPPORT
 	int configured = 0;
 	const char *objname;
+#endif
 
 	if ((err = lis_down(&lis_mod_reg)) < 0)
 	    return(LIS_NULL_MID) ;
@@ -944,6 +947,7 @@ lis_loadmod(const char *name)
 	    return(LIS_NULL_MID) ;
 	}
 
+#ifdef LIS_LOADABLE_SUPPORT
 	/* Find object name of this module */
 	objname = name;			/* default objname */
 	if (lis_fmod_sw[id].f_objname[0])
@@ -951,6 +955,7 @@ lis_loadmod(const char *name)
 	    objname = lis_fmod_sw[id].f_objname ;
 	    configured = 1;
 	}
+#endif
 
 	if ((err = lis_down(&lis_fmod_sw[id].f_sem)) < 0)
 	   return(LIS_NULL_MID);
