@@ -68,7 +68,7 @@ volatile bcinfo_t       *lis_bcfreel ;	/* the free list */
 
 volatile int		 lis_bc_cnt ;	/* total bufcalls running */
 volatile char		 lis_strbcflag;	/* the bufcall functions must be run */
-volatile static char	 lis_strbctimer;/* bufcall timer is running */
+static volatile char	 lis_strbctimer;/* bufcall timer is running */
 /*****************************************************/
 /*  In LINUX LEVEL 4.15.0, the timer_list changed    */
 /*****************************************************/
