@@ -795,7 +795,7 @@ void	 _RP lis_print_spl_track(void)
 ************************************************************************/
 lis_flags_t	 _RP lis_splstr_fcn(char *file, int line)
 {
-    lis_flags_t	 prev ;
+    lis_flags_t	 prev  = 0;
 
     lis_spin_lock_irqsave_fcn(&lis_spl_lock, &prev, file, line) ;
     return(prev) ;
