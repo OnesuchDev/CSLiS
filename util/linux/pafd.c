@@ -51,7 +51,7 @@ static void usage( char *progname, char opt )
 		 "%s: option '-%c' not recognized.\n", progname, opt );
     }
     fprintf( stderr,
-	     "usage: %s [-n<n>][-i][-w<ms>][-q][-?] <fattach_path>\n",
+	     "usage: %s [-n<n>][-i][-q][-?] <fattach_path>\n",
 	     progname );
 	
     exit(1);
@@ -63,14 +63,11 @@ int main( int argc, char *argv[] )
     char path[40];
     int fd[2], afd, rfd, sfd;
     struct stat stat;
-    int c, wt = -1, not_same = 0, ignore_recv = 0;
+    int c, not_same = 0, ignore_recv = 0;
     struct strrecvfd recv;
 
-    while ((c = getopt( argc, argv, "w:niq?" )) > 0) {
+    while ((c = getopt( argc, argv, "niq?" )) > 0) {
 	switch (c) {
-	case 'w':
-	    wt = atoi(optarg);
-	    break;
 	case 'n':
 	    not_same = 1;
 	    break;
