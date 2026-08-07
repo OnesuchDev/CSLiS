@@ -87,6 +87,17 @@ extern unsigned long long int strtoull (char *nptr, char **endptr, int base);
 
 #define	ALL_DEBUG_BITS	( ~ ((unsigned long long) 0) )
 
+// (void) is not enough to pacify gcc
+// Source - https://stackoverflow.com/a/5932591
+// Posted by Sergey Shandar, modified by community. See post 'Timeline' for change history
+// Retrieved 2026-07-11, License - CC BY-SA 3.0
+
+static inline void ignore_result_helper(int __attribute__((unused)) dummy, ...)
+{
+}
+
+#define IGNORE_RESULT(X) ignore_result_helper(0, (X))
+
 /************************************************************************
 *                      File Names                                       *
 ************************************************************************/
@@ -246,6 +257,7 @@ print(char *fmt, ...)
     char	 bfr[2048];
     extern int	 vsprintf (char *, const char *, va_list);
     va_list	 args;
+    int          rslt;
 
     va_start (args, fmt);
     vsprintf (bfr+8, fmt, args);
@@ -258,7 +270,12 @@ print(char *fmt, ...)
     {
 	strcpy(bfr, "strtst:") ;
 	bfr[7] = ' ' ;
-	user_write(printk_fd, bfr, strlen(bfr)) ;
+        rslt = 	user_write(printk_fd, bfr, strlen(bfr)) ;
+        if (rslt < 0)
+            printf("print: %s\n", strerror(ENO(rslt))) ;
+        else
+            if (rslt != strlen(bfr))
+                printf("print: write returned %d, expected %lu\n", rslt, (unsigned long)strlen(bfr)) ;
     }
 
 } /* print */
@@ -4831,25 +4848,25 @@ void sad_test(void)
 	print("sad_test: Testing SAD_VML IOCTL\n");
 
 	print("sad_test: Testing SAD_VML ioctl (a bad module)\n");
-	strcpy(mlist[0].l_name, "nosuchmodule");
+	strcpy(mlist[0].l_name, "bogus");
 	list.sl_nmods = 1;
 	list.sl_modlist = mlist;
 	rslt = sad_vml_test(fd, &list);
 	if (rslt == 0) {
 		print("sad_test: SAD says a module "
-		      "named \"nosuchmodule\" exists.\n");
+		      "named \"bogus\" exists.\n");
 		print("sad_test: Does it?\n");
 		xit();
 	}
 
 	print("sad_test: Testing SAD_VML ioctl (a good and a bad module)\n");
 	strcpy(mlist[0].l_name, "relay");
-	strcpy(mlist[1].l_name, "nosuchmodule");
+	strcpy(mlist[1].l_name, "bogus");
 	list.sl_nmods = 2;
 	rslt = sad_vml_test(fd, &list);
 	if (rslt == 0) {
 		print("sad_test: SAD says modules"
-		      " \"relay\" and \"nosuchmodule\" exists.\n");
+		      " \"relay\" and \"bogus\" exists.\n");
 		print("sad_test: Do they both exist?\n");
 		xit();
 	}
@@ -6110,7 +6127,7 @@ void mt_open_test(void)
     pthread_mutexattr_t	 attr ;
 
     print("Begin multi-thread open test\n") ;
-    system("rmmod streams-mtdrv 2>&1") ;
+    IGNORE_RESULT(system("rmmod streams-mtdrv 2>&1"));
     if (system("modprobe streams-mtdrv 2>&1") != 0)
     {
 	print("modprobe failed: %s\n", strerror(errno)) ;
@@ -6127,7 +6144,7 @@ void mt_open_test(void)
     {
 	fprintf(stderr, "Thread #%d: ", 1) ;
 	perror("pthread_create") ;
-	system("rmmod streams-mtdrv 2>&1") ;
+	IGNORE_RESULT(system("rmmod streams-mtdrv 2>&1"));
 	xit() ;
     }
 
@@ -6136,7 +6153,7 @@ void mt_open_test(void)
     {
 	fprintf(stderr, "Thread #%d: ", 2) ;
 	perror("pthread_create") ;
-	system("rmmod streams-mtdrv 2>&1") ;
+	IGNORE_RESULT(system("rmmod streams-mtdrv 2>&1"));
 	xit() ;
     }
 
@@ -6144,7 +6161,7 @@ void mt_open_test(void)
     mt_set_state(1) ;
     pthread_mutex_lock(&mt_quit) ;		/* waits until thread exit */
     print("multi-thread open test OK\n") ;
-    system("rmmod streams-mtdrv 2>&1") ;
+    IGNORE_RESULT(system("rmmod streams-mtdrv 2>&1"));
 }
 #endif
 
