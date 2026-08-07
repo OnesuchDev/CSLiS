@@ -328,9 +328,7 @@ int loop_iocdata(queue_t * wq, mblk_t * mp)
 {
     struct copyresp *rsp = (struct copyresp *) mp->b_rptr;
     struct loop *loop = (struct loop *) rsp->cp_private;
-    struct iocblk *iocb;
 
-    iocb = (struct iocblk *) rsp;
     switch (rsp->cp_cmd)
     {
     case LOOP_XPARENT_COPYIN:
