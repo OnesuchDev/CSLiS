@@ -3719,8 +3719,8 @@ lis_wait_for_wiocing(stdata_t *hd, int tmout, int ignore_errors)
 	printk("lis_wait_for_wiocing: after lis_sleep_on_wiocing\n");
     if (rslt < 0)
     {
-    if ( LIS_DEBUG_IOCTL )
-	printk("lis_wait_for_wiocing: bad return %dt\n", rslt);
+	if ( LIS_DEBUG_IOCTL )
+	  printk("lis_wait_for_wiocing: bad return %dt\n", rslt);
 	CP(hd,rslt) ;
 	if (tmout != INFTIM)
 #if LINUX_VERSION_CODE > KERNEL_VERSION(4,14,0)
@@ -3734,8 +3734,8 @@ lis_wait_for_wiocing(stdata_t *hd, int tmout, int ignore_errors)
 
     if (!F_ISSET(hd->sd_flag,STIOCTMR)) /* timer expired */
     {
-    if ( LIS_DEBUG_IOCTL )
-	printk("lis_wait_for_wiocing: time out\n");
+	if ( LIS_DEBUG_IOCTL )
+	  printk("lis_wait_for_wiocing: time out\n");
 	CP(hd,ETIME) ;
 	return(-ETIME);
     }
@@ -4020,8 +4020,8 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
     CLR_SD_FLAG(hd,IOCWAIT);		/* now completed */
     if (err < 0 || (mioc = hd->sd_iocblk) == NULL)	/* rtnd ioctl msg */
     {
-    if ( LIS_DEBUG_IOCTL )
-	printk("lis_strdoioctl: err case\n");
+	if ( LIS_DEBUG_IOCTL )
+	  printk("lis_strdoioctl: err case\n");
 	CP(hd,err) ;
 	ioc->ic_len = 0 ;		/* no data */
 	if (hd->sd_werror)		/* pick up error from M_ERROR if pres */
