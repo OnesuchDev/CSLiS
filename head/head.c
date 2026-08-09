@@ -400,17 +400,9 @@ unsigned long _RP lis_secs(void)
 
 /*
  * Macro to determine whether there are any processes waiting on
- * a poll for a given stream.  When using kernel version 2.1 style
- * polling the queue head is a Linux specific structure, not our
- * portable poll list head.
+ * a poll for a given stream.
  */
-#if defined(PORTABLE_POLL)
-#define	POLL_WAITING(hdp)	( (hdp)->sd_polllist.ph_list != NULL )
-#elif defined(LINUX_POLL)
 #define	POLL_WAITING(hdp)	( waitqueue_active(&(hdp)->sd_task_list) )
-#else
-#error "Either PORTABLE_POLL or LINUX_POLL must be defined"
-#endif
 
 #define	POLL_NOT_WAITING(hdp)	( ! POLL_WAITING(hdp) )
 
@@ -1547,9 +1539,7 @@ lis_alloc_stdata(void)
     lis_sem_init(&head->sd_closing, 0) ;	/* explicit init for emphasis */
     lis_sem_init(&head->sd_opening, 1) ;
 
-#if defined(LINUX_POLL)
     init_waitqueue_head(&head->sd_task_list) ;
-#endif
     head->sd_wq = WR(q);
     head->sd_rq = RD(q);
     head->sd_rq->q_str = head->sd_wq->q_str = head;
@@ -2643,35 +2633,12 @@ set_options( stdata_t *hd, stroptions_t *so)
 static void
 lis_wake_up_poll(stdata_t *hd, int ev)
 {
-#if defined(PORTABLE_POLL)
-  polldat_t *pd;
-
-  if ( LIS_DEBUG_POLL )
-    printk("lis_wake_up_poll: stream %s: revents:%s\n",
-	    hd->sd_name, lis_poll_events((short)ev)) ;
-
-  for (pd=hd->sd_polllist.ph_list; pd != NULL; pd=pd->pd_next) 
-  {
-    pd->pd_events = (short) ev ;		/* events being caused */
-    if (pd->pd_fn != NULL)			/* careful */
-	(*pd->pd_fn)(pd->pd_arg);		/* this will wake up the
-						 * polling process.
-	  					 */
-  }
-
-  lis_select_wakeup(hd) ;			/* wake up selectors */
-
-#elif defined(LINUX_POLL)
 
   if ( LIS_DEBUG_POLL )
     printk("lis_wake_up_poll: stream %s: revents:%s\n",
 		hd->sd_name, lis_poll_events((short)ev)) ;
 
   wake_up_interruptible(&hd->sd_task_list);
-
-#else
-#error "Either PORTABLE_POLL or LINUX_POLL must be defined"
-#endif
 
 }/*lis_wake_up_poll*/
 
@@ -2692,26 +2659,9 @@ lis_wake_up_poll(stdata_t *hd, int ev)
 static void
 lis_deallocate_polllist( stdata_t *hd)
 {
-#if defined(PORTABLE_POLL)
-  polldat_t *pd;
-
-  if (hd->sd_polllist.ph_list != NULL)
-      lis_wake_up_poll(hd, POLLHUP) ;
-  else						/* no pollers */
-      lis_select_wakeup(hd) ;			/* wake up selectors */
-
-  for (pd=hd->sd_polllist.ph_list; pd != NULL; pd = pd->pd_next) 
-  {
-      pd->pd_headp = NULL ;
-  }
-
-#elif defined(LINUX_POLL)
 
   init_waitqueue_head(&hd->sd_task_list) ;
 
-#else
-#error "Either PORTABLE_POLL or LINUX_POLL must be defined"
-#endif
 }/*lis_deallocate_polllist*/
 
 /*  -------------------------------------------------------------------  */
@@ -7897,55 +7847,6 @@ rtn_point:
 #undef RTN
 
 } /* lis_poll_bits */
-
-/*  -------------------------------------------------------------------  */
-/* strpoll - called from lis_syspoll() poll() syscall handler
- *
- * The STREAMS poll function is called with the file info and
- * a pointer to a polldat structure.  The STREAMS routine
- * interrogates the file for the requested conditions according
- * to the 'pd_events' field in the polldat structure.  It returns
- * a bit-mask of the events that satisfy the conditions, if any.
- * The STREAMS routine also sets the pd_headp pointer to point to
- * its list head in its stream structure for the polldat list.
- * The caller takes care of linking the structure into the list.
- */
-#ifdef PORTABLE_POLL
-int
-lis_strpoll(struct inode *i, struct file *f, void *ptr)
-{
-    polldat_t		*pdat_ptr  = (polldat_t *) ptr ;
-    int			 revents   = 0 ;
-    int			 events    = pdat_ptr->pd_events | POLLERR | POLLHUP ;
-    stdata_t		*hd;
-    unsigned long  	 time_cell = 0 ;
-
-    (void) f ;				/* reference 'f' for compiler */
-
-    if (   !(hd = FILE_STR(f))
-	|| hd->magic != STDATA_MAGIC
-       )
-	return(POLLNVAL);
-
-    CLOCKON() ;
-
-    revents = lis_poll_bits(hd) & events ;	/* evaluate the stream */
-
-    pdat_ptr->pd_headp = &hd->sd_polllist ;	/* ptr to list hd struct */
-						/* allows insertion */
-    if ( LIS_DEBUG_POLL )
-	printk("strpoll: stream %s: events:%s revents:%s\n",
-		hd->sd_name,
-	      lis_poll_events((short)events), lis_poll_events((short)revents)) ;
-
-    CLOCKOFF(POLLTIME) ;
-
-    return(revents) ;				/* return events */
-
-#undef RTN
-
-} /* lis_strpoll */
-#endif
 
 /*  -------------------------------------------------------------------  */
 /*  lis_wakeup_close

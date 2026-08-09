@@ -116,8 +116,6 @@ typedef unsigned int	uintptr_t;
 /*
  * Establish some version dependent sub-defines for all to see.
  */
-#define LINUX_POLL      2
-
 #ifndef OPENFAIL
 #define OPENFAIL	(-1)
 #endif
