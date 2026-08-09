@@ -5060,7 +5060,7 @@ pid_t	_RP lis_thread_start(int (*fcn)(void *), void *arg, const char *name)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     return(kernel_thread(lis_thread_func, (void *) argp, 0)) ;
 #else  /* kernel_thread replaced by kthread() calls */
-    tsk  = kthread_run( lis_thread_func, (void *) argp, name );
+    tsk  = kthread_run( lis_thread_func, (void *) argp, "%s", name );
     return (tsk->pid);
 #endif
 }
