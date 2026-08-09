@@ -54,6 +54,8 @@
 #include <sys/osif.h>
 #endif
 
+void _RP clone_init(void);
+
 static struct module_info clone_minfo =
 {
   0,				/* id */

@@ -387,8 +387,10 @@ static int _RP connld_rput( queue_t *q, mblk_t *mp )
  *  Linux loadable module interface
  */
 
+#ifndef KM26
+
 #ifdef KERNEL_2_5
-int connld_init_module(void)
+static int connld_init_module(void)
 #else
 int init_module(void)
 #endif
@@ -405,7 +407,7 @@ int init_module(void)
 }
 
 #ifdef KERNEL_2_5
-void connld_cleanup_module(void)
+static void connld_cleanup_module(void)
 #else
 void cleanup_module(void)
 #endif
@@ -417,12 +419,12 @@ void cleanup_module(void)
     return;
 }
 
-#ifndef KM26
 #ifdef KERNEL_2_5
 module_init(connld_init_module) ;
 module_exit(connld_cleanup_module) ;
 #endif
-#endif
+
+#endif /* KM26 */
 
 #if defined(LINUX)			/* linux kernel */
 

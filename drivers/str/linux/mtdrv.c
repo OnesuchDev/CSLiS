@@ -148,7 +148,7 @@ static void make_node(char *name, int maj, int mnr)
 	printk("mknod %s: error %d\n", name, rtn);
 }
 
-void _RP mtdrv_init(int maj)
+static void _RP mtdrv_init(int maj)
 {
     make_node("/dev/mtdrv_clone", CLONE__CMAJOR_0, maj);
     make_node("/dev/mtdrv.1", maj, 1);
@@ -160,7 +160,7 @@ void _RP mtdrv_init(int maj)
 
 }				/* mtdrv_init */
 
-void _RP mtdrv_term(void)
+static void _RP mtdrv_term(void)
 {
     open_sleep_sem = lis_sem_destroy(open_sleep_sem) ;
     open_sem = lis_sem_destroy(open_sem) ;
@@ -380,7 +380,7 @@ static int _RP mtdrv_close(queue_t * q, int dummy, cred_t * credp)
 #ifdef MODULE
 
 #ifdef KERNEL_2_5
-int mtdrv_init_module(void)
+static int mtdrv_init_module(void)
 #else
 int init_module(void)
 #endif
@@ -397,7 +397,7 @@ int init_module(void)
 }
 
 #ifdef KERNEL_2_5
-void mtdrv_cleanup_module(void)
+static void mtdrv_cleanup_module(void)
 #else
 void cleanup_module(void)
 #endif

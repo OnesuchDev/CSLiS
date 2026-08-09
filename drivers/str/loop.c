@@ -52,6 +52,10 @@
 #include <sys/osif.h>
 #endif
 
+/* Prototypes */
+void sloop_init(void);
+void sloop_term(void);
+
 /*  -------------------------------------------------------------------  */
 
 /*			  Module definition structs                      */
@@ -297,8 +301,8 @@ static mblk_t *loop_concat(struct loop *loop, mblk_t * mp)
 
 /*  -------------------------------------------------------------------  */
 
-int loop_request_copyio(queue_t * wq, struct loop *loop, mblk_t * mp,
-			int msg_type, void *uptr, int nbytes)
+static int loop_request_copyio(queue_t * wq, struct loop *loop, mblk_t * mp,
+			       int msg_type, void *uptr, int nbytes)
 {
     struct copyreq *rq = (struct copyreq *) mp->b_rptr;
     mblk_t *dp = mp->b_cont;
@@ -324,7 +328,7 @@ int loop_request_copyio(queue_t * wq, struct loop *loop, mblk_t * mp,
 
 /*  -------------------------------------------------------------------  */
 
-int loop_iocdata(queue_t * wq, mblk_t * mp)
+static int loop_iocdata(queue_t * wq, mblk_t * mp)
 {
     struct copyresp *rsp = (struct copyresp *) mp->b_rptr;
     struct loop *loop = (struct loop *) rsp->cp_private;
@@ -937,8 +941,10 @@ static int _RP loop_close(queue_t * q, int dummy, cred_t * credp)
 
 #ifdef MODULE
 
+#ifndef KM26
+
 #ifdef KERNEL_2_5
-int loop_init_module(void)
+static int loop_init_module(void)
 #else
 int init_module(void)
 #endif
@@ -954,7 +960,7 @@ int init_module(void)
 }
 
 #ifdef KERNEL_2_5
-void loop_cleanup_module(void)
+static void loop_cleanup_module(void)
 #else
 void cleanup_module(void)
 #endif
@@ -966,12 +972,12 @@ void cleanup_module(void)
     return;
 }
 
-#ifndef KM26
 #ifdef KERNEL_2_5
 module_init(loop_init_module) ;
 module_exit(loop_cleanup_module) ;
 #endif
-#endif
+
+#endif /* KM26 */
 
 #if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");
