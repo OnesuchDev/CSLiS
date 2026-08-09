@@ -4325,7 +4325,6 @@ void _RP lis_gettimeofday(struct timeval *tv)
 
 /*  -------------------------------------------------------------------  */
 /*				    Module                               */
-#ifdef LINUX
 
 
 /*
@@ -4803,8 +4802,6 @@ void	streams_init(void)
     lis_init_module() ;		/* register STREAMS with Linux */
 
 } /* streams_init */
-
-#endif /* LINUX */
 
 /************************************************************************
 *                         Thread Startup                                *

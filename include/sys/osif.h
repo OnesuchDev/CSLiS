@@ -13,11 +13,8 @@
 *									*
 * Include this file AFTER any linux includes.				*
 *									*
-* This file is only interpreted for LINUX builds.  User-level and other	*
-* portable builds bypass this file.					*
-*									*
 ************************************************************************/
-#if defined(LINUX) && !defined(OSIF_H)
+#if !defined(OSIF_H)
 #define OSIF_H		/* file included */
 
 #ident "@(#) CSLiS osif.h 7.112 2025-05-28 15:30:00 "

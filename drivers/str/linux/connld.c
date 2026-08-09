@@ -413,8 +413,6 @@ module_exit(connld_cleanup_module) ;
 
 #endif /* KM26 */
 
-#if defined(LINUX)			/* linux kernel */
-
 #ifdef __attribute_used__
 #undef __attribute_used__
 #endif
@@ -433,5 +431,4 @@ MODULE_DESCRIPTION("STREAMS unique pipe generator pseudo-module");
 MODULE_INFO(vermagic, VERMAGIC_STRING);
 #endif
 
-#endif					/* LINUX */
 #endif					/* MODULE */

@@ -264,7 +264,6 @@ int      lis_check_guard(void *ptr, char *msg) ;
 int      lis_check_mem(void) ;
 void     lis_terminate_mem(void) ;
 
-#if defined(LINUX)
 static inline const char *lis_basename( const char *filename )
 {
     char        *p ;
@@ -274,9 +273,6 @@ static inline const char *lis_basename( const char *filename )
 	return(filename) ;
     return(p+1) ;
 }
-#else
-const char *lis_basename(const char *filename);
-#endif
 
 #define __LIS_FILE__  lis_basename(__FILE__)
 

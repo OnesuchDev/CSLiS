@@ -266,11 +266,7 @@ struct stdata
         struct streamtab *sd_strtab;    /* pointer to streamtab for stream */
         struct stdata    *sd_peer;      /* other FIFO in a pipe */
 	struct inode     *sd_inode;     /* corresponding inode */
-#if defined(LINUX)
         struct dentry    *sd_from;      /* dentry->inode FIFO opened from */
-#else
-        struct inode     *sd_from;      /* inode a FIFO was opened from */
-#endif
 	struct file      *sd_file;      /* file being opened */
 	mblk_t           *sd_iocblk; 	/* returned ioctl msg */
 	int		  sd_open_flags ;/* flags that opened stream */

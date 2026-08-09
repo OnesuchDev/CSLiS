@@ -51,7 +51,6 @@
 #endif
 
 #include <sys/stream.h>
-#if defined(LINUX)		/* compiling for Linux kernel */
 #include <linux/sched.h>
 #include <linux/ioport.h>
 #undef module_info		/* LiS definition */
@@ -65,7 +64,6 @@
 #undef module_info
 #include <linux/ptrace.h>	/* for pt_regs */
 #include <sys/osif.h>
-#endif
 #include <sys/LiS/modcnt.h>
 
 /*  -------------------------------------------------------------------  */
@@ -199,10 +197,6 @@ typedef struct driver_config
 
 } driver_config_t ;
 
-#if !defined(LINUX) && !defined(_PPC_LIS_)
-struct pt_regs { void	*nothing; } ;
-typedef int  (*lis_int_handler) (int, void *, struct pt_regs *) ;
-#endif
 typedef struct device_config
 {
 	char		*name;
@@ -311,7 +305,6 @@ int find_mod(const char *name)
 	return -1;
 }
 
-#if defined(LINUX)
 static
 int find_dev_objname(const char *name)
 {
@@ -337,7 +330,6 @@ int find_dev_by_major(major_t major)
 	}
 	return -1;
 }
-#endif
 
 /*
  *  Return the index into lis_drv_objnames[] of a driver major,
@@ -1026,7 +1018,6 @@ lis_loadmod(const char *name)
 static void
 lis_enable_intr(struct streamtab *strtab, int major, const char *name)
 {
-#if defined(LINUX)
     int			 i = 0;
     device_config_t	*devptr;
     int			 retval;
@@ -1064,7 +1055,6 @@ lis_enable_intr(struct streamtab *strtab, int major, const char *name)
     }
 
     printk("Registered IRQ %d for STREAMS driver %s\n", devptr->irq, name) ;
-#endif
 }
 
 /*  -------------------------------------------------------------------  */
@@ -1175,7 +1165,6 @@ lis_unregister_strdev(major_t major)
 
 	apush_free_major(major);
 
-#if defined(LINUX)			/* linux kernel */
 	{
 	    int	 	 	 i ;
 	    device_config_t	*devptr ;
@@ -1195,7 +1184,6 @@ lis_unregister_strdev(major_t major)
 		}
 	    }
 	}
-#endif
 	lis_fstr_sw[major].f_str = NULL;
 	__unregister_chrdev(major,0,1024, lis_fstr_sw[major].f_name);
 

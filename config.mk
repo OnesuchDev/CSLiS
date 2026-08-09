@@ -210,8 +210,7 @@ endif
 
 #
 # This will make glibc define only the types defined in the good old SysV
-# The only exception is caddr_t (defined in <sys/LiS/user-mdep.h>) and that
-# is defined on all SVR4 systems anyway.
+# The only exception is caddr_t, and that is defined on all SVR4 systems anyway.
 #
 # When we do not have the types of _every_ standard, LiS will not compile
 # if somebody tries to use non-SysV types. This helps to keep the LiS source

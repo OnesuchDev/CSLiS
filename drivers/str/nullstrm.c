@@ -39,13 +39,8 @@
 
 
 #if 0
-#if defined(LINUX)
 #   include <linux/types.h>
 #   include <linux/ioctl.h>
-#else
-#   include <sys/types.h>
-#   include <sys/ioctl.h>
-#endif
 #endif
 
 #include <sys/stream.h>

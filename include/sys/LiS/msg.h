@@ -45,11 +45,7 @@
 /*				 Dependencies                            */
 
 #ifndef _SYS_TYPES_H
-# if	defined(LINUX)
 #   include <linux/types.h>
-# else
-#   include <sys/types.h>
-# endif
 #endif
 #ifndef _SHARE_H
 #include <sys/LiS/share.h>
@@ -225,13 +221,11 @@ extern volatile struct mdbblock  *lis_mdbfreelist; /* msg block free list */
 extern void
 lis_strgiveback(unsigned long arg);
 
-#if defined(LINUX) 
 extern void lis_init_msg(void);
-#endif
 
 /*  lis_terminate_msg - do the final shutdown of the msg memory subsystem
  */
-#if !(defined(LINUX) && defined(USE_KMEM_CACHE))
+#if !defined(USE_KMEM_CACHE)
 extern void
 lis_terminate_msg(void);
 #endif

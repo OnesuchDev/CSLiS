@@ -243,7 +243,7 @@ C) Open vs Close
 #endif
 #include <sys/poll.h>
 #include <sys/LiS/errmsg.h>
-#if !defined(ERANGE) && defined(LINUX)
+#if !defined(ERANGE)
 #undef _ERRNO_H
 #define __need_Emath 1
 #include <errnos.h>
@@ -279,15 +279,6 @@ void lis_terminate_final(void);
 
 /*  -------------------------------------------------------------------  */
 /*				   Symbols                               */
-
-/* LINUX versions of the following are all now in linux-mdep.h */
-#ifndef LINUX
-#define D_COUNT(d)		1
-#define FILE_D_COUNT(f)		1
-#define MNTSYNC()		do {} while (0)
-#define FILE_MNTGET(f)		0
-#define MNT_COUNT(m)    	0
-#endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
 #define f_dentry f_path.dentry
@@ -464,11 +455,7 @@ lis_spin_lock_t		lis_code_path_lock ;
 static char		*lis_cp_fmt =		/* for printk */
 			    "%u:CPU%u in %s() %s #%d -- %p 0x%lx\n";
 
-#if defined(LINUX)
 #define CPCPU	smp_processor_id()
-#else
-#define CPCPU	0
-#endif
 
 #define CPFL(p,a,func,f,l)						\
     do {								\
@@ -562,11 +549,9 @@ extern lis_spin_lock_t	  lis_tlist_lock ; /* dki.c */
 extern lis_atomic_t       lis_spin_lock_count ;
 extern lis_atomic_t       lis_spin_lock_contention_count ;
 
-#if defined(LINUX)
 mblk_t *lis_lock_contention_msg(void) ;	/* lislocks.c */
 mblk_t *lis_sem_contention_msg(void) ;	/* lislocks.c */
 mblk_t *lis_queue_contention_msg(void) ;/* queue.c */
-#endif
 
 
 
@@ -647,10 +632,8 @@ static void lis_tear_down_stream(stdata_t *hd) ;
 static int  get_sd_opening_sem(stdata_t *head) ;
 static void release_sd_opening_sem(stdata_t *head) ;
 
-#ifdef LINUX
 extern int  lis_assign_inode_to_file(struct file *f, struct inode *i) ;
 extern void lis_start_qsched(void) ;
-#endif						/* routine in linux-mdep.c */
 
 extern void lis_show_inode_aliases(struct inode *);
 extern int  lis_sleep_on_close_wt(void *q_str) ;	/* wait.c */
@@ -1628,20 +1611,12 @@ lis_free_stdata( struct stdata *hd )
 	if (LIS_DEBUG_CLOSE || LIS_DEBUG_REFCNTS)
 	    printk(" lis_free_stdata  >> h@0x%p \"%s\" releasing sd_from %c@0x%p/%d\n",
 		   hd, hd->sd_name,
-#if defined(LINUX)
 		   'd', hd->sd_from, D_COUNT(hd->sd_from)
-#else
-		   'i', hd->sd_from, I_COUNT(hd->sd_from)
-#endif
 		);
-#if defined(LINUX)
 	lis_dput(hd->sd_from);
 	if (hd->sd_mount)
 	    MNTPUT((struct vfsmount *)hd->sd_mount);
 	hd->sd_mount = NULL;
-#else
-	lis_put_inode(hd->sd_from);
-#endif
 	hd->sd_from = NULL;
     }
 
@@ -4247,11 +4222,7 @@ return_point:
  */
 static stdata_t *
 lis_lookup_stdata( dev_t *dev,
-#if defined(LINUX)
 		   struct dentry *from,
-#else
-		   struct inode  *from,
-#endif
 		   stdata_t *excluded )
 {
     stdata_t *hd;
@@ -4290,9 +4261,7 @@ lis_lookup_stdata( dev_t *dev,
 	     *  this allows us to reopen a cloned FIFO inode
 	     */
 	    if (from && hd->sd_from && hd->sd_inode
-#if defined(LINUX)
 		&& (hd->sd_from->d_inode == from->d_inode)
-#endif
 		) 
 	    {
 		if ((LIS_DEBUG_OPEN && LIS_DEBUG_ADDRS) || LIS_DEBUG_REFCNTS)
@@ -4300,9 +4269,7 @@ lis_lookup_stdata( dev_t *dev,
 			   " <reopen>\n    >> "
 			   "h@0x%p/%d/%d i@0x%p/%d dev 0x%x\n",
 			   DEV_TO_INT(odev),
-#if defined(LINUX)
 			   'd', from, (from?D_COUNT(from):0),
-#endif
 			   excluded,
 			   (excluded?LIS_SD_REFCNT(excluded):0),
 			   (excluded?LIS_SD_OPENCNT(excluded):0),
@@ -4321,9 +4288,7 @@ lis_lookup_stdata( dev_t *dev,
 			   " <same>\n    >> "
 			   "h@0x%p/%d/%d i@0x%p/%d\n",
 			   DEV_TO_INT(odev),
-#if defined(LINUX)
 			   'd', from, (from?D_COUNT(from):0),
-#endif
 			   excluded,
 			   (excluded?LIS_SD_REFCNT(excluded):0),
 			   (excluded?LIS_SD_OPENCNT(excluded):0),
@@ -4342,9 +4307,7 @@ lis_lookup_stdata( dev_t *dev,
 	printk("lis_lookup_stdata(d0x%x,%c@0x%p/%d,h@0x%p/%d/%d)"
 	       " => NULL\n",
 	       DEV_TO_INT(odev),
-#if defined(LINUX)
 	       'd', from, (from?D_COUNT(from):0),
-#endif
 	       excluded,
 	       (excluded?LIS_SD_REFCNT(excluded):0),
 	       (excluded?LIS_SD_OPENCNT(excluded):0));
@@ -4567,14 +4530,10 @@ lis_stropen( struct inode *i, struct file *f )
     int		   f_count = F_COUNT(f) ;	/* file open count */
     unsigned long  time_cell = 0;
     unsigned long  this_open ;
-#if defined(LINUX)
     struct dentry   *from;
     struct dentry   *oldd;
     struct vfsmount *oldmnt;
     int oldd_cnt, oldmnt_cnt;
-#else
-    struct inode *from;
-#endif
 
     CHECK_INO(i,"stropen");		/* may return */
 
@@ -4583,7 +4542,6 @@ lis_stropen( struct inode *i, struct file *f )
     K_ATOMIC_INC(&lis_open_cnt);
     this_open = K_ATOMIC_READ(&lis_open_cnt);
 
-#if defined(LINUX)
     from       = f->f_dentry;  /* save this for lookup_stdata() */
     /*
      *  we save the following for passing to cleanup_file_opening(),
@@ -4598,9 +4556,6 @@ lis_stropen( struct inode *i, struct file *f )
     oldd_cnt   = D_COUNT(oldd)-1;
     oldmnt     = FILE_MNTGET(f);
     oldmnt_cnt = MNT_COUNT(oldmnt)-1;
-#else
-    from       = FILE_INODE(f);
-#endif
 
    if (LIS_DEBUG_OPEN || LIS_DEBUG_REFCNTS)
     {
@@ -4615,10 +4570,8 @@ lis_stropen( struct inode *i, struct file *f )
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;
 
 	if (LIS_DEBUG_REFCNTS) {
-#if defined(LINUX)
 	    printk("    << d@0x%p/%d m@0x%p/%d\n",
 		   oldd, oldd_cnt, oldmnt, oldmnt_cnt);
-#endif
 	    lis_show_inode_aliases(i);
 	}
     }
@@ -4888,22 +4841,14 @@ retry_from_start:			/* retry point for open/close races */
 	 *  (we don't keep 'sd_from' if cloning from a clone major)
 	 */
 	CP(head,odev) ;
-#if defined(LINUX)
         head->sd_from  = lis_dget(f->f_dentry);
 	head->sd_mount = FILE_MNTGET(f);
-#else
-        head->sd_from = lis_grab_inode(FILE_INODE(f));
-#endif
 	SET_SD_FLAG(head, STREOPEN);
 	if (LIS_DEBUG_OPEN || LIS_DEBUG_REFCNTS)
 	    printk("lis_stropen(i@0x%p/%d,f@0x%p/%d)#%ld\n"
 		   "    >> <= %c@0x%p/++%d <can reopen>\n",
 		   i, I_COUNT(i), f, f_count, this_open,
-#if defined(LINUX)
 		   'd', head->sd_from, D_COUNT(head->sd_from)
-#else
-		   'i', head->sd_from, I_COUNT(head->sd_from)
-#endif
 		);
     }
 
@@ -4992,11 +4937,7 @@ retry_from_start:			/* retry point for open/close races */
 	if ((err = lis_down(&lis_stdata_sem)) < 0) 
 	    goto error_rtn ;
 	stdata_locked = 1 ;
-#if defined(LINUX)
 	from = f->f_dentry;
-#else
-	from = FILE_INODE(f);
-#endif
 	/*
 	 * If the device id got changed by the clone driver then the
 	 * driver's open routine has been called by the clone driver
@@ -5131,7 +5072,6 @@ successful_rtn:					/* returning success */
 	head->sd_creds = creds ;		/* LiS creds */
     }
 
-#if defined(LINUX)
     /*
      *  synchronize FIFO read/write openers after (almost) everything else 
      *
@@ -5149,7 +5089,6 @@ successful_rtn:					/* returning success */
 	    goto error_rtn;
     lis_cleanup_file_opening(f, head, 0,
 			     oldd, oldd_cnt, oldmnt, oldmnt_cnt);
-#endif
 
     /*
      * Increment our open count for the first open of the file.  For
@@ -5188,7 +5127,6 @@ successful_rtn:					/* returning success */
 	       FILE_INODE(f), I_COUNT(FILE_INODE(f)),
 	       head->sd_rq, head->sd_wq);
 	if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) {
-#if defined(LINUX)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 	    printk("    >> d@0x%p/%d m@0x%p/%d\n",
 		   f->f_dentry, D_COUNT(f->f_dentry),
@@ -5197,7 +5135,6 @@ successful_rtn:					/* returning success */
             printk("    >> d@0x%p/%d m@0x%p/%d\n",
                    f->f_dentry, D_COUNT(f->f_dentry),
                    f->f_path.mnt, MNT_COUNT(f->f_vfsmnt));
-#endif
 #endif
 	    lis_show_inode_aliases(i);
 	}
@@ -5246,12 +5183,8 @@ error_rtn:				/* come here if fail */
 
     if (head)			        /* a head was used */
     {
-#if defined(LINUX)
 	lis_cleanup_file_opening(f, head, err,
 				 oldd, oldd_cnt, oldmnt, oldmnt_cnt);
-#else
-	lis_cleanup_file_opening(f, head, err) ;
-#endif
 	if (hd_locked)			/* have opening semaphore */
 	{
 	    CP(head,odev) ;
@@ -5337,7 +5270,7 @@ lis_strwrite(struct file *fp, const char *ubuff, size_t ulen, loff_t *op)
 	RTN(0);
     }
 
-#if defined(LINUX) && defined(KERNEL_2_1)
+#if defined(KERNEL_2_1)
     if (F_ISSET(hd->sd_flag,STFIFO)) {
 	if ((err = lis_fifo_write_sync( i, 0 )) < 0) {
 	    RTN(err);
@@ -5971,7 +5904,7 @@ lis_strputpmsg(struct inode *i, struct file *fp,
 	RTN(-EINVAL) ;
     }
 
-#if defined(LINUX) && defined(KERNEL_2_1)
+#if defined(KERNEL_2_1)
     if (F_ISSET(hd->sd_flag,STFIFO)) {
 	ULOCK_INO(i);
 	if ((err = lis_fifo_write_sync( i, 0 )) < 0) {
@@ -7733,7 +7666,6 @@ i_flush:
 	RTN(err);
 
     case I_LIS_LOCKS:
-#if defined(LINUX)
 	{
 	    mblk_t	*mp = lis_lock_contention_msg() ;
 	    int		 cnt1 ;
@@ -7771,12 +7703,8 @@ i_flush:
 	    freemsg(mp) ;
 	    break ;
 	}
-#else
-	RTN(-EINVAL) ;
-#endif
 
     case I_LIS_SEMTIME:			/* semaphore time histogram */
-#if defined(LINUX)
 	{
 	    extern mblk_t *lis_get_sem_hist_msg(void) ;
 	    mblk_t	*mp = lis_get_sem_hist_msg() ;
@@ -7796,9 +7724,6 @@ i_flush:
 	    freemsg(mp) ;
 	    break ;
 	}
-#else
-	RTN(-EINVAL) ;
-#endif
 
     case I_LIS_PRNTSTRM:		/* LiS only - print stream */
 	lis_print_stream(hd) ;
@@ -8449,7 +8374,7 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
         printk("lis_doclose(i@0x%p/%d,f@0x%p/%li,h@0x%p/%d/%d.%d,...)#%ld/%d\n"
 #endif
 	       "    << \"%s\" "
-#if defined(LINUX) && defined(KERNEL_2_1)
+#if defined(KERNEL_2_1)
 	       "d@0x%p/%d "
 #endif
 	       "<[%d] %d LiS inode(s), %d open stream(s)>\n",
@@ -8459,7 +8384,7 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
 	       LIS_SD_REFCNT(head), LIS_SD_OPENCNT(head), head->sd_linkcnt,
 	       this_doclose, K_ATOMIC_READ(&lis_close_cnt),
 	       head->sd_name,
-#if defined(LINUX) && defined(KERNEL_2_1)
+#if defined(KERNEL_2_1)
 	       (f?f->f_dentry:NULL),
 	       (f&&f->f_dentry?D_COUNT(f->f_dentry):0),
 #endif
@@ -8469,13 +8394,11 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
 	lis_print_stream(head) ;
     }
 
-#if defined(LINUX)
     /*
      *  FIFOs/pipes: synchronize at close time before anything else
      */
     if (i && f && F_ISSET(head->sd_flag,STFIFO))
 	lis_fifo_close_sync( i, f );
-#endif
 
     /*
      *  if we're hungup and fattached but no M_PASSFPs are queued,
@@ -8638,13 +8561,13 @@ lis_strclose(struct inode *i, struct file *f)
 	printk("lis_strclose(i@0x%p/%d,f@0x%p/%li)#%ld i_rdev=(%d,%d)\n"
 #endif
 	       "    << "
-#if defined(LINUX) && defined(KERNEL_2_1)
+#if defined(KERNEL_2_1)
 	       "d@0x%p/%d "
 #endif
 	       "<[%d] %d LiS inode(s), %d open stream(s)>\n",
 	       i, I_COUNT(i), f, F_COUNT(f), this_close,
 	       getmajor(GET_I_RDEV(i)), getminor(GET_I_RDEV(i)),
-#if defined(LINUX) && defined(KERNEL_2_1)
+#if defined(KERNEL_2_1)
 	       f->f_dentry, D_COUNT(f->f_dentry),
 #endif
 	       K_ATOMIC_READ(&lis_mnt_cnt),
@@ -8724,7 +8647,7 @@ static void lis_tear_down_stream(stdata_t *head)
  */
 void lis_init_head( void )
 {
-#if (defined(LINUX) && defined(USE_KMEM_CACHE))
+#if (defined(USE_KMEM_CACHE))
     lis_init_locks();
 #endif
 #if defined(USE_CODE_PATH)
@@ -8756,7 +8679,7 @@ void lis_init_head( void )
     lis_initialize_dki();
 
     lis_init_bufcall() ;
-#if (defined(LINUX) && defined(USE_KMEM_CACHE))
+#if (defined(USE_KMEM_CACHE))
     lis_init_queues();
     lis_init_msg();
 #endif
@@ -8771,7 +8694,7 @@ void lis_terminate_head(void)
 {
     lis_terminate_mod() ;
     lis_terminate_msg() ;
-#if (defined(LINUX) && defined(USE_KMEM_CACHE))
+#if (defined(USE_KMEM_CACHE))
     lis_terminate_queues();
 #endif
     lis_terminate_bufcall() ;
@@ -8791,7 +8714,7 @@ void lis_terminate_final(void)
 #if !defined(USER)
     lis_free_all_pages() ;		/* from lis page allocator */
 #endif
-#if (defined(LINUX) && defined(USE_KMEM_CACHE))
+#if (defined(USE_KMEM_CACHE))
     lis_terminate_locks();
 #endif
 }

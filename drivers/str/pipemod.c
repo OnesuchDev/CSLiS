@@ -259,8 +259,6 @@ static void pipemod_cleanup_module(void)
 module_init(pipemod_init_module) ;
 module_exit(pipemod_cleanup_module) ;
 
-#if defined(LINUX)			/* linux kernel */
-
 #ifdef __attribute_used__
 #undef __attribute_used__
 #endif
@@ -279,5 +277,4 @@ MODULE_DESCRIPTION("STREAMS 'pipemod' pipe flushing module");
 MODULE_INFO(vermagic, VERMAGIC_STRING);
 #endif
 
-#endif					/* LINUX */
 #endif					/* MODULE */

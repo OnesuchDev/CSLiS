@@ -67,7 +67,7 @@ extern "C" {
 /*                               Dependencies                            */
 
 #ifndef _SYS_TYPES_H
-#if defined(LINUX) && defined(__KERNEL__)
+#if defined(__KERNEL__)
 #include <linux/types.h>
 #else
 #include <sys/types.h>

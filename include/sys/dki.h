@@ -56,9 +56,8 @@
 *									*
 * These two functions are defined in the dki.c file.  Their		*
 * implementation depends upon lis_tmout() and lis_untimout() which	*
-* are defined in either linux-mdep.c, which uses Linux timers to	*
-* implement the functions, or in the port-mdep.c file, which implements	*
-* a portable timer algorithm based on the Linux timer mechanism.	*
+* are defined in linux-mdep.c, which uses Linux timers to implement     *
+* the functions.                                                        *
 *									*
 ************************************************************************/
 

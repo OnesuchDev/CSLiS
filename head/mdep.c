@@ -25,12 +25,8 @@
 
 #if defined(__MSDOS__)				/* DOS version */
 #include "dos-mdep.c"
-#elif defined(LINUX)				/* Linux version */
+#else
 #include "linux-mdep.c"
-#elif defined(USER)				/* user-level version */
-#include "user-mdep.c"
-#elif defined(PORTABLE)				/* just the portable part */
-#include "port-mdep.c"
 #endif
 
 

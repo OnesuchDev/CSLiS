@@ -791,7 +791,7 @@ typedef	volatile long		lis_atomic_t ;
 #define MEMCPY(dest, src, len)	memcpy(dest, src, len)
 #define PANIC(msg)		panic("%s", msg)
 
-#if (defined(LINUX) && defined(USE_KMEM_CACHE))
+#if (defined(USE_KMEM_CACHE))
 
 extern lis_atomic_t             lis_qsync_cnt;
 extern lis_atomic_t             lis_locks_cnt;

@@ -52,7 +52,7 @@
 static inline
 void lis_modget_local(const char *file, int line, const char *fn)
 {
-#if defined(LINUX) && defined(__KERNEL__) && defined(MODULE)
+#if defined(__KERNEL__) && defined(MODULE)
     if (LIS_DEBUG_REFCNTS)
 	printk("lis_modget_local() <\"%s\">++ {%s@%d,%s()}\n",
 		     (THIS_MODULE)->name, file, line, fn) ;
@@ -64,7 +64,7 @@ void lis_modget_local(const char *file, int line, const char *fn)
 static inline
 void lis_modput_local(const char *file, int line, const char *fn)
 {
-#if defined(LINUX) && defined(__KERNEL__) && defined(MODULE)
+#if defined(__KERNEL__) && defined(MODULE)
     if (LIS_DEBUG_REFCNTS)
 	printk("lis_modput_local() <\"%s\">-- {%s@%d,%s()}\n",
 		     (THIS_MODULE)->name, file, line, fn) ;
