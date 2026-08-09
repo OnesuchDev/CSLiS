@@ -611,6 +611,7 @@ lis_file_system_ops =
 
 struct vfsmount		*lis_mnt ;
 
+#if defined(CONFIG_DEV)
 void lis_mnt_cnt_sync_fcn(const char *file, int line, const char *fn)
 {
     lis_mnt_cnt_sync();
@@ -674,6 +675,7 @@ void lis_mntput_fcn(struct vfsmount *m,
 #endif
     lis_mnt_cnt_sync_fcn(file, line, fn) ;
 }
+#endif
 
 /*
  * Super block operations
