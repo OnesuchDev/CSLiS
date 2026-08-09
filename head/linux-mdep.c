@@ -2753,7 +2753,7 @@ struct inode *lis_set_up_inode(struct file *f, struct inode *inode)
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(6,7,0)
     ktime_get_coarse_real_ts64(&new->__i_atime);
     ktime_get_coarse_real_ts64(&new->__i_mtime);
-    ktime_get_coarse_real_ts64(&new->__i_ctime;
+    ktime_get_coarse_real_ts64(&new->__i_ctime);
 #else
     struct timespec64       i_ttime;
     ktime_get_coarse_real_ts64(&i_ttime);
