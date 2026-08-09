@@ -15,15 +15,13 @@
 # The subdirectories are:
 #
 #	./linux		Linux kernel version
-#	./user		User level testing version
-#	./qnx		QNX kernel version
 #
 # The makefile including this file should have defined:
 #   - The LiS configuration.
 #     config.mk in the top of the source tree should have been included.
 #   - OPT variable.
 #     Contains target-specific compiler options. This should also contain
-#     -DLINUX, -DUSER or -DQNX, depending on the target.
+#     -DLINUX.
 #   - XOBJS variable.
 #     Contains the names of target specific object files that should be
 #     linked into streamshead.o.
@@ -45,11 +43,7 @@ CC += -DLiS -D__KERNEL__ -DVERSION_2 $(CCREGPARM) $(XOPTS) $(OPT)
 #
 OBJS = head.o dki.o msg.o mod.o buffcall.o mdep.o events.o \
 	msgutl.o queue.o safe.o stats.o stream.o strmdbg.o wait.o \
-	cmn_err.o version.o
-
-ifeq ($(LIS_TARG),linux)
-OBJS += osif.o
-endif
+	cmn_err.o version.o osif.o
 
 # strmdbg always needs -DLIS_SRC; it's usually only passed if DBG_OPT=y
 #

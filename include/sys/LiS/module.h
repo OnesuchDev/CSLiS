@@ -69,10 +69,6 @@ MODULE_IMPORT_NS(STREAMS);
 #  endif
 #endif
 
-#elif defined(USER)		/* defined(__KERNEL__) */
-
-#error remove me
-
 #endif				/* defined(__KERNEL__) */
 
 #include <sys/LiS/modcnt.h>	/* MODGET(), MODPUT() */

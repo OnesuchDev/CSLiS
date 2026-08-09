@@ -23,12 +23,7 @@
 #undef GCOM_OPEN
 #include <sys/stropts.h>
 #include <sys/LiS/stats.h>
-#ifdef QNX
-#include <unix.h>
-#define	LOOP_CLONE	"/dev/gcom/loop_clone"
-#else
 #define	LOOP_CLONE	"/dev/loop_clone"
-#endif
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <unistd.h>
@@ -461,9 +456,6 @@ int main( int argc, char *argv[])
 	    printf(LOOP_CLONE ": I_LIS_PRNTMEM: %s\n", strerror(errno)) ;
 	    exit(1) ;
 	}
-#ifdef QNX
-	printf("The memory dump is in the /usr/lib/gcom/streams.log file\n");
-#endif
     }
 
     if ( pflag )

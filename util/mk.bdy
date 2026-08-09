@@ -26,8 +26,6 @@ endif
 PGMS	= streams makenodes strconf
 UTILS	= timetst strtst
 
-ifneq ($(LIS_TARG),user)
-
 all: $(Q_CC) $(PGMS) $(UTILS) $(XUTILS)
 	$(nothing)
 
@@ -50,18 +48,6 @@ uninstall:	dummy $(XUNINST)
 	-$(Q)rm -f $(DESTDIR)$(sbindir)/streams
 	-$(Q)rm -f $(DESTDIR)$(sbindir)/strmakenodes
 
-else
-
-all: $(UTILS) $(XUTILS)
-
-install:
-	$(nothing)
-
-uninstall:
-	$(nothing)
-
-endif
-
 
 # the following relates to the Q_CC variable, which may be set to .compiler if
 # this target's output is desired
@@ -80,12 +66,6 @@ realclean:	clean
 	-$(Q)rm -f strconf $(XREALCLEAN)
 
 #
-# The userland target links the routine into the application
-# and does not use seperate utilities.
-#
-ifneq ($(LIS_TARG),user)
-
-#
 # A utility program to create STREAMS device special nodes.
 # The source is created by strconf and is target specific.
 #
@@ -99,8 +79,6 @@ makenodes: $(UTILOBJ)/makenodes.c
 streams: $(UTILDIR)/streams.c $(LIBDEPS)
 	$(Q_ECHO) $(qtag_CC)$(relpwdtarget)
 	$(Q)$(CC) -U__KERNEL__ -DMEMPRINT -o $@ $^ $(ULOPTS)
-
-endif
 
 #
 # The strconf utility needs some special handling.

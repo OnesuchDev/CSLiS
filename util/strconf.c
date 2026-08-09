@@ -50,12 +50,8 @@
 #include <stdarg.h>
 #include <malloc.h>
 #include <stdlib.h>
-#ifdef QNX
-#include <mem.h>
-#else
 #include <memory.h>
 #include <string.h>
-#endif
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 
@@ -1956,17 +1952,13 @@ void	build_mknods(void)
     p0("	int	rmopt = 0 ;\n") ;
     p0("	char	*strerror(int) ;\n") ;
     p0("\n") ;
-    p0("#if !defined(USER)\n") ;
     p0("	(void)umask(0);\n");
     p0("	if (argc == 2 && argv[1][0] == '-' && argv[1][1] == 'r')\n");
     p0("	    rmopt = 1 ;\n");
     p0("\n") ;
-    p0("#endif\n") ;
     for (np = node_head; np != NULL; np = np->link)
     {
-        p0("#if !defined(USER)\n") ;
 	p1("	(void)unlink(\"%s\");\n", np->name) ;
-        p0("#endif\n") ;
 	p0("	if (!rmopt)\n") ;
 	p0("	{\n") ;
 	p1("	    rslt = %s(", mknod_name) ;
@@ -1980,7 +1972,7 @@ void	build_mknods(void)
 	p0("\n") ;
     }
 
-    p0("#if !defined(USER)\n\texit(0);\n#else\n\treturn(0);\n#endif\n");
+    p0("\texit(0);\n");
 
     p0("}\n") ;
 

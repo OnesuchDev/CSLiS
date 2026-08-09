@@ -46,11 +46,7 @@
 /*  *******************************************************************  */
 /*                               Dependencies                            */
 
-#if	defined( __MSDOS__)
-#include <sys/LiS/dos-mdep.h>
-#else
 #include <sys/LiS/linux-mdep.h>
-#endif
 
 /*
  * INLINE and STATIC

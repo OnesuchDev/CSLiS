@@ -32,8 +32,6 @@ DESCRIPTION
 OPTIONS
        -h,--help Print out this message
        -m|--onmachine Install on this machine [y|n required]
-       -l|--levelrun Configure to run in :
-                     l=kernel,u=userspace,q=QNX
        -n|--nativecompiler Use native C (or cross compiling) [y|n required] 
        -r|--onrunning Compile on current running kernel [y|n required]
        -s|--ksourcedir Kernel source directory <STRING>
@@ -79,7 +77,7 @@ OPTIONS
 
 EXAMPLE 
 
- ./Configure --onmachine=n --levelrun=l --nativecompiler=y --onrunning=n 
+ ./Configure --onmachine=n --nativecompiler=y --onrunning=n 
  --ksourcedir=/usr/src/kernel-headers-2.4.22-1-686-smp 
  --versionlinux=2.4.22-1-686-smp    --loadmodules=n 
  --moduleslocation=/lib/modules/2.4.22-1-686-smp/ --backcompat=n 
@@ -95,7 +93,7 @@ setup_opts ()
 
     save_IFS=$IFS
     opts=( \
-	"onmachine:" "levelrun:" "nativecompiler:" "onrunning:"		\
+	"onmachine:" "nativecompiler:" "onrunning:"		\
 	"ksourcedir:" "versionlinux:" "loadmodules:" "moduleslocation:" \
 	"backcompat::" "solaris::" "sourcedebug::" "sharedlibs:" 	\
 	"intcpuflags:" "forcenewinode::" "productioncode:" "inet" 	\
@@ -142,7 +140,6 @@ eval set -- "$args"
 while  true ; do
 case "$1" in
     -m|--onmachine) OPT_ONMACHINE=$2; shift 2;;
-    -l|--levelrun) OPT_LEVELRUN=$2; shift 2;;
     -n|--nativecompiler) OPT_NATIVECOMPILER=$2; shift 2 ;;
     -r|--onrunning) OPT_ONRUNNINGLNX=$2; shift 2 ;;
     -s|--ksourcedir) OPT_KSOURCEDIR=$2; shift 2 ;;
@@ -1124,42 +1121,38 @@ get_ipv6_module()
 get_regparm()
 {
     CCREGPARM=
-    if [ "$TARGET" = "l" ]; then
-	if [ -f $KSRC/drivers/base/firmware_class.ko ] && \
-	     strings $KSRC/drivers/base/firmware_class.ko | grep vermagic | \
-	     grep REGPARM
-	then
-	    CCREGPARM="-mregparm=3"
-	elif [ -f $KSRC/include/linux/autoconf.h  -o \
-	       -f $KSRC/include/generated/autoconf.h ]; then
-	    regparm_defined=`ac_get_config CONFIG_REGPARM`
-	    if [ "$regparm_defined..." = "y..." ]; then
-		CCREGPARM="-mregparm=3"
-            elif [ -f $KSRC/arch/x86/Makefile_32 ] && \
-		[ "$MACHINE" = "i686" ] && \
-		grep regparm $KSRC/arch/x86/Makefile_32; then
-			CCREGPARM="-mregparm=3"
-            elif [ -f $KSRC/arch/x86/Makefile ] && \
-                 [ "$MACHINE" = "i686" ] && \
-                 grep regparm $KSRC/arch/x86/Makefile; then
-                        CCREGPARM="-mregparm=3"
-            elif [ -f $KSRC/arch/i386/Makefile ] && \
-                 [ "$MACHINE" = "i686" ] && \
-                 grep regparm $KSRC/arch/i386/Makefile; then
-		        CCREGPARM="-mregparm=3"
-            else
- 	  		CCREGPARM="-Dccregparm=0"
- 	    fi
-	else
-	    CCREGPARM="-Dccregparm=0"
-	fi
-	if [ "$CCREGPARM" = "-mregparm=3" ]; then
-	    echo "Kernel compiled using register passing for parameters"
-	else
-	    echo "Kernel compiled using stack passing for parameters"
-	fi
-    elif [ "$TARGET" = "u" ]; then
-	CCREGPARM="-Dccregparm=0"
+    if [ -f $KSRC/drivers/base/firmware_class.ko ] && \
+            strings $KSRC/drivers/base/firmware_class.ko | grep vermagic | \
+            grep REGPARM
+    then
+        CCREGPARM="-mregparm=3"
+    elif [ -f $KSRC/include/linux/autoconf.h  -o \
+            -f $KSRC/include/generated/autoconf.h ]; then
+        regparm_defined=`ac_get_config CONFIG_REGPARM`
+        if [ "$regparm_defined..." = "y..." ]; then
+            CCREGPARM="-mregparm=3"
+        elif [ -f $KSRC/arch/x86/Makefile_32 ] && \
+            [ "$MACHINE" = "i686" ] && \
+            grep regparm $KSRC/arch/x86/Makefile_32; then
+                    CCREGPARM="-mregparm=3"
+        elif [ -f $KSRC/arch/x86/Makefile ] && \
+                [ "$MACHINE" = "i686" ] && \
+                grep regparm $KSRC/arch/x86/Makefile; then
+                    CCREGPARM="-mregparm=3"
+        elif [ -f $KSRC/arch/i386/Makefile ] && \
+                [ "$MACHINE" = "i686" ] && \
+                grep regparm $KSRC/arch/i386/Makefile; then
+                    CCREGPARM="-mregparm=3"
+        else
+                    CCREGPARM="-Dccregparm=0"
+        fi
+    else
+        CCREGPARM="-Dccregparm=0"
+    fi
+    if [ "$CCREGPARM" = "-mregparm=3" ]; then
+        echo "Kernel compiled using register passing for parameters"
+    else
+        echo "Kernel compiled using stack passing for parameters"
     fi
     export CCREGPARM
 }
@@ -1216,10 +1209,6 @@ generate_autoconf()
 #
 get_empty_inode_option()
 {
-    if [ "$TARGET" != "l" ]; then
-	return				# not relevant unless Linux kernel
-    fi
-
     if [ "$KVER_MAJORMINOR" = "2.6" ]; then
        GET_EMPTY_INODE="new_inode((LIS_SB))"
     elif [ "$KVER_MAJOR" = "3" ]; then
@@ -1294,10 +1283,6 @@ get_empty_inode_option()
 
 set_cpus_allowed_option()
 {
-    if [ "$TARGET" != "l" ]; then
-	return				# not relevant unless Linux kernel
-    fi
-
     SCHED_H=$KSRC/include/linux/sched.h
     if grep -q set_cpus_allowed $SCHED_H; then
 	SET_CPUS_ALLOWED=y
@@ -1373,9 +1358,6 @@ pick_a_c_compiler()
 #
 check_kbuild()
 {
-    if [ "$TARGET" != "l" ]; then
-	return
-    fi
     if [ ${KVER_MAJOR} -ge 3  ]; then
        KBUILD=y
        KBUILD_NEEDS_SYMVERS=y
@@ -1505,7 +1487,6 @@ else
     USING_DEFAULTS=y
     USE_RUNNING_KERNEL=y
     CROSS_COMPILING=n
-    TARGET=l
     CONFIG_STREAMS=m
     MOD_INSTALL=y
     default_ksrc
@@ -1532,428 +1513,395 @@ if [ "$MACHINE" = "x86_64" ]; then
   INT_PSW=n
 fi
 
-#
-# TARGET
-#
 PROMPT="\
-How do you want to configure STREAMS?\n\
-    l = to run in the Linux kernel\n\
-    u = to run in user level\n\
-    q = to run under QNX (may not work)\n\
-Please enter your choice"
-RESPONSE="l u q"
-DEFAULT="$TARGET"
-ARGVVALUE="$OPT_LEVELRUN"
-do_read_choice
-TARGET=$RESULT
-
-if [ "$TARGET" = "l" ]; then
-    #
-    # The linux target needs some special handling
-    #
-    PROMPT="\
 Are you using the native Linux C compiler (y) or\n\
 are you cross-compiling using a different compiler (n)?\n\
 Native C (y) or cross-compile (n)?"
-        RESPONSE="y n"
-        ARGVVALUE=$OPT_NATIVECOMPILER
-	if [ $CROSS_COMPILING = "y" ]; then
-	    DEFAULT=n
-	else
-	    DEFAULT=y
-	fi
-        do_read_choice
-        case $RESULT in
-	    y)
-		    CROSS_COMPILING=n
-		    ;;
-	    n)
-		    CROSS_COMPILING=y
-		    echo
-		    echo "You should create a file named \"cross-compile\""
-		    echo "which contains \"make\" assignments for the name"
-		    echo "of your cross compiler.  See the file config.mk"
-		    echo "for more information on this."
-		    echo
-		    do_confirm
-		    ;;
-        esac
-
-    #
-    # See if the GNU Libc stropts.h is an old version.  If so, substitute
-    # the new 2.2 version.
-    #
-    if grep -w -q RDNORM /usr/include/sys/bits/stropts.h 2>/dev/null; then
-	mv /usr/include/sys/bits/stropts.h /usr/include/sys/bits/stropts.h.orig
-	cp -f ./include/sys/gnu.stropts.h /usr/include/sys/bits/stropts.h
-	echo "Updated version of stropts.h installed in /usr/include/sys/bits"
-    fi
-
-    #
-    # Verify kernel version, SMP and mod versions against the running
-    # kernel if the user says that he/she intends to install on the
-    # running kernel.
-    #
-    PROMPT="\
-Do you intend to run LiS on this machine with\n\
-the currently running kernel?"
     RESPONSE="y n"
-    ARGVVALUE=${OPT_ONRUNNINGLNX}
-    if [ "$USE_RUNNING_KERNEL..." = "..." ]; then
-        DEFAULT="n"
+    ARGVVALUE=$OPT_NATIVECOMPILER
+    if [ $CROSS_COMPILING = "y" ]; then
+        DEFAULT=n
     else
-        DEFAULT="y"
+        DEFAULT=y
     fi
     do_read_choice
     case $RESULT in
-	y) USE_RUNNING_KERNEL=y ;;
-	n) USE_RUNNING_KERNEL= ;;
+        y)
+                CROSS_COMPILING=n
+                ;;
+        n)
+                CROSS_COMPILING=y
+                echo
+                echo "You should create a file named \"cross-compile\""
+                echo "which contains \"make\" assignments for the name"
+                echo "of your cross compiler.  See the file config.mk"
+                echo "for more information on this."
+                echo
+                do_confirm
+                ;;
     esac
 
-    #
-    # Kernel source location
-    #
-    if [ "$USE_RUNNING_KERNEL..." = "..." ]; then
-	PROMPT="Enter directory location of your kernel source\n          "
-	DEFAULT=$KSRC
-	if [ "$KSRC..." = "..." ]; then
-	    DEFAULT="/lib/modules/`uname -r`/build"
-	fi
-	if [ ! -d "$KSRC" ]; then
-	    DEFAULT="/usr/src/linux"
-	    check_ksrc
-	fi
-        ARGVVALUE=${OPT_KSOURCEDIR}
-	if do_read_dir; then
-	    KSRC=$RESULT
-	    NOKSRC=0
-	    KINCL=$KSRC/include
-	else
-	    echo "Cannot locate kernel source."
-	    echo "Will use /usr/include for header files."
-	    KSRC=/usr
-	    KINCL=$KSRC/include
-	    NOKSRC=1
-	fi
+#
+# See if the GNU Libc stropts.h is an old version.  If so, substitute
+# the new 2.2 version.
+#
+if grep -w -q RDNORM /usr/include/sys/bits/stropts.h 2>/dev/null; then
+    mv /usr/include/sys/bits/stropts.h /usr/include/sys/bits/stropts.h.orig
+    cp -f ./include/sys/gnu.stropts.h /usr/include/sys/bits/stropts.h
+    echo "Updated version of stropts.h installed in /usr/include/sys/bits"
+fi
+
+#
+# Verify kernel version, SMP and mod versions against the running
+# kernel if the user says that he/she intends to install on the
+# running kernel.
+#
+PROMPT="\
+Do you intend to run LiS on this machine with\n\
+the currently running kernel?"
+RESPONSE="y n"
+ARGVVALUE=${OPT_ONRUNNINGLNX}
+if [ "$USE_RUNNING_KERNEL..." = "..." ]; then
+    DEFAULT="n"
+else
+    DEFAULT="y"
+fi
+do_read_choice
+case $RESULT in
+    y) USE_RUNNING_KERNEL=y ;;
+    n) USE_RUNNING_KERNEL= ;;
+esac
+
+#
+# Kernel source location
+#
+if [ "$USE_RUNNING_KERNEL..." = "..." ]; then
+    PROMPT="Enter directory location of your kernel source\n          "
+    DEFAULT=$KSRC
+    if [ "$KSRC..." = "..." ]; then
+        DEFAULT="/lib/modules/`uname -r`/build"
+    fi
+    if [ ! -d "$KSRC" ]; then
+        DEFAULT="/usr/src/linux"
+        check_ksrc
+    fi
+    ARGVVALUE=${OPT_KSOURCEDIR}
+    if do_read_dir; then
+        KSRC=$RESULT
+        NOKSRC=0
+        KINCL=$KSRC/include
     else
-	NOKSRC=0
-	if [ -d $KSRC ]; then
-	    : Retain default setting
-	    KINCL=$KSRC/include
-	elif [ -d /usr/src/linux ]; then
-	    KSRC=/usr/src/linux
-	    KINCL=$KSRC/include
-	else
-	    echo
-	    echo "No apparent kernel source directory.  LiS compilation"
-	    echo "may very well fail.  If this should happen, load your"
-	    echo "kernel source, or reinstall your kernel with source"
-	    echo "and install LiS again."
-	    echo
-	    do_confirm
-	    KSRC=/usr
-	    KINCL=$KSRC/include
-	    NOKSRC=1		# act as though no kernel source
-	fi
-	echo "Will use $KSRC/include for header files."
+        echo "Cannot locate kernel source."
+        echo "Will use /usr/include for header files."
+        KSRC=/usr
+        KINCL=$KSRC/include
+        NOKSRC=1
     fi
-    #
-    # Include arch include files
-    #
-    KARCH=`readlink $KSRC/include/asm|cut -d '-' -f2`
-    KARCHINCL=$KSRC/arch/$KARCH/include
-    #
-    # Try to dig some info out of the kernel binary "vmlinux".  If we
-    # can find out this stuff from the binary then we don't need the
-    # .config file
-    #
-    get_kver
-    get_smp
-    get_modules    
-    #
-    # If the asm path does not exist, must be SuSE, check include2 path
-    #  
-    if [ ! -e $KARCHINCL/asm ]; then
-         if [ -e $KSRC/arch/powerpc/ ] && [ "$MACHINE" = "ppc64le" ]; then
-             KARCHINCL=$KSRC/arch/powerpc/include
-         else
-             KARCHINCL=$KBIN/include
-         fi
+else
+    NOKSRC=0
+    if [ -d $KSRC ]; then
+        : Retain default setting
+        KINCL=$KSRC/include
+    elif [ -d /usr/src/linux ]; then
+        KSRC=/usr/src/linux
+        KINCL=$KSRC/include
+    else
+        echo
+        echo "No apparent kernel source directory.  LiS compilation"
+        echo "may very well fail.  If this should happen, load your"
+        echo "kernel source, or reinstall your kernel with source"
+        echo "and install LiS again."
+        echo
+        do_confirm
+        KSRC=/usr
+        KINCL=$KSRC/include
+        NOKSRC=1		# act as though no kernel source
     fi
-    if [ -e $KBIN/include2 ]; then
-       KARCHINCL2=$KBIN/include2
-    elif [ -e $KSRC/arch/x86/ ] && [ "$MACHINE" = "i686" ]; then
-       KARCHINCL2=$KSRC/arch/x86/include
+    echo "Will use $KSRC/include for header files."
+fi
+#
+# Include arch include files
+#
+KARCH=`readlink $KSRC/include/asm|cut -d '-' -f2`
+KARCHINCL=$KSRC/arch/$KARCH/include
+#
+# Try to dig some info out of the kernel binary "vmlinux".  If we
+# can find out this stuff from the binary then we don't need the
+# .config file
+#
+get_kver
+get_smp
+get_modules
+#
+# If the asm path does not exist, must be SuSE, check include2 path
+#
+if [ ! -e $KARCHINCL/asm ]; then
+        if [ -e $KSRC/arch/powerpc/ ] && [ "$MACHINE" = "ppc64le" ]; then
+            KARCHINCL=$KSRC/arch/powerpc/include
+        else
+            KARCHINCL=$KBIN/include
+        fi
+fi
+if [ -e $KBIN/include2 ]; then
+    KARCHINCL2=$KBIN/include2
+elif [ -e $KSRC/arch/x86/ ] && [ "$MACHINE" = "i686" ]; then
+    KARCHINCL2=$KSRC/arch/x86/include
+elif [ -e $KSRC/arch/x86/ ] && [ "$MACHINE" = "x86_64" ]; then
+    if [ $KVER_MAJOR -ge 4 ]; then
+        KARCHINCL2=$KSRC/arch/x86/include
+        KARCHINCL=$KSRC/arch/include
+        KINCL=$KSRC/include
+    else
+        KARCHINCL2=$KSRC/arch/x86/include
+    fi
+elif [ -e $KSRC/arch/s390/ ] && [ "$MACHINE" = "s390x" ]; then
+    KARCHINCL2=$KSRC/arch/s390/include
+elif [ -e $KSRC/arch/powerpc/ ] && [ "$MACHINE" = "ppc64le" ]; then
+    KARCHINCL2=$KSRC/arch/powerpc/include
+fi
+#  For 3.10 kernels and later, check for uapi directory
+if [ -e $KARCHINCL2/uapi ]; then
+    if [ -e $KSRC/arch/s390/ ] && [ "$MACHINE" = "s390x" ]; then
+        KARCHINCL=$KSRC/arch/s390/include
+        if [ $KVER_MAJOR -ge 5 ]; then
+            KARCHINCL2=$KSRC/include/uapi
+        fi
     elif [ -e $KSRC/arch/x86/ ] && [ "$MACHINE" = "x86_64" ]; then
-       if [ $KVER_MAJOR -ge 4 ]; then
-            KARCHINCL2=$KSRC/arch/x86/include
-            KARCHINCL=$KSRC/arch/include
-	    KINCL=$KSRC/include
-       else
-            KARCHINCL2=$KSRC/arch/x86/include
-       fi	    
-    elif [ -e $KSRC/arch/s390/ ] && [ "$MACHINE" = "s390x" ]; then
-       KARCHINCL2=$KSRC/arch/s390/include 
+        KARCHINCL=$KSRC/arch/x86/include
     elif [ -e $KSRC/arch/powerpc/ ] && [ "$MACHINE" = "ppc64le" ]; then
-       KARCHINCL2=$KSRC/arch/powerpc/include 
+        KARCHINCL=$KSRC/arch/powerpc/include
     fi
-    #  For 3.10 kernels and later, check for uapi directory
-    if [ -e $KARCHINCL2/uapi ]; then
-       if [ -e $KSRC/arch/s390/ ] && [ "$MACHINE" = "s390x" ]; then
-          KARCHINCL=$KSRC/arch/s390/include
-	  if [ $KVER_MAJOR -ge 5 ]; then
-              KARCHINCL2=$KSRC/include/uapi
-          fi
-       elif [ -e $KSRC/arch/x86/ ] && [ "$MACHINE" = "x86_64" ]; then
-          KARCHINCL=$KSRC/arch/x86/include
-       elif [ -e $KSRC/arch/powerpc/ ] && [ "$MACHINE" = "ppc64le" ]; then
-          KARCHINCL=$KSRC/arch/powerpc/include
-       fi
-    fi
+fi
 #    If Kernel is less than 4.0, user uapi, else use generated
-    if [ $KVER_MAJOR -ge 4 ]; then  # for any > 4 
-       if [ $KVER_MINOR -gt 4 ] || [ $KVER_MAJOR -ge 5 ]; then
-          if [ "$MACHINE" = "s390x" ]; then
-              KARCHINCL3=$KSRC/arch/s390/include/uapi/asm
-              KARCHINCL4=$KSRC/arch/s390/include/generated
-          elif [ "$MACHINE" = "x86_64" ]; then
-              if [ $KVER_MAJOR -ge 5 ]; then     
-                 KARCHINCL3=$KSRC/arch/x86/include/uapi/asm
-              else 		  
-                 KARCHINCL3=$KSRC/arch/x86/include/uapi/asm
-	      fi
-              if [ $KVER_MAJOR -ge 5 ]; then
-                 KARCHINCL4=$KBIN/arch/x86/include/generated
-              else
-                 KARCHINCL4=$KBIN/arch/x86/include/generated
-              fi
-          elif [ "$MACHINE" = "ppc64le" ]; then
-              KARCHINCL3=$KSRC/arch/powerpc/include/uapi
-          fi
-       fi
-    fi		 
+if [ $KVER_MAJOR -ge 4 ]; then  # for any > 4
+    if [ $KVER_MINOR -gt 4 ] || [ $KVER_MAJOR -ge 5 ]; then
+        if [ "$MACHINE" = "s390x" ]; then
+            KARCHINCL3=$KSRC/arch/s390/include/uapi/asm
+            KARCHINCL4=$KSRC/arch/s390/include/generated
+        elif [ "$MACHINE" = "x86_64" ]; then
+            if [ $KVER_MAJOR -ge 5 ]; then
+                KARCHINCL3=$KSRC/arch/x86/include/uapi/asm
+            else
+                KARCHINCL3=$KSRC/arch/x86/include/uapi/asm
+            fi
+            if [ $KVER_MAJOR -ge 5 ]; then
+                KARCHINCL4=$KBIN/arch/x86/include/generated
+            else
+                KARCHINCL4=$KBIN/arch/x86/include/generated
+            fi
+        elif [ "$MACHINE" = "ppc64le" ]; then
+            KARCHINCL3=$KSRC/arch/powerpc/include/uapi
+        fi
+    fi
+fi
 #    echo " KVER_MAJOR is $KVER_MAJOR and INCL2 is $KARCHINCL2  #2 "
 #
-    get_ipv6
-    get_ipv6_module
+get_ipv6
+get_ipv6_module
+if [ "$USE_RUNNING_KERNEL..." = "y..." ]; then
+    verify_kver
+fi
+get_regparm
+if [ $NEED_KSMP -eq 1 -o $NEED_KMODULES -eq 1 ]; then
     if [ "$USE_RUNNING_KERNEL..." = "y..." ]; then
-	verify_kver
+        echo "Could not figure out whether or not your running kernel"
+        echo "was compiled with SMP or MODULES set.  Installation aborted."
+        exit 1
     fi
-    get_regparm
-    if [ $NEED_KSMP -eq 1 -o $NEED_KMODULES -eq 1 ]; then
-	if [ "$USE_RUNNING_KERNEL..." = "y..." ]; then
-	    echo "Could not figure out whether or not your running kernel"
-	    echo "was compiled with SMP or MODULES set.  Installation aborted."
-	    exit 1
-	fi
-	NEED_KCONFIG=1		# couldn't access kernel binary
-    else
-	NEED_KCONFIG=0		# have info from kernel binary
-    fi
+    NEED_KCONFIG=1		# couldn't access kernel binary
+else
+    NEED_KCONFIG=0		# have info from kernel binary
+fi
 
-    #
-    # See if the kernel's .config file is there.  If not then the user
-    # has not done a "make menuconfig" yet.
-    #
-    if [ $NOKSRC -eq 0 -a $NEED_KCONFIG -eq 1 -a ! -f $KSRC/.config ]; then
-        PROMPT="\
+#
+# See if the kernel's .config file is there.  If not then the user
+# has not done a "make menuconfig" yet.
+#
+if [ $NOKSRC -eq 0 -a $NEED_KCONFIG -eq 1 -a ! -f $KSRC/.config ]; then
+    PROMPT="\
 It appears that you have not done a 'make menuconfig' on\n\
 your kernel in $KSRC yet.  You should do that now to avoid\n\
 problems with the installation.\n\
 Do you want to do that now?"
-        RESPONSE="y n"
-        ## This is purely an interactive choice.. CLI options will avoid it
-        unset ARGVVALUE
-        do_read_choice
-        case $RESULT in
-	    y)
-		    if ! make -C $KSRC menuconfig; then
-		        echo "Menuconfig failed.  LiS installation aborted."
-		        exit 1
-		    fi
-		    echo "Make menuconfig was successful."
-		    echo "Continuing with LiS installation."
-		    ;;
-	    n)
-		    echo "OK, but this may cause problems with the installation."
-		    ;;
-        esac
-    fi
+    RESPONSE="y n"
+    ## This is purely an interactive choice.. CLI options will avoid it
+    unset ARGVVALUE
+    do_read_choice
+    case $RESULT in
+        y)
+                if ! make -C $KSRC menuconfig; then
+                    echo "Menuconfig failed.  LiS installation aborted."
+                    exit 1
+                fi
+                echo "Make menuconfig was successful."
+                echo "Continuing with LiS installation."
+                ;;
+        n)
+                echo "OK, but this may cause problems with the installation."
+                ;;
+    esac
+fi
 
-    #
-    # If we have a kernel configuration now, source it.
-    #
-    if [ $NEED_KCONFIG -eq 1 -a -f $KSRC/.config ]; then
-        . $KSRC/.config
-    fi
+#
+# If we have a kernel configuration now, source it.
+#
+if [ $NEED_KCONFIG -eq 1 -a -f $KSRC/.config ]; then
+    . $KSRC/.config
+fi
 
-    #
-    # See if version.h is there.  It may not be if the user just unpacked
-    # a fresh version of Linux and has not done a "make dep" yet.
-    #
-    if [ $NEED_KCONFIG -eq 1 ]; then
-	check_kver
-    fi
-    #
-    # Now see if there is one present.
-    #
-    if [ $NEED_KCONFIG -eq 1 -a ! -f $KSRC/include/linux/version.h ]; then
-        PROMPT="\
+#
+# See if version.h is there.  It may not be if the user just unpacked
+# a fresh version of Linux and has not done a "make dep" yet.
+#
+if [ $NEED_KCONFIG -eq 1 ]; then
+    check_kver
+fi
+#
+# Now see if there is one present.
+#
+if [ $NEED_KCONFIG -eq 1 -a ! -f $KSRC/include/linux/version.h ]; then
+    PROMPT="\
 It appears that you have not done a 'make dep' on your kernel yet.\n\
 You will have to do this to proceed.\n\
 Do you want to do that now?"
-        RESPONSE="y n"
-        ## This is purely an interactive choice.. CLI options will avoid it
-        unset ARGVVALUE
-        do_read_choice
-        case $RESULT in
-	    y)
-	        if ! make -C $KSRC dep; then
-	            echo "Make dep failed.  LiS installation aborted."
-	            exit 1
-	        fi
-	        echo "Make dep was successful."
-		echo "Continuing with LiS installation."
-	        ;;
-	    n)
-		echo "LiS installation cannot proceed until this is done."
-		echo "Please fix the problem and then try again."
-		exit 1
-		;;
-        esac
-    fi
+    RESPONSE="y n"
+    ## This is purely an interactive choice.. CLI options will avoid it
+    unset ARGVVALUE
+    do_read_choice
+    case $RESULT in
+        y)
+            if ! make -C $KSRC dep; then
+                echo "Make dep failed.  LiS installation aborted."
+                exit 1
+            fi
+            echo "Make dep was successful."
+            echo "Continuing with LiS installation."
+            ;;
+        n)
+            echo "LiS installation cannot proceed until this is done."
+            echo "Please fix the problem and then try again."
+            exit 1
+            ;;
+    esac
+fi
 
-    #
-    # Kernel version
-    #
-    if [ "$USE_RUNNING_KERNEL..." = "y..." ]; then
-	echo "Running kernel is version $KVER"
+#
+# Kernel version
+#
+if [ "$USE_RUNNING_KERNEL..." = "y..." ]; then
+    echo "Running kernel is version $KVER"
+else
+    DEFAULT=$KVER
+    PROMPT="Which version of the kernel are you building for?"
+    if [ "$OPT_VERSIONLINUX..." = "..." ]; then
+    do_readstring
+    KVER=$RESULT
     else
-	DEFAULT=$KVER
-	PROMPT="Which version of the kernel are you building for?"
-        if [ "$OPT_VERSIONLINUX..." = "..." ]; then
-	do_readstring
-	KVER=$RESULT
-        else
-        KVER=${OPT_VERSIONLINUX}
-        fi
-    
-	parse_kver $KVER
+    KVER=${OPT_VERSIONLINUX}
     fi
+
+    parse_kver $KVER
+fi
 #    echo "KVER_MAJOR is $KVER_MAJOR, KVER_MINOR is $KVER_MINOR"
-    if [ $KVER_MAJOR -lt 2 ]; then
-       if [ $KVER_MAJOR -lt 3 -a $KVER_MINOR -lt 3 ]; then
-          echo
-          echo "LiS is no longer compatible with Linux 1.x/2.0/2.2 kernels."
-          echo
-          exit 1
-       fi
+if [ $KVER_MAJOR -lt 2 ]; then
+    if [ $KVER_MAJOR -lt 3 -a $KVER_MINOR -lt 3 ]; then
+        echo
+        echo "LiS is no longer compatible with Linux 1.x/2.0/2.2 kernels."
+        echo
+        exit 1
     fi
+fi
 
-    #
-    # CONFIG_STREAMS
-    #
-    # If we have concluded that the kernel does not support modules
-    # then we need to inform the user of what is going on.  It is
-    # next to impossible for a kernel not to support modules these
-    # days.
-    #
-    if [ "$KMODULES" != "y" ]; then
-	echo
-	echo "Analysis of your kernel configuration suggests that your kernel"
-	echo "does not support loadable modules.  This is extremely rare and"
-	echo "is likely a result of mis-analysis of the kernel configuration"
-	echo "files.  Installation will proceed as if the kernel supports"
-	echo "loadable modules."
-	echo 
-    fi
+#
+# CONFIG_STREAMS
+#
+# If we have concluded that the kernel does not support modules
+# then we need to inform the user of what is going on.  It is
+# next to impossible for a kernel not to support modules these
+# days.
+#
+if [ "$KMODULES" != "y" ]; then
+    echo
+    echo "Analysis of your kernel configuration suggests that your kernel"
+    echo "does not support loadable modules.  This is extremely rare and"
+    echo "is likely a result of mis-analysis of the kernel configuration"
+    echo "files.  Installation will proceed as if the kernel supports"
+    echo "loadable modules."
+    echo
+fi
 
-    CONFIG_STREAMS=m
-    if [ "$KVER_MAJORMINOR" = "2.6" -a $KVER_PATCHNO -ge 27 ]; then
-       KBUILD_NEEDS_MODNAME=y
-    elif [ "$KVER_MAJORMINOR" = "3.0" ]; then
-       KBUILD_NEEDS_MODNAME=y
-    elif [ "$KVER_MAJOR" = "3" ]; then  # for any > 3.0 
-       KBUILD_NEEDS_MODNAME=y
-       KBUILD_NEEDS_SYMVERS=y
-    elif [ $KVER_MAJOR -ge 4 ]; then  # for any > 4 
-       KBUILD_NEEDS_MODNAME=y
-       KBUILD_NEEDS_SYMVERS=y
-    fi
-    #
-    # See if the user wants STREAMS kernel loadable modules installed for
-    # easy running.  Leaving the module for later loading is what is
-    # needed for cross compiling.
-    #
-    PROMPT="\
+CONFIG_STREAMS=m
+if [ "$KVER_MAJORMINOR" = "2.6" -a $KVER_PATCHNO -ge 27 ]; then
+    KBUILD_NEEDS_MODNAME=y
+elif [ "$KVER_MAJORMINOR" = "3.0" ]; then
+    KBUILD_NEEDS_MODNAME=y
+elif [ "$KVER_MAJOR" = "3" ]; then  # for any > 3.0
+    KBUILD_NEEDS_MODNAME=y
+    KBUILD_NEEDS_SYMVERS=y
+elif [ $KVER_MAJOR -ge 4 ]; then  # for any > 4
+    KBUILD_NEEDS_MODNAME=y
+    KBUILD_NEEDS_SYMVERS=y
+fi
+#
+# See if the user wants STREAMS kernel loadable modules installed for
+# easy running.  Leaving the module for later loading is what is
+# needed for cross compiling.
+#
+PROMPT="\
 After building STREAMS, do you want kernel loadable modules installed?\n\
 This allows you to load it by typing in \"insmod streams\".\n\
-    y = install it for module loading\n\
-    n = just leave modules for later \"make modules_install\"\n\
+y = install it for module loading\n\
+n = just leave modules for later \"make modules_install\"\n\
 Please enter y or n "
-    RESPONSE="y n"
-    DEFAULT="$MOD_INSTALL"
-    ARGVVALUE=${OPT_LOADMODULES}
-    do_read_choice
-    MOD_INSTALL=$RESULT
+RESPONSE="y n"
+DEFAULT="$MOD_INSTALL"
+ARGVVALUE=${OPT_LOADMODULES}
+do_read_choice
+MOD_INSTALL=$RESULT
 
-    if [ "$MOD_INSTALL" = "y" ]; then
-        if [ `whoami` != "root" ]; then
-            echo
-            echo "You must be root in order to install kernel modules."
-            echo
-            exit 1
-        fi
+if [ "$MOD_INSTALL" = "y" ]; then
+    if [ `whoami` != "root" ]; then
+        echo
+        echo "You must be root in order to install kernel modules."
+        echo
+        exit 1
     fi
+fi
 
-    #
-    # MOD_INST_DIR
-    #
-    # The old logic here was deleted - creating non-temporary directories
-    # is a job for make install targets; our job here is just to choose a
-    # directory name.
-    #
-    PROMPT="Enter desired kernel module directory\n"
-    PROMPT="$PROMPT              "
-    DEFAULT=${MOD_INST_DIR:-/lib/modules/${KVER}/${modsubdir}}
-    ARGVVALUE=${OPT_MODULESLOCATION:-${DEFAULT}}
-    do_read_dir
-    MOD_INST_DIR=`echo $RESULT | cleanup_dir`
-    if [ ! -d $MOD_INST_DIR ]; then
-	if ! mkdir -p $MOD_INST_DIR; then
-	    echo "Configure aborting"
-	    exit 1
-	fi
+#
+# MOD_INST_DIR
+#
+# The old logic here was deleted - creating non-temporary directories
+# is a job for make install targets; our job here is just to choose a
+# directory name.
+#
+PROMPT="Enter desired kernel module directory\n"
+PROMPT="$PROMPT              "
+DEFAULT=${MOD_INST_DIR:-/lib/modules/${KVER}/${modsubdir}}
+ARGVVALUE=${OPT_MODULESLOCATION:-${DEFAULT}}
+do_read_dir
+MOD_INST_DIR=`echo $RESULT | cleanup_dir`
+if [ ! -d $MOD_INST_DIR ]; then
+    if ! mkdir -p $MOD_INST_DIR; then
+        echo "Configure aborting"
+        exit 1
     fi
-    $qecho "Module installation directory will be $MOD_INST_DIR"
+fi
+$qecho "Module installation directory will be $MOD_INST_DIR"
 
-    #
-    # STRMS_QUEUES
-    #
-    # Streams queues are always run as tasklets these days.
-    #
-    STRMS_QUEUES="t"
+#
+# STRMS_QUEUES
+#
+# Streams queues are always run as tasklets these days.
+#
+STRMS_QUEUES="t"
 
-    if [ $NOKSRC -eq 1 -a "$KMODVERS..." = "y..." ]; then
-	echo "Generating ${SRCDIR}/include/sys/modversions.h."
-	rm -f include/sys/modversions.h
-	generate_symbol_names > ${SRCDIR}/include/sys/modversions.h
-	LISMODVERS=y
-    fi
-
-
-else # Not a Linux kernel target
-    # These configuration items only make sense in the Linux kernel
-    KSRC=
-    KVER=
-    CONFIG_MK_KERNEL=
-    STRMS_QUEUES=
-    MOD_INST_DIR=
-    MOD_INSTALL=
-    KSMP=
-    KMODULES=
-    CONFIG_STREAMS=
-fi # Not a Linux kernel target
+if [ $NOKSRC -eq 1 -a "$KMODVERS..." = "y..." ]; then
+    echo "Generating ${SRCDIR}/include/sys/modversions.h."
+    rm -f include/sys/modversions.h
+    generate_symbol_names > ${SRCDIR}/include/sys/modversions.h
+    LISMODVERS=y
+fi
 
 #
 # LIS_OLD_CONSTS
@@ -2014,14 +1962,10 @@ SOLARIS_STYLE_CMN_ERR=$RESULT
 #
 # DBG_OPT
 #
-# Defaults to y for user build and to n for others
+# Defaults to n
 #
 if [ "$DBG_OPT" = "D" ]; then
-    if [ "$TARGET" = "u" ]; then
-	DBG_OPT=y
-    else
-	DBG_OPT=n
-    fi
+    DBG_OPT=n
 fi
 PROMPT="\
 When you make STREAMS, do you want to compile for source level debugging?\n\
@@ -2040,8 +1984,7 @@ DBG_OPT=$RESULT
 #
 # LIS_SHLIB
 #
-if [ "$TARGET" = "l" ]; then
-    PROMPT="\
+PROMPT="\
 Do you want to use shared libraries?
 If you select static linking, you will get larger binaries that run by
 themselves. If you select dynamic linking, the binaries will be smaller but
@@ -2050,14 +1993,11 @@ LD_LIBRARY_PATH environment variable.
     y = use dynamic linking with shared libraries\n\
     n = use static linking\n\
 Please enter y or n"
-    RESPONSE="y n"
-    DEFAULT=$LIS_SHLIB
-    ARGVVALUE=${OPT_SHAREDLIBS}
-    do_read_choice
-    LIS_SHLIB=$RESULT
-else
-    LIS_SHLIB=n
-fi
+RESPONSE="y n"
+DEFAULT=$LIS_SHLIB
+ARGVVALUE=${OPT_SHAREDLIBS}
+do_read_choice
+LIS_SHLIB=$RESULT
 
 #
 # INT_PSW
@@ -2121,12 +2061,10 @@ fi
 #
 # Red Hat 7.1 needs a kludge related to including highmem.h from vmalloc.h.
 #
-if [ "$TARGET" = "l" ]; then
-    if [ -f $KSRC/include/linux/vmalloc.h ]; then
-	if grep -q "Red Hat Linux 7.1" /proc/version &&
-	   grep -q 'highmem\.h' $KSRC/include/linux/vmalloc.h; then
-	    RH_71_KLUDGE=y
-	fi
+if [ -f $KSRC/include/linux/vmalloc.h ]; then
+    if grep -q "Red Hat Linux 7.1" /proc/version &&
+        grep -q 'highmem\.h' $KSRC/include/linux/vmalloc.h; then
+        RH_71_KLUDGE=y
     fi
 fi
 
@@ -2136,35 +2074,31 @@ fi
 # Must set default to no.
 SIGMASKLOCK=n
 
-if [ "$TARGET" = "l" ]; then
-    if [ -f $KSRC/include/linux/sched.h ]; then
-	if grep -q 'sigmask_lock' $KSRC/include/linux/sched.h; then
-	    SIGMASKLOCK=y
-	fi
-    elif [ "$KVER_MAJORMINOR" = "2.4" -a $KVER_PATCHNO -ge 20 ]; then
-	    SIGMASKLOCK=y
-    elif [ "$KVER_MAJORMINOR" = "2.5" ]; then
-	    SIGMASKLOCK=y
-    elif [ "$KVER_MAJORMINOR" = "2.6" ]; then
-	    SIGMASKLOCK=y
-    elif [ $KVER_MAJOR -ge 3 ]; then
-            SIGMASKLOCK=y
+if [ -f $KSRC/include/linux/sched.h ]; then
+    if grep -q 'sigmask_lock' $KSRC/include/linux/sched.h; then
+        SIGMASKLOCK=y
     fi
+elif [ "$KVER_MAJORMINOR" = "2.4" -a $KVER_PATCHNO -ge 20 ]; then
+        SIGMASKLOCK=y
+elif [ "$KVER_MAJORMINOR" = "2.5" ]; then
+        SIGMASKLOCK=y
+elif [ "$KVER_MAJORMINOR" = "2.6" ]; then
+        SIGMASKLOCK=y
+elif [ $KVER_MAJOR -ge 3 ]; then
+        SIGMASKLOCK=y
 fi
 
 #
 # Red Hat changed the number of arguments in recalc_sigpending
 #
-if [ "$TARGET" = "l" ]; then
-    if [ -f $KSRC/include/linux/sched.h ]; then
-	if grep -q 'recalc_sigpending(void)' $KSRC/include/linux/sched.h; then
-	    RCVOID=y
-	fi
-    elif [ -f /usr/src/linux/include/linux/sched.h ]; then
-	if grep -q 'recalc_sigpending(void)' \
-		/usr/src/linux/include/linux/sched.h; then
-	    RCVOID=y
-	fi
+if [ -f $KSRC/include/linux/sched.h ]; then
+    if grep -q 'recalc_sigpending(void)' $KSRC/include/linux/sched.h; then
+        RCVOID=y
+    fi
+elif [ -f /usr/src/linux/include/linux/sched.h ]; then
+    if grep -q 'recalc_sigpending(void)' \
+            /usr/src/linux/include/linux/sched.h; then
+        RCVOID=y
     fi
 fi
 
@@ -2181,61 +2115,52 @@ get_cc_from_makefile()
         sed -e 's/ .*//'
 }
 
-if   [ "$TARGET" = "l"  ]; then
-    export KERN_CC_VERS=`kernel_cc_version`
-    if [ "$KERN_CC_VERS..." = "..." ]; then
-	echo
-	echo "Could not determine the version of C compiler that was used"
-	echo "to build your kernel.  Installation will proceed using the"
-	echo "standard gcc compiler version `C_compiler_version gcc`, but"
-	echo "there may be problems when you try to run LiS."
-	echo
-	do_confirm
-	CC_NAME=gcc
-	CC_VERS=`C_compiler_version gcc`
-    else
-	export CC_NAME=`pick_a_c_compiler`
-	if [ "$CC_NAME..." = "..." ]; then
-	    echo
-	    echo "Could not identify a C compiler of version $KERN_CC_VERS."
-	    echo "This compiler was used to compile your kernel and should"
-	    echo "be used to compile LiS.  Installation will proceed using"
-	    echo "the standard gcc compiler version `C_compiler_version gcc`,"
-	    echo "but there may be problems when you try to run LiS."
-	    echo
-            # this is informative and should not block a batch configuration.
-            if [ "$OPT_NATIVECOMPILER..." = "..." ] ;then
-	    do_confirm
-            fi
-	    CC_NAME=gcc
-	    CC_VERS=`C_compiler_version gcc`
-	else
-	    CC_VERS=`C_compiler_version cc`
-	fi
-    fi
-
-    case $CC_NAME in
-    kgcc)	CC_OPTIMIZE=-O3;;
-    egcs)	CC_OPTIMIZE=-O3;;
-    gcc3)	CC_OPTIMIZE=-O3;;
-    gcc)	CC_OPTIMIZE=-O2;;
-    cc)		CC_OPTIMIZE=-O2;;
-    *)		CC_OPTIMIZE=-O2;;
-    esac
-    if [ $CROSS_COMPILING = "n" ]; then
-        if $CC_NAME -mpreferred-stack-boundary=2 -S -o /dev/null \
-	    -xc /dev/null >/dev/null 2>&1
-        then
-	    CC_OPT2=-mpreferred-stack-boundary=2
-	fi
-    fi
+export KERN_CC_VERS=`kernel_cc_version`
+if [ "$KERN_CC_VERS..." = "..." ]; then
+    echo
+    echo "Could not determine the version of C compiler that was used"
+    echo "to build your kernel.  Installation will proceed using the"
+    echo "standard gcc compiler version `C_compiler_version gcc`, but"
+    echo "there may be problems when you try to run LiS."
+    echo
+    do_confirm
+    CC_NAME=gcc
+    CC_VERS=`C_compiler_version gcc`
 else
-    echo
-    echo "Non-Linux install.  Using cc as default C compiler."
-    echo
-    CC_NAME=cc
-    CC_OPTIMIZE=-O
-    CC_VERS=`C_compiler_version cc`
+    export CC_NAME=`pick_a_c_compiler`
+    if [ "$CC_NAME..." = "..." ]; then
+        echo
+        echo "Could not identify a C compiler of version $KERN_CC_VERS."
+        echo "This compiler was used to compile your kernel and should"
+        echo "be used to compile LiS.  Installation will proceed using"
+        echo "the standard gcc compiler version `C_compiler_version gcc`,"
+        echo "but there may be problems when you try to run LiS."
+        echo
+        # this is informative and should not block a batch configuration.
+        if [ "$OPT_NATIVECOMPILER..." = "..." ] ;then
+        do_confirm
+        fi
+        CC_NAME=gcc
+        CC_VERS=`C_compiler_version gcc`
+    else
+        CC_VERS=`C_compiler_version cc`
+    fi
+fi
+
+case $CC_NAME in
+kgcc)	CC_OPTIMIZE=-O3;;
+egcs)	CC_OPTIMIZE=-O3;;
+gcc3)	CC_OPTIMIZE=-O3;;
+gcc)	CC_OPTIMIZE=-O2;;
+cc)		CC_OPTIMIZE=-O2;;
+*)		CC_OPTIMIZE=-O2;;
+esac
+if [ $CROSS_COMPILING = "n" ]; then
+    if $CC_NAME -mpreferred-stack-boundary=2 -S -o /dev/null \
+        -xc /dev/null >/dev/null 2>&1
+    then
+        CC_OPT2=-mpreferred-stack-boundary=2
+    fi
 fi
 
 if [ "$CC_VERS..." = "3.0.2..." ]; then
@@ -2454,72 +2379,67 @@ cfg_out CONFIG_STREAMS $CONFIG_STREAMS
 cfg_out NO32OVER64BUILD $NO32OVER64BUILD
 cfg_out SPLITUSERKERNEL $SPLITUSERKERNEL
 cfg_out TOUCHSYMVERS $TOUCHSYMVERS
-cfg_out TARGET $TARGET
 cfg_out LINUX_TYPE $LINUX_TYPE
-if [ "$TARGET" = "l" ]; then
-    cfg_out CROSS_COMPILING $CROSS_COMPILING
-    cfg_out KSRC $KSRC
-    cfg_out KBIN $KBIN
-    cfg_out KINCL $KINCL
-    cfg_out NOKSRC $NOKSRC
-    cfg_out KARCHINCL $KARCHINCL
-    cfg_out KARCHINCL2 $KARCHINCL2
-    cfg_out KARCHINCL3 $KARCHINCL3
-    cfg_out KARCHINCL4 $KARCHINCL4 
-    cfg_out USE_RUNNING_KERNEL $USE_RUNNING_KERNEL
-    cfg_out NKVER $NKVER
-    cfg_out KVER $KVER
-    cfg_out KVER_MAJOR $KVER_MAJOR
-    cfg_out KVER_MINOR $KVER_MINOR
-    cfg_out KVER_PATCH $KVER_PATCH
-    cfg_out KVER_PATCHNO $KVER_PATCHNO
-    cfg_out KVER_MAJORMINOR $KVER_MAJORMINOR
-    cfg_out KVER_H $KVER_H
-    cfg_out NKVER_H $NKVER_H
-    cfg_out KSMP $KSMP
-    cfg_out KMODULES $KMODULES
-    cfg_out KMODVERS $KMODVERS
-    cfg_out LISMODVERS $LISMODVERS
-    cfg_out LISAUTOCONF $LISAUTOCONF
-    cfg_out IPV6 $IPV6
-    cfg_out IPV6_MODULE $IPV6_MODULE
-    cfg_out CONFIG_MK_KERNEL $CONFIG_MK_KERNEL 
-    cfg_out STRMS_QUEUES $STRMS_QUEUES
-    cfg_out MOD_INST_DIR $MOD_INST_DIR
-    cfg_out MOD_INSTALL $MOD_INSTALL
-    cfg_out RH_71_KLUDGE $RH_71_KLUDGE
-    cfg_out SIGMASKLOCK $SIGMASKLOCK
-    cfg_out RCVOID $RCVOID
-    cfg_out MACHINE $MACHINE
-    cfg_out CC_NAME $CC_NAME
-    cfg_out CC_VERS $CC_VERS
-    cfg_out CC_OPTIMIZE "$CC_OPTIMIZE"
-    cfg_out CC_OPT2 "$CC_OPT2"
-    cfg_out KINCL_MACH_GENERIC ${KINCL_MACH_GENERIC}
-    cfg_out KINCL_MACH_DEFAULT ${KINCL_MACH_DEFAULT}
-    cfg_out_str GET_EMPTY_INODE ${GET_EMPTY_INODE}
-    cfg_out SET_CPUS_ALLOWED $SET_CPUS_ALLOWED
-    #cfg_out REGISTER_SYSCALLS $REGISTER_SYSCALLS
-    cfg_out INT_PSW $INT_PSW
-    cfg_out CONFIG_DEV $CONFIG_DEV
-    cfg_out USE_KMEM_CACHE $USE_KMEM_CACHE
-    cfg_out USE_KMEM_TIMER $USE_KMEM_TIMER
-    cfg_out LIS_MAJOR_BASE ${OPT_DEVICEBASE:-231}
-    cfg_out CONFIG_INET $OPT_INET
-    cfg_out PKGCOMPILE $OPT_PKGCOMPILE
-    cfg_out PKGMODULES $OPT_PKGMODULES
-    cfg_out SILENT_BUILD y
-    cfg_out KBUILD $KBUILD
-    cfg_out KBUILD_NEEDS_MODNAME $KBUILD_NEEDS_MODNAME
-    cfg_out KBUILD_NEEDS_SYMVERS $KBUILD_NEEDS_SYMVERS
-    cfg_out KBUILD_STR $KBUILD_STR
-    cfg_out MODUTILS $MODUTILS
-    cfg_out MODULE_INIT_TOOLS $MODULE_INIT_TOOLS
-    cfg_out KSYMVERS $KSYMVERS
-    cfg_out MAKEDIRTYPE $MAKEDIRTYPE
-elif [ "$TARGET" = "u" ]; then
-    cfg_out CONFIG_DEV y
-fi
+cfg_out CROSS_COMPILING $CROSS_COMPILING
+cfg_out KSRC $KSRC
+cfg_out KBIN $KBIN
+cfg_out KINCL $KINCL
+cfg_out NOKSRC $NOKSRC
+cfg_out KARCHINCL $KARCHINCL
+cfg_out KARCHINCL2 $KARCHINCL2
+cfg_out KARCHINCL3 $KARCHINCL3
+cfg_out KARCHINCL4 $KARCHINCL4
+cfg_out USE_RUNNING_KERNEL $USE_RUNNING_KERNEL
+cfg_out NKVER $NKVER
+cfg_out KVER $KVER
+cfg_out KVER_MAJOR $KVER_MAJOR
+cfg_out KVER_MINOR $KVER_MINOR
+cfg_out KVER_PATCH $KVER_PATCH
+cfg_out KVER_PATCHNO $KVER_PATCHNO
+cfg_out KVER_MAJORMINOR $KVER_MAJORMINOR
+cfg_out KVER_H $KVER_H
+cfg_out NKVER_H $NKVER_H
+cfg_out KSMP $KSMP
+cfg_out KMODULES $KMODULES
+cfg_out KMODVERS $KMODVERS
+cfg_out LISMODVERS $LISMODVERS
+cfg_out LISAUTOCONF $LISAUTOCONF
+cfg_out IPV6 $IPV6
+cfg_out IPV6_MODULE $IPV6_MODULE
+cfg_out CONFIG_MK_KERNEL $CONFIG_MK_KERNEL
+cfg_out STRMS_QUEUES $STRMS_QUEUES
+cfg_out MOD_INST_DIR $MOD_INST_DIR
+cfg_out MOD_INSTALL $MOD_INSTALL
+cfg_out RH_71_KLUDGE $RH_71_KLUDGE
+cfg_out SIGMASKLOCK $SIGMASKLOCK
+cfg_out RCVOID $RCVOID
+cfg_out MACHINE $MACHINE
+cfg_out CC_NAME $CC_NAME
+cfg_out CC_VERS $CC_VERS
+cfg_out CC_OPTIMIZE "$CC_OPTIMIZE"
+cfg_out CC_OPT2 "$CC_OPT2"
+cfg_out KINCL_MACH_GENERIC ${KINCL_MACH_GENERIC}
+cfg_out KINCL_MACH_DEFAULT ${KINCL_MACH_DEFAULT}
+cfg_out_str GET_EMPTY_INODE ${GET_EMPTY_INODE}
+cfg_out SET_CPUS_ALLOWED $SET_CPUS_ALLOWED
+#cfg_out REGISTER_SYSCALLS $REGISTER_SYSCALLS
+cfg_out INT_PSW $INT_PSW
+cfg_out CONFIG_DEV $CONFIG_DEV
+cfg_out USE_KMEM_CACHE $USE_KMEM_CACHE
+cfg_out USE_KMEM_TIMER $USE_KMEM_TIMER
+cfg_out LIS_MAJOR_BASE ${OPT_DEVICEBASE:-231}
+cfg_out CONFIG_INET $OPT_INET
+cfg_out PKGCOMPILE $OPT_PKGCOMPILE
+cfg_out PKGMODULES $OPT_PKGMODULES
+cfg_out SILENT_BUILD y
+cfg_out KBUILD $KBUILD
+cfg_out KBUILD_NEEDS_MODNAME $KBUILD_NEEDS_MODNAME
+cfg_out KBUILD_NEEDS_SYMVERS $KBUILD_NEEDS_SYMVERS
+cfg_out KBUILD_STR $KBUILD_STR
+cfg_out MODUTILS $MODUTILS
+cfg_out MODULE_INIT_TOOLS $MODULE_INIT_TOOLS
+cfg_out KSYMVERS $KSYMVERS
+cfg_out MAKEDIRTYPE $MAKEDIRTYPE
 cfg_out CCREGPARM "$CCREGPARM"
 cfg_out STREAMS_REGPARM "$STREAMS_REGPARM"
 cfg_out LIS_OLD_CONSTS $LIS_OLD_CONSTS
