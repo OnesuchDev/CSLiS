@@ -171,47 +171,6 @@ lis_pci_dev_t   * _RP lis_pci_find_device(unsigned vendor, unsigned device,
 } /* lis_pci_find_device */
 
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-/************************************************************************
-*                          lis_pci_find_class                           *
-*************************************************************************
-*									*
-* Find a class in a manner similar to finding devices.			*
-*									*
-************************************************************************/
-lis_pci_dev_t   * _RP lis_pci_find_class(unsigned class,
-                                     lis_pci_dev_t *previous_struct)
-{
-    lis_pci_dev_t	*p ;
-    struct pci_dev	*kp ;
-    struct pci_dev	*prev_kp ;
-
-    for (p = lis_pci_dev_list; p != NULL; p = p->next)
-    {
-	if (p->class == class) return(p) ;
-    }
-
-    prev_kp = previous_struct == NULL ? NULL : previous_struct->kern_ptr ;
-    kp = pci_find_class(class, prev_kp) ;
-    if (kp == NULL) return(NULL) ;
-
-    /*
-     * Allocate our own structure that will correspond to the kernel
-     * structure.
-     */
-    p = (lis_pci_dev_t *) ALLOCF(sizeof(*p),"lis_pci_dev_t ");
-    if (p == NULL) return(NULL) ;		/* allocation failed */
-
-    memset(p, 0, sizeof(*p)) ;
-    p->next = lis_pci_dev_list ;		/* remember it */
-    lis_pci_dev_list = p ;
-
-    lis_map_pci_device(p, kp) ;			/* copy info */
-    return(p) ;
-
-} /* lis_pci_find_class */
-#endif
-
 /************************************************************************
 *                          lis_pci_find_slot                            *
 *************************************************************************

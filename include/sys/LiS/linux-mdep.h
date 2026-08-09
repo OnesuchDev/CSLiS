@@ -118,14 +118,6 @@ typedef unsigned long long	__kernel_uoff_t;
 #ifndef KERNEL_VERSION
 #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
-# define	KERNEL_2_1	/* 2.1.x and 2.2.x kernel */
-# if LINUX_VERSION_CODE > KERNEL_VERSION(2,3,0)
-# define	KERNEL_2_3	/* 2.3.x and 2.4.x kernel */
-#  if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,7)
-#  define	KERNEL_2_4_7	/* 2.4.7+ redefines dentry structure */
-#  endif
-
-# endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,16)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
@@ -205,19 +197,6 @@ typedef unsigned long long	__kernel_uoff_t;
 #include <linux/vermagic.h>
 #undef queue_t			/* allow visibility for LiS */
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-/*
- * The symbol "dev_t" inside LiS is the LiS definition (32 bits) not
- * the kernel definition (16 bits in 2.4).  STREAMS drivers always mean
- * LiS-dev_t when they use this typedef.
- */
-#if defined(dev_t)
-#undef dev_t
-#endif
-#define dev_t	lisdev_t
-typedef unsigned int		lisdev_t ;
-#endif
-
 /*
  * If some kernel include did a #define on module_info, undo it
  */
@@ -236,26 +215,6 @@ typedef unsigned int		lisdev_t ;
 #endif
 
 #endif /* __KERNEL__ */
-
-/*  -------------------------------------------------------------------  */
-
-/*  -------------------------------------------------------------------  */
-
-
-#ifdef __KERNEL__
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,2,1)
-#ifndef signal_pending
-#define	signal_pending(tsk)	(tsk->signal & ~tsk->blocked)
-#endif
-#ifndef sigismember
-#define sigismember(sig_msk_addr,signo) ( *(sig_msk_addr) & (1 << (signo)) )
-#endif
-#ifndef sigaddset
-#define sigaddset(sig_msk_addr,signo) ( *(sig_msk_addr) |= (1 << (signo)) )
-#endif
-#endif
-#endif
-
 
 /*  -------------------------------------------------------------------  */
 
@@ -484,15 +443,10 @@ extern struct inode *lis_new_inode(struct file *,dev_t);
 extern struct inode *lis_old_inode(struct file *,struct inode *);
 extern int           lis_new_file_name(struct file *, const char *);
 extern void          lis_new_stream_name(struct stdata *, struct file *);
-#if defined(KERNEL_2_1)
 extern void          lis_cleanup_file_opening(struct file *,
 					      struct stdata *, int,
 					      struct dentry *,  int,
 					      struct vfsmount *, int);
-#else
-extern void          lis_cleanup_file_opening(struct file *,
-					      struct stdata *, int);
-#endif
 extern void          lis_cleanup_file_closing(struct file *, struct stdata *);
 
 extern int lis_major;
@@ -938,13 +892,7 @@ extern lis_atomic_t	lis_runq_req_cnt ;
  */
 #ifdef __KERNEL__
 
-#if   defined(KERNEL_2_1)
-
 extern unsigned	lis_poll_2_1(struct file *fp, poll_table * wait);
-
-#else
-#error "KERNEL_2_1 needs to be defined"
-#endif
 
 /*
  * bzero and bcopy
@@ -1053,56 +1001,10 @@ lis_mntput_fcn(struct vfsmount *m,
 #define MNTPUT(m)      lis_mntput((m))
 #endif  /* CONFIG_DEV  */
 
-#endif				/* __KERNEL__ */
-
-/*  -------------------------------------------------------------------  */
-/*
- * These are externs for functions defined in the liskmod.c module.
- *
- * If the kernel is of an advanced enough version then these are
- * unnecessary since they will be inlines in a .h file or at least
- * there will be a standard extern for them in a kernel .h.
- *
- * When these externs are enabled the the liskmod module must be
- * loaded prior to streams.o in order for these symbols to be
- * resolved.
- */
-
-#ifdef __KERNEL__
-
-# if (   LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)	\
-      && LINUX_VERSION_CODE <  KERNEL_VERSION(2,2,18))	\
-  ||							\
-     (   LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)	\
-      && LINUX_VERSION_CODE <  KERNEL_VERSION(2,4,1))
-
-extern void	put_unused_fd(unsigned int fd) ;
-
-# endif
-
-/*
- * The following version testing is only approximately correct.
- * I know that 2.2.5 does not have "igrab" and that 2.2.14
- * does.
- */
-# if (   LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)	\
-      && LINUX_VERSION_CODE <  KERNEL_VERSION(2,2,14))	\
-
-extern struct inode *igrab(struct inode *inode) ;
-
-# endif
-
 /*
  * For convenience, define FATTACH_VIA_MOUNT if appropriate
  */
-#if defined(KERNEL_2_4_7)
 #define FATTACH_VIA_MOUNT 1
-#endif
-
-
-#endif				/* __KERNEL__ */
-
-#ifdef __KERNEL__
 
 #if defined(USE_KMEM_CACHE)
 

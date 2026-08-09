@@ -116,16 +116,7 @@ typedef unsigned int	uintptr_t;
 /*
  * Establish some version dependent sub-defines for all to see.
  */
-/*
- * If KERNEL_2_1 is not defined then we are
- * being compiled as portable code.  We want to use portable constructs
- * for such things as poll.
- */
-#if !defined(KERNEL_2_1)
-#define PORTABLE_POLL   1
-#else
 #define LINUX_POLL      2
-#endif
 
 #ifndef OPENFAIL
 #define OPENFAIL	(-1)

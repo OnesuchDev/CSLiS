@@ -169,13 +169,6 @@ EXPORT_SYMBOL_NOVERS(lis_inc_mod_cnt_fcn);
 EXPORT_SYMBOL_NOVERS(lis_insq);
 EXPORT_SYMBOL_NOVERS(lis_in_interrupt);
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-EXPORT_SYMBOL_NOVERS(lis_interruptible_sleep_on);
-EXPORT_SYMBOL_NOVERS(lis_interruptible_sleep_on_timeout);
-EXPORT_SYMBOL_NOVERS(lis_sleep_on);
-EXPORT_SYMBOL_NOVERS(lis_sleep_on_timeout);
-#endif
-
 EXPORT_SYMBOL_NOVERS(lis_ioremap);
 EXPORT_SYMBOL_NOVERS(lis_ioremap_nocache);
 EXPORT_SYMBOL_NOVERS(lis_iounmap);
@@ -213,12 +206,7 @@ EXPORT_SYMBOL_NOVERS(lis_osif_do_gettimeofday);
 EXPORT_SYMBOL_NOVERS(lis_osif_do_settimeofday);
 
 #ifdef CONFIG_PCI
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,1,0)
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_find_device);
-#endif
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-EXPORT_SYMBOL_NOVERS(lis_osif_pci_find_class);
-#endif
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_find_slot);
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_read_config_byte);
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_read_config_dword);
@@ -232,10 +220,8 @@ EXPORT_SYMBOL_NOVERS(lis_osif_pci_disable_device);
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_module_init);
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_unregister_driver);
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0))
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_alloc_consistent);
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_free_consistent);
-#endif
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_map_single);
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_unmap_single);
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_map_sg);
@@ -247,41 +233,16 @@ EXPORT_SYMBOL_NOVERS(lis_osif_pci_set_dma_mask);
 #endif
 EXPORT_SYMBOL_NOVERS(lis_osif_sg_dma_address);
 EXPORT_SYMBOL_NOVERS(lis_osif_sg_dma_len);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,13)      /* 2.4.13 or later */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_map_page);
 EXPORT_SYMBOL_NOVERS(lis_osif_pci_unmap_page);
 #endif
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,0)
-EXPORT_SYMBOL_NOVERS(lis_osif_pci_dac_set_dma_mask);
-EXPORT_SYMBOL_NOVERS(lis_osif_pci_dac_dma_supported);
-#if (!defined(_PPC64_LIS_))
-/* PPC64 has CONFIG_PCI, but no pci_dac_dma symbols */
-EXPORT_SYMBOL_NOVERS(lis_osif_pci_dac_page_to_dma);
-EXPORT_SYMBOL_NOVERS(lis_osif_pci_dac_dma_to_page);
-EXPORT_SYMBOL_NOVERS(lis_osif_pci_dac_dma_to_offset);
-EXPORT_SYMBOL_NOVERS(lis_osif_pci_dac_dma_sync_single);
-#endif /* not _PPC64_LIS_ */
-#endif		/* 2.5.0 */
-#endif                                  /* 2.4.13 */
 #endif /* CONFIG_PCI */
 
 EXPORT_SYMBOL_NOVERS(lis_osif_sti);
 EXPORT_SYMBOL_NOVERS(lis_own_spl);
 #if (!defined(_S390_LIS_) && !defined(_S390X_LIS_) && !defined(_PPC64_LIS_) && !defined(_X86_64_LIS_))
 EXPORT_SYMBOL_NOVERS(lis_pcibios_present);
-
-#if ((LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)) && defined(CONFIG_PCI))
-EXPORT_SYMBOL_NOVERS(lis_pcibios_init);
-EXPORT_SYMBOL_NOVERS(lis_pcibios_find_class);
-EXPORT_SYMBOL_NOVERS(lis_pcibios_find_device);
-EXPORT_SYMBOL_NOVERS(lis_pcibios_read_config_byte);
-EXPORT_SYMBOL_NOVERS(lis_pcibios_read_config_dword);
-EXPORT_SYMBOL_NOVERS(lis_pcibios_read_config_word);
-EXPORT_SYMBOL_NOVERS(lis_pcibios_write_config_byte);
-EXPORT_SYMBOL_NOVERS(lis_pcibios_write_config_dword);
-EXPORT_SYMBOL_NOVERS(lis_pcibios_write_config_word);
-#endif
 
 EXPORT_SYMBOL_NOVERS(lis_pcibios_strerror);
 EXPORT_SYMBOL_NOVERS(lis_pci_disable_device);
@@ -290,18 +251,12 @@ EXPORT_SYMBOL_NOVERS(lis_pci_dma_handle_to_64);
 EXPORT_SYMBOL_NOVERS(lis_pci_dma_supported);
 EXPORT_SYMBOL_NOVERS(lis_pci_dma_sync_single);
 EXPORT_SYMBOL_NOVERS(lis_pci_enable_device);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-EXPORT_SYMBOL_NOVERS(lis_pci_find_class);
-#endif
 EXPORT_SYMBOL_NOVERS(lis_pci_find_device);
 EXPORT_SYMBOL_NOVERS(lis_pci_find_slot);
 EXPORT_SYMBOL_NOVERS(lis_pci_map_single);
 EXPORT_SYMBOL_NOVERS(lis_pci_read_config_byte);
 EXPORT_SYMBOL_NOVERS(lis_pci_read_config_dword);
 EXPORT_SYMBOL_NOVERS(lis_pci_read_config_word);
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,0)
-EXPORT_SYMBOL_NOVERS(lis_pci_set_dma_mask);
-#endif
 EXPORT_SYMBOL_NOVERS(lis_pci_set_master);
 EXPORT_SYMBOL_NOVERS(lis_pci_unmap_single);
 EXPORT_SYMBOL_NOVERS(lis_pci_write_config_byte);
