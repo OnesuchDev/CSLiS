@@ -1006,7 +1006,12 @@ lis_tmout(struct lis_timer_list *lis_tl, void (*fn)(struct timer_list *), long a
 void
 lis_untmout( struct timer_list *tl)
 {
-    del_timer(tl);		/* don't care if timeout fcn is running */
+    /* don't care if timeout fcn is running */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+    timer_delete(tl);
+#else
+    del_timer(tl);
+#endif
 }
 
 /************************************************************************

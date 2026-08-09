@@ -1110,7 +1110,11 @@ lis_add_timer(struct timer_list * timer)
 int  _RP
 lis_del_timer(struct timer_list * timer)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+    return timer_delete(timer);
+#else
     return del_timer(timer);
+#endif
 }
 
 /*
