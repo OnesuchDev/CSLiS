@@ -3205,7 +3205,9 @@ void lis_process_rput(stdata_t *shead, queue_t *q, mblk_t *mp)
 		/*
 		 * Fall into the one-byte case
 		 */
+		goto rput_case_1;
 	    case 1:				/* set errnum for both sides */
+rput_case_1:
 		rderr = *mp->b_rptr++;
 		wrerr = rderr ;
 		lis_stream_error(shead, rderr, wrerr) ;
@@ -5839,8 +5841,9 @@ lis_strread(struct file *fp, char *ubuff, size_t ulen, loff_t *op)
 	    break;
 	case M_PCPROTO:
 		CLR_SD_FLAG(hd,STRPRI);
-		/* fall into next case */
-	case M_PROTO: 
+		goto m_proto;
+	case M_PROTO:
+m_proto:
 	    msgs_read++ ;
 	    if (LIS_DEBUG_READ)
 		printk(
@@ -6999,8 +7002,9 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 	    arg = (bi.bi_flag & FLUSHRW) | FLUSHBAND;
 	    flush_pri=bi.bi_pri;
 	}
-        /*fall thru...*/
+        goto i_flush;
     case I_FLUSH:
+i_flush:
 	if (F_ISSET(hd->sd_flag,STRHUP|STRCLOSE))
 	    RTN(-ENXIO);
 	if ( LIS_DEBUG_IOCTL )
