@@ -1167,7 +1167,7 @@ struct dentry *lis_d_alloc_root(struct inode *i, int mode)
 #endif
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,72)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)	
 	d = d_alloc_pseudo(i->i_sb, &dname);
 #else
