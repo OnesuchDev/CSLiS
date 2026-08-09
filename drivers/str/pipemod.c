@@ -40,14 +40,11 @@
 
 #include <sys/stream.h>
 #include <sys/stropts.h>
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,27)
-    #undef __always_inline
-#endif
 #if LINUX_VERSION_CODE > KERNEL_VERSION(6,0,0)
 #define _LINUX_IF_H
 #define IFNAMSIZ        16
 #endif
-#include <sys/errno.h>
+#include <linux/errno.h>
 #include <sys/cmn_err.h>
 #include <sys/osif.h>
 
