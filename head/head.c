@@ -7741,7 +7741,7 @@ i_flush:
 	lis_strstats[LOCKCNTS][TOTAL] = lis_spin_lock_count ;
 	lis_strstats[LOCKCNTS][FAILURES] = lis_spin_lock_contention_count ;
 
-	err = lis_copyout(f,lis_strstats,(char*)arg,sizeof(lis_strstats));
+	err = lis_copyout(f,(const void *)lis_strstats,(char*)arg,sizeof(lis_strstats));
 	RTN(err);
 
     case I_LIS_LOCKS:
