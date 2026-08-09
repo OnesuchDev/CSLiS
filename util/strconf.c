@@ -390,7 +390,7 @@ object_info_t	*mk_object(char *name)
 {
     object_info_t	*p ;
 
-    p = (object_info_t *) malloc(sizeof(*p)) ;
+    p = (object_info_t *) malloc(sizeof(lookup_struct_t));
     if (p == NULL)
     {
 	fprintf(stderr, "Cannot allocate entry for \"%s\"\n", name) ;
