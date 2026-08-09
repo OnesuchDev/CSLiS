@@ -79,16 +79,13 @@
 #include <linux/slab.h>
 #include <linux/timer.h>                /* add_timer, del_timer */
 #include <linux/ptrace.h>		/* for pt_regs */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,2,0)
 #include <linux/vmalloc.h>
-#endif
 #include <asm/io.h>			/* ioremap, virt_to_phys */
 #include <asm/irq.h>			/* disable_irq, enable_irq */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 19)
 #include <asm/irq_regs.h>		/* get_irq_regs */
 #endif
 #include <asm/atomic.h>			/* the real kernel routines */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
 #include <asm/scatterlist.h>
@@ -96,13 +93,8 @@
 #include <linux/scatterlist.h>
 #endif
 
-#endif
 #include <linux/delay.h>
 #include <linux/time.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,0)
-#include <linux/bios32.h>		/* old style PCI routines */
-#include <linux/mm.h>			/* vremap */
-#endif
 #if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1))  //For RHEL 9 update 12-2022
 #include <stdarg.h>                    /* for va_list */
 #endif
@@ -152,110 +144,12 @@ void lis_free_devid_list(void);
 int _RP lis_pcibios_present(void)
 {
 #ifdef CONFIG_PCI
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-    return(pcibios_present()) ;
-#else
     /* reasonable guess since CONFIG_PCI was defined */
     return(1);
-#endif
 #else
     return(-ENOSYS) ;
 #endif
 }
-
-#if ((LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)) && defined(CONFIG_PCI))
-/*
- * PCO BIOS init routine is not an exported symbol, but we define it
- * anyway in case some old driver was calling it.
- */
-void _RP lis_pcibios_init(void)
-{
-}
-
-int _RP lis_pcibios_find_class(unsigned int   class_code,
-			    unsigned short index,
-                            unsigned char *bus,
-			    unsigned char *dev_fn)
-{
-    return(pcibios_find_class(class_code, index, bus, dev_fn)) ;
-}
-
-int _RP lis_pcibios_find_device(unsigned short vendor,
-			     unsigned short dev_id,
-			     unsigned short index,
-			     unsigned char *bus,
-			     unsigned char *dev_fn)
-{
-    return(pcibios_find_device(vendor, dev_id, index, bus, dev_fn)) ;
-}
-
-int _RP lis_pcibios_read_config_byte(unsigned char  bus,
-				  unsigned char  dev_fn,
-				  unsigned char  where,
-				  unsigned char *val)
-{
-    if (where != PCI_INTERRUPT_LINE) 
-	return pcibios_read_config_byte(bus, dev_fn, where, val);
-    else {
-	struct pci_dev *dev;
-
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-	if ((dev = pci_find_slot(bus, dev_fn)) != NULL) {
-	    *val = dev->irq;
-	    return PCIBIOS_SUCCESSFUL;
-	}
-#else
-	if ((dev = pci_get_slot(bus, dev_fn)) != NULL) {
-	    *val = dev->irq;
-	    return PCIBIOS_SUCCESSFUL;
-	}
-#endif
-
-    }
-    *val = 0;
-    return PCIBIOS_DEVICE_NOT_FOUND;
-}
-
-int _RP lis_pcibios_read_config_word(unsigned char   bus,
-				  unsigned char   dev_fn,
-				  unsigned char   where,
-				  unsigned short *val)
-{
-    return(pcibios_read_config_word(bus, dev_fn, where, val)) ;
-}
-
-int _RP lis_pcibios_read_config_dword(unsigned char  bus,
-				   unsigned char  dev_fn,
-				   unsigned char  where,
-				   unsigned int  *val)
-{
-    return(pcibios_read_config_dword(bus, dev_fn, where, val)) ;
-}
-
-int _RP lis_pcibios_write_config_byte(unsigned char  bus,
-				   unsigned char  dev_fn,
-				   unsigned char  where,
-				   unsigned char  val)
-{
-    return(pcibios_write_config_byte(bus, dev_fn, where, val)) ;
-}
-
-int _RP lis_pcibios_write_config_word(unsigned char   bus,
-				   unsigned char   dev_fn,
-				   unsigned char   where,
-				   unsigned short  val)
-{
-    return(pcibios_write_config_word(bus, dev_fn, where, val)) ;
-}
-
-int _RP lis_pcibios_write_config_dword(unsigned char  bus,
-				    unsigned char  dev_fn,
-				    unsigned char  where,
-				    unsigned int   val)
-{
-    return(pcibios_write_config_dword(bus, dev_fn, where, val)) ;
-}
-#endif /* < 2.4 && CONFIG_PCI */
 
 const char * _RP lis_pcibios_strerror(int error)
 {
@@ -284,7 +178,6 @@ const char * _RP lis_pcibios_strerror(int error)
 
 #if defined(CONFIG_PCI)
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,1,0)
 struct pci_dev  * _RP lis_osif_pci_find_device(unsigned int vendor,
 				 unsigned int device,
                                  struct pci_dev *from)
@@ -299,19 +192,6 @@ struct pci_dev * temp_dev;
     return(temp_dev) ;
 #endif
 }
-#endif /* > 2.1 */
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-struct pci_dev  * _RP lis_osif_pci_find_class(unsigned int class,
-					 struct pci_dev *from)
-{
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-    return(pci_find_class(class, from)) ;
-#else
-    return(pci_get_class(class, from)) ;
-#endif
-}
-#endif
 
 struct pci_dev  * _RP lis_osif_pci_find_slot(unsigned int bus, 
 					unsigned int devfn)
@@ -370,51 +250,26 @@ void     _RP lis_osif_pci_set_master(struct pci_dev *dev)
 
 int  _RP lis_osif_pci_enable_device (struct pci_dev *dev)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,0)
-    return(0) ;					/* pretend success */
-#else
     return (pci_enable_device (dev));
-#endif
 }
 
 void  _RP lis_osif_pci_disable_device (struct pci_dev *dev)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,0)
-    return ;					/* pretend success */
-#else
     pci_disable_device (dev);
-#endif
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,3,0)
-int  _RP lis_osif_pci_module_init( void *p )
-{
-    return ( 0 );
-}
-
-void  _RP lis_osif_pci_unregister_driver( void *p )
-{
-}
-#else						/* 2.4 kernel */
 int  _RP lis_osif_pci_module_init( struct pci_driver *p )
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-    return pci_module_init( p );
-#else
     return pci_register_driver( p );
-#endif
 }
 
 void  _RP lis_osif_pci_unregister_driver( struct pci_driver *p )
 {
     pci_unregister_driver( p );
 }
-#endif /* < 2.3 */
 #endif          /* CONFIG_PCI */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
 
 	 /***************************************
 	 *        PCI DMA Mapping Fcns		*
@@ -439,7 +294,6 @@ void  _RP lis_osif_pci_free_consistent(struct pci_dev *hwdev, size_t size,
     return;
 #endif
 }
-#endif /* >= 2.4 */
 #endif /* end kernel 6.0.0. check */
 
 #ifdef CONFIG_PCI
@@ -472,7 +326,6 @@ void  _RP lis_osif_pci_unmap_sg(struct pci_dev *hwdev, struct scatterlist *sg,
 void  _RP lis_osif_pci_dma_sync_single(struct pci_dev *hwdev,
 			   dma_addr_t dma_handle, size_t size, int direction)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
     if ((direction == PCI_DMA_BIDIRECTIONAL) || 
 	(direction == PCI_DMA_TODEVICE))
     {
@@ -483,15 +336,11 @@ void  _RP lis_osif_pci_dma_sync_single(struct pci_dev *hwdev,
     {
 	pci_dma_sync_single_for_cpu(hwdev, dma_handle, size, direction) ;
     }
-#else
-    pci_dma_sync_single(hwdev, dma_handle, size, direction) ;
-#endif
 }
 
 void  _RP lis_osif_pci_dma_sync_sg(struct pci_dev *hwdev,
 			   struct scatterlist *sg, int nelems, int direction)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
     if ((direction == PCI_DMA_BIDIRECTIONAL) || 
 	(direction == PCI_DMA_TODEVICE))
     {
@@ -502,9 +351,6 @@ void  _RP lis_osif_pci_dma_sync_sg(struct pci_dev *hwdev,
     {
 	pci_dma_sync_sg_for_cpu(hwdev, sg, nelems, direction) ;
     }
-#else
-    pci_dma_sync_sg(hwdev, sg, nelems, direction) ;
-#endif
 }
 
 int  _RP lis_osif_pci_dma_supported(struct pci_dev *hwdev, u64 mask)
@@ -535,8 +381,6 @@ size_t  _RP lis_osif_sg_dma_len(struct scatterlist *sg)
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,13)      /* 2.4.13 or later */
-
 dma_addr_t  _RP lis_osif_pci_map_page(struct pci_dev *hwdev,
 				struct page *page, unsigned long offset,
 				size_t size, int direction)
@@ -551,60 +395,6 @@ void  _RP lis_osif_pci_unmap_page(struct pci_dev *hwdev,
     pci_unmap_page(hwdev, dma_address, size, direction) ;
 }
 
-#endif /* end kernel 6.0.0. check */
-
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,0) 
-int  _RP lis_osif_pci_dac_set_dma_mask(struct pci_dev *hwdev, u64 mask)
-{
-    return(pci_dac_set_dma_mask(hwdev, mask)) ;
-}
-
-int  _RP lis_osif_pci_dac_dma_supported(struct pci_dev *hwdev, u64 mask)
-{
-    return(pci_dac_dma_supported(hwdev, mask)) ;
-}
-
-
-#if (!defined(_PPC64_LIS_))
-dma64_addr_t  _RP lis_osif_pci_dac_page_to_dma(struct pci_dev *pdev,
-			struct page *page, unsigned long offset,
-			int direction)
-{
-    return(pci_dac_page_to_dma(pdev, page, offset, direction)) ;
-}
-
-struct page * _RP lis_osif_pci_dac_dma_to_page(struct pci_dev *pdev,
-					dma64_addr_t dma_addr)
-{
-    return(pci_dac_dma_to_page(pdev, dma_addr)) ;
-}
-
-unsigned long  _RP lis_osif_pci_dac_dma_to_offset(struct pci_dev *pdev,
-					dma64_addr_t dma_addr)
-{
-    return(pci_dac_dma_to_offset(pdev, dma_addr)) ;
-}
-
-void  _RP lis_osif_pci_dac_dma_sync_single(struct pci_dev *pdev,
-			    dma64_addr_t dma_addr, size_t len, int direction)
-{
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
-    if ((direction == PCI_DMA_BIDIRECTIONAL) || 
-	(direction == PCI_DMA_TODEVICE))
-    {
-	pci_dac_dma_sync_single_for_device(pdev, dma_addr, len, direction) ;
-    }
-    if ((direction == PCI_DMA_BIDIRECTIONAL) ||
-	(direction == PCI_DMA_FROMDEVICE))
-    {
-	pci_dac_dma_sync_single_for_cpu(pdev, dma_addr, len, direction) ;
-    }
-#else
-    pci_dac_dma_sync_single(pdev, dma_addr, len, direction) ;
-#endif
-}
-#endif		/* not _PPC64_LIS_ */
-#endif			/* 2.5.0 */
 #endif                                  /* 2.4.13 */
 
 #endif          /* CONFIG_PCI */
@@ -613,7 +403,6 @@ void  _RP lis_osif_pci_dac_dma_sync_single(struct pci_dev *pdev,
 *                        IRQ Routines                                   *
 ************************************************************************/
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 /*
  * Because of the register parameter passing in the 2.6 kernel we need
  * an irq routine that is compiled with the kernel's register style to
@@ -685,19 +474,8 @@ void lis_free_devid_list(void)
     }
 }
 
-#endif /* > 2.5 */
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
-
 int      lis_irqreturn_handled = IRQ_HANDLED;
 int      lis_irqreturn_not_handled = IRQ_NONE;
-
-#else
-
-int      lis_irqreturn_handled = 1;
-int      lis_irqreturn_not_handled = 0;
-
-#endif
 
 int  _RP lis_request_irq(unsigned int  irq,
 		     lis_int_handler handler,
@@ -706,7 +484,6 @@ int  _RP lis_request_irq(unsigned int  irq,
 		     void         *dev_id)
 {
 #if !defined(__s390__)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
     int			  ret ;
     lis_devid_t		 *dv ;
     lis_flags_t		  psw ;
@@ -732,12 +509,6 @@ int  _RP lis_request_irq(unsigned int  irq,
 
     return(ret) ;
 #else
-    typedef void	(*khandler) (int, void *, struct pt_regs *) ;
-    khandler	kparam = (khandler) handler ;
-
-    return(request_irq(irq, kparam, flags, device, dev_id)) ;
-#endif
-#else
 return(0); 
 #endif
 
@@ -746,7 +517,6 @@ return(0);
 void  _RP lis_free_irq(unsigned int irq, void *dev_id)
 {
 #if !defined(__s390__)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
     lis_devid_t		*dv = lis_devid_list ;
     lis_flags_t		 psw ;
 
@@ -765,9 +535,6 @@ void  _RP lis_free_irq(unsigned int irq, void *dev_id)
 	}
     }
     lis_spin_unlock_irqrestore(&lis_incr_lock, &psw) ;
-#else
-    free_irq(irq, dev_id) ;
-#endif
 #endif
 }
 
@@ -787,20 +554,12 @@ void  _RP lis_disable_irq(unsigned int irq)
 
 void  _RP lis_osif_cli( void )
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
     lis_splstr() ;
-#else
-    cli( );
-#endif
 
 }
 void  _RP lis_osif_sti( void )
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
     lis_spl0() ;
-#else
-    sti( );
-#endif
 }
 
 
@@ -820,9 +579,7 @@ void  _RP lis_osif_sti( void )
 
 void * _RP lis_ioremap(unsigned long offset, unsigned long size)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,0)
-    return(vremap(offset, size)) ;
-#elif !defined(__s390__)
+#if   !defined(__s390__)
     return(ioremap(offset, size)) ;
 #else
     return(NULL) ;
@@ -831,9 +588,7 @@ void * _RP lis_ioremap(unsigned long offset, unsigned long size)
 
 void * _RP lis_ioremap_nocache(unsigned long offset, unsigned long size)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,0)
-    return(vremap(offset, size)) ;
-#elif !defined(__s390__)
+#if   !defined(__s390__)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)    
     return(ioremap_nocache(offset, size)) ;
 #else
@@ -846,18 +601,14 @@ void * _RP lis_ioremap_nocache(unsigned long offset, unsigned long size)
 
 void _RP lis_iounmap(void *ptr)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,0)
-    vfree(ptr) ;
-#elif !defined(__s390__)
+#if   !defined(__s390__)
     iounmap(ptr) ;
 #endif
 }
 
 void * _RP lis_vremap(unsigned long offset, unsigned long size)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,0)
-    return(vremap(offset, size)) ;
-#elif !defined(__s390__)
+#if   !defined(__s390__)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)    
     return(ioremap_nocache(offset, size)) ;
 #else
@@ -885,16 +636,12 @@ void * _RP lis_phys_to_virt(unsigned long addr)
 
 int  _RP lis_check_region(unsigned int from, unsigned int extent)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
     if (request_region(from,extent,"LiS-checking"))
     {
 	release_region(from,extent) ;
 	return(0) ;
     }
     return(-EBUSY) ;
-#else
-    return(check_region(from, extent)) ;
-#endif
 }
 
 void  _RP lis_request_region(unsigned int from,
@@ -986,7 +733,6 @@ void  _RP lis_osif_do_gettimeofday( struct timeval *tp )
 
 void  _RP lis_osif_do_settimeofday( struct timeval *tp )
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0) // No timespec in 5.11 or higher
     	struct timespec ts ;
 
@@ -1007,11 +753,6 @@ void  _RP lis_osif_do_settimeofday( struct timeval *tp )
      do_settimeofday64(&ts64);
 #endif	
 
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-
-    do_settimeofday(tp) ;
-
-#endif
 }
 
 
@@ -1048,35 +789,6 @@ int  _RP lis_vsprintf(char *bfr, const char *fmt, va_list args)
 {
     return(vsprintf (bfr, fmt, args));
 }
-
-/************************************************************************
-*                      Sleep/Wakeup Routines                            *
-* The sleep_on_ routines are depricated in 2.5.  It is better to have   *
-* the drivers converted to use the wait_event_ interface (also          *
-* available prior to 2.5) than to convert sleep_on_ calls to            *
-* wait_event_ calls.                                                    *
-************************************************************************/
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-void  _RP lis_sleep_on(OSIF_WAIT_Q_ARG)
-{
-    sleep_on(wq) ;
-}
-
-void  _RP lis_interruptible_sleep_on(OSIF_WAIT_Q_ARG)
-{
-    interruptible_sleep_on(wq) ;
-}
-
-void  _RP lis_sleep_on_timeout(OSIF_WAIT_Q_ARG, long timeout)
-{
-    sleep_on_timeout(wq, timeout) ;
-}
-
-void  _RP lis_interruptible_sleep_on_timeout(OSIF_WAIT_Q_ARG, long timeout)
-{
-    interruptible_sleep_on_timeout(wq, timeout) ;
-}
-#endif /* < 2.5 */
 
 void  _RP lis_wait_event(OSIF_WAIT_E_ARG, int condition)
 {

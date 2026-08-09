@@ -5270,13 +5270,11 @@ lis_strwrite(struct file *fp, const char *ubuff, size_t ulen, loff_t *op)
 	RTN(0);
     }
 
-#if defined(KERNEL_2_1)
     if (F_ISSET(hd->sd_flag,STFIFO)) {
 	if ((err = lis_fifo_write_sync( i, 0 )) < 0) {
 	    RTN(err);
 	}
     }
-#endif
 
     if ((err=lis_check_umem(fp,VERIFY_READ,ubuff,ulen))<0)
     {
@@ -5904,7 +5902,6 @@ lis_strputpmsg(struct inode *i, struct file *fp,
 	RTN(-EINVAL) ;
     }
 
-#if defined(KERNEL_2_1)
     if (F_ISSET(hd->sd_flag,STFIFO)) {
 	ULOCK_INO(i);
 	if ((err = lis_fifo_write_sync( i, 0 )) < 0) {
@@ -5912,7 +5909,6 @@ lis_strputpmsg(struct inode *i, struct file *fp,
 	}
 	LOCK_INO(i);
     }
-#endif
 
     if (band >= 0)				/* putpmsg */
     {
@@ -8374,9 +8370,7 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
         printk("lis_doclose(i@0x%p/%d,f@0x%p/%li,h@0x%p/%d/%d.%d,...)#%ld/%d\n"
 #endif
 	       "    << \"%s\" "
-#if defined(KERNEL_2_1)
 	       "d@0x%p/%d "
-#endif
 	       "<[%d] %d LiS inode(s), %d open stream(s)>\n",
 	       i, (i?I_COUNT(i):0),
 	       f, (f?F_COUNT(f):0),
@@ -8384,10 +8378,8 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
 	       LIS_SD_REFCNT(head), LIS_SD_OPENCNT(head), head->sd_linkcnt,
 	       this_doclose, K_ATOMIC_READ(&lis_close_cnt),
 	       head->sd_name,
-#if defined(KERNEL_2_1)
 	       (f?f->f_dentry:NULL),
 	       (f&&f->f_dentry?D_COUNT(f->f_dentry):0),
-#endif
 	       K_ATOMIC_READ(&lis_mnt_cnt),
 	       K_ATOMIC_READ(&lis_inode_cnt),
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;
@@ -8561,15 +8553,11 @@ lis_strclose(struct inode *i, struct file *f)
 	printk("lis_strclose(i@0x%p/%d,f@0x%p/%li)#%ld i_rdev=(%d,%d)\n"
 #endif
 	       "    << "
-#if defined(KERNEL_2_1)
 	       "d@0x%p/%d "
-#endif
 	       "<[%d] %d LiS inode(s), %d open stream(s)>\n",
 	       i, I_COUNT(i), f, F_COUNT(f), this_close,
 	       getmajor(GET_I_RDEV(i)), getminor(GET_I_RDEV(i)),
-#if defined(KERNEL_2_1)
 	       f->f_dentry, D_COUNT(f->f_dentry),
-#endif
 	       K_ATOMIC_READ(&lis_mnt_cnt),
 	       K_ATOMIC_READ(&lis_inode_cnt),
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;

@@ -51,12 +51,10 @@
 #endif		
 #endif
 #include <linux/pci.h>
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,1,0)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
 #include <asm/scatterlist.h>
 #else
 #include <linux/scatterlist.h>
-#endif
 #endif
 #endif
 
@@ -79,87 +77,6 @@
 #define	pcibios_present			lis_pcibios_present
 int lis_pcibios_present(void) _RP;
 
-#if ((LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)) && CONFIG_PCI)
-#ifdef pcibios_init
-#undef pcibios_init
-#endif
-#define	pcibios_init			lis_pcibios_init
-void lis_pcibios_init(void) _RP;
-
-#ifdef pcibios_find_class
-#undef pcibios_find_class
-#endif
-#define	pcibios_find_class		lis_pcibios_find_class
-int lis_pcibios_find_class(unsigned int   class_code,
-			    unsigned short index,
-                            unsigned char *bus,
-			    unsigned char *dev_fn) _RP;
-
-#ifdef pcibios_find_device
-#undef pcibios_find_device
-#endif
-#define	pcibios_find_device		lis_pcibios_find_device
-int lis_pcibios_find_device(unsigned short vendor,
-			     unsigned short dev_id,
-			     unsigned short index,
-			     unsigned char *bus,
-			     unsigned char *dev_fn) _RP;
-
-#ifdef pcibios_read_config_byte
-#undef pcibios_read_config_byte
-#endif
-#define	pcibios_read_config_byte	lis_pcibios_read_config_byte
-int lis_pcibios_read_config_byte(unsigned char  bus,
-				  unsigned char  dev_fn,
-				  unsigned char  where,
-				  unsigned char *val) _RP;
-
-#ifdef pcibios_read_config_word
-#undef pcibios_read_config_word
-#endif
-#define	pcibios_read_config_word	lis_pcibios_read_config_word
-int lis_pcibios_read_config_word(unsigned char   bus,
-				  unsigned char   dev_fn,
-				  unsigned char   where,
-				  unsigned short *val) _RP;
-
-#ifdef pcibios_read_config_dword
-#undef pcibios_read_config_dword
-#endif
-#define	pcibios_read_config_dword	lis_pcibios_read_config_dword
-int lis_pcibios_read_config_dword(unsigned char  bus,
-				   unsigned char  dev_fn,
-				   unsigned char  where,
-				   unsigned int  *val) _RP;
-
-#ifdef pcibios_write_config_byte
-#undef pcibios_write_config_byte
-#endif
-#define	pcibios_write_config_byte	lis_pcibios_write_config_byte
-int lis_pcibios_write_config_byte(unsigned char  bus,
-				   unsigned char  dev_fn,
-				   unsigned char  where,
-				   unsigned char  val) _RP;
-
-#ifdef pcibios_write_config_word
-#undef pcibios_write_config_word
-#endif
-#define	pcibios_write_config_word	lis_pcibios_write_config_word
-int lis_pcibios_write_config_word(unsigned char   bus,
-				   unsigned char   dev_fn,
-				   unsigned char   where,
-				   unsigned short  val) _RP;
-
-#ifdef pcibios_write_config_dword
-#undef pcibios_write_config_dword
-#endif
-#define	pcibios_write_config_dword	lis_pcibios_write_config_dword
-int lis_pcibios_write_config_dword(unsigned char  bus,
-				    unsigned char  dev_fn,
-				    unsigned char  where,
-				    unsigned int   val) _RP;
-
-#endif /* < 2.4 && CONFIG_PCI */
 #ifdef pcibios_strerror
 #undef pcibios_strerror
 #endif
@@ -168,7 +85,6 @@ const char *lis_pcibios_strerror(int error) _RP;
 
 #ifdef CONFIG_PCI
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,1,0)
 #ifdef pci_find_device
 #undef pci_find_device
 #endif
@@ -176,16 +92,6 @@ const char *lis_pcibios_strerror(int error) _RP;
 struct pci_dev	*lis_osif_pci_find_device(unsigned int vendor,
 				 unsigned int device,
 				 struct pci_dev *from)_RP;
-#endif /* > 2.1 */
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-#ifdef pci_find_class
-#undef pci_find_class
-#endif
-#define	pci_find_class			lis_osif_pci_find_class
-struct pci_dev	*lis_osif_pci_find_class(unsigned int class,
-				 struct pci_dev *from)_RP;
-#endif /* < 2.5 */
 
 #ifdef pci_find_slot
 #undef pci_find_slot
@@ -262,15 +168,9 @@ void    lis_osif_pci_disable_device (struct pci_dev *dev)_RP;
 #undef pci_unregister_driver
 #endif
 #define pci_unregister_driver lis_osif_pci_unregister_driver
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,3,0)
 int	lis_osif_pci_module_init( struct pci_driver *p )_RP;
 void	lis_osif_pci_unregister_driver( struct pci_driver *p )_RP;
-#else						/* older kernel */
-int	lis_osif_pci_module_init( void *p )_RP;
-void	lis_osif_pci_unregister_driver( void *p )_RP;
-#endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
 #ifdef pci_alloc_consistent
 #undef pci_alloc_consistent
 #endif
@@ -284,7 +184,6 @@ extern void *lis_osif_pci_alloc_consistent(struct pci_dev *hwdev, size_t size,
 #define pci_free_consistent lis_osif_pci_free_consistent
 extern void lis_osif_pci_free_consistent(struct pci_dev *hwdev, size_t size,
                                 void *vaddr, dma_addr_t dma_handle)_RP;
-#endif /* >= 2.4 */
 
 #ifdef pci_map_single
 #undef pci_map_single
@@ -352,7 +251,6 @@ extern dma_addr_t lis_osif_sg_dma_address(struct scatterlist *sg)_RP;
 #define sg_dma_len lis_osif_sg_dma_len
 extern size_t lis_osif_sg_dma_len(struct scatterlist *sg)_RP;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,13)
 #ifdef pci_map_page
 #undef pci_map_page
 #endif
@@ -368,52 +266,6 @@ extern dma_addr_t lis_osif_pci_map_page(struct pci_dev *hwdev,
 extern void lis_osif_pci_unmap_page(struct pci_dev *hwdev,
 				dma_addr_t dma_address, size_t size,
 				int direction)_RP;
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-#ifdef pci_dac_set_dma_mask
-#undef pci_dac_set_dma_mask
-#endif
-#define pci_dac_set_dma_mask lis_osif_pci_dac_set_dma_mask
-extern int lis_osif_pci_dac_set_dma_mask(struct pci_dev *hwdev, u64 mask)_RP;
-
-#ifdef pci_dac_dma_supported
-#undef pci_dac_dma_supported
-#endif
-#define pci_dac_dma_supported lis_osif_pci_dac_dma_supported
-extern int lis_osif_pci_dac_dma_supported(struct pci_dev *hwdev, u64 mask)_RP;
-
-#if (!defined(_PPC64_LIS_))
-#ifdef pci_dac_page_to_dma
-#undef pci_dac_page_to_dma
-#endif
-#define pci_dac_page_to_dma lis_osif_pci_dac_page_to_dma
-extern dma64_addr_t lis_osif_pci_dac_page_to_dma(struct pci_dev *pdev,
-			struct page *page, unsigned long offset,
-			int direction)_RP;
-
-#ifdef pci_dac_dma_to_page
-#undef pci_dac_dma_to_page
-#endif
-#define pci_dac_dma_to_page lis_osif_pci_dac_dma_to_page
-extern struct page *lis_osif_pci_dac_dma_to_page(struct pci_dev *pdev,
-					dma64_addr_t dma_addr)_RP;
-
-#ifdef pci_dac_dma_to_offset
-#undef pci_dac_dma_to_offset
-#endif
-#define pci_dac_dma_to_offset lis_osif_pci_dac_dma_to_offset
-extern unsigned long lis_osif_pci_dac_dma_to_offset(struct pci_dev *pdev,
-					dma64_addr_t dma_addr)_RP;
-
-#ifdef pci_dac_dma_sync_single
-#undef pci_dac_dma_sync_single
-#endif
-#define pci_dac_dma_sync_single lis_osif_pci_dac_dma_sync_single
-extern void lis_osif_pci_dac_dma_sync_single(struct pci_dev *pdev,
-		    dma64_addr_t dma_addr, size_t len, int direction)_RP;
-#endif /* not _PPC64_LIS_ */
-#endif		/* 2.5.0 */
-#endif /* >= 2.4.13 */
 
 #endif /* CONFIG_PCI */
 
@@ -547,25 +399,6 @@ extern void lis_osif_pci_dac_dma_sync_single(struct pci_dev *pdev,
 #undef vsprintf
 #endif
 #define	vsprintf			lis_vsprintf
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
-#ifdef sleep_on
-#undef sleep_on
-#endif
-#define	sleep_on			lis_sleep_on
-#ifdef interruptible_sleep_on
-#undef interruptible_sleep_on
-#endif
-#define	interruptible_sleep_on		lis_interruptible_sleep_on
-#ifdef sleep_on_timeout
-#undef sleep_on_timeout
-#endif
-#define	sleep_on_timeout		lis_sleep_on_timeout
-#ifdef interruptible_sleep_on_timeout
-#undef interruptible_sleep_on_timeout
-#endif
-#define	interruptible_sleep_on_timeout	lis_interruptible_sleep_on_timeout
-#endif /* < 2.5 */
 
 #ifdef wait_event
 #undef wait_event

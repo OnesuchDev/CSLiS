@@ -149,7 +149,7 @@ void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
  * S/390 2.4 kernels export smp_num_cpus
  * other 2.4 kernels export num_online_cpus()
  */
-#if ( defined(__s390__) || defined(__s390x__) ) && defined(KERNEL_2_4)
+#if ( defined(__s390__) || defined(__s390x__) )
 #define NUM_CPUS		smp_num_cpus
 #else
 #define NUM_CPUS		num_online_cpus()
@@ -236,14 +236,10 @@ static int	lis_errnos[LIS_NR_CPUS] ;
  * of the problem.  You won't see the problem unless you are working
  * with a 2.6 based distribution.  I first noticed it in SuSE 9.1.
  */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
 #if defined(noinline) 		/* kernel has this defined */
 #define _NI     noinline
 #else				/* no special meaning */
 #define	_NI	__attribute__((noinline)) 
-#endif
-#else /* if < 2.6 */
-#define	_NI
 #endif
 
 #if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
@@ -1367,7 +1363,6 @@ void lis_select_wakeup(stdata_t *hd)
 
 void lis_show_inode_aliases( struct inode *i )
 {
-#if defined(KERNEL_2_1)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)  /* skip for new kernel */
     struct list_head *ent;
 #endif
@@ -1392,7 +1387,6 @@ void lis_show_inode_aliases( struct inode *i )
 
 	lis_print_dentry(d, ">> dentry") ;
     }
-#endif
 #endif
 }
 
@@ -5515,8 +5509,6 @@ int mount_permission(char * path)
             error = inode_permission(ns_ptr, inode, mask);
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27)
             error = inode_permission(inode, mask);
-#elif LINUX_VERSION_CODE <=  KERNEL_VERSION(2,5,0)
-            error = permission(inode, mask);
 #else
             error = permission(inode, mask, &nd);
 #endif

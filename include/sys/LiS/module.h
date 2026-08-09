@@ -34,9 +34,7 @@
 
 #include <sys/LiS/linux-mdep.h>
 
-#if defined(KERNEL_2_4)
 #undef module_info
-#endif
 
 #ifdef MODULE
 #  if defined(__KERNEL__)

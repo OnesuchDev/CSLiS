@@ -1355,15 +1355,7 @@ lis_rw_lock_free_fcn(lis_rw_lock_t *lock, FL)
 /*
  * Initialize a semaphore
  */
-#if defined(KERNEL_2_1)			/* 2.1 kernel or later */
 # define SET_SEM_COUNT(semp,cnt)	sema_init((semp), (cnt))
-#else					/* 2.0 kernel */
-# ifdef ATOMIC_INIT
-# define SET_SEM_COUNT(semp,cnt)	atomic_set(&((semp)->count), (cnt))
-# else
-# define SET_SEM_COUNT(semp,cnt)	(semp)->count = (cnt)
-# endif
-#endif
 
 void	_RP lis_up_fcn(lis_semaphore_t *lsem, FL)
 {

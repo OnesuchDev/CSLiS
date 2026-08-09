@@ -76,11 +76,6 @@
 #include <sys/lislocks.h>	/* lis_semaphore_t, etc */
 #endif
 #include <sys/dki.h>		/* toid_t */
-#if !defined(KERNEL_2_1)
-# ifndef _POLL_H
-# include <sys/LiS/poll.h>	/* streams module symbols & types */
-# endif
-#endif
 
 #ifndef RHEL_RELEASE_VERSION
 #define RHEL_RELEASE_VERSION(a, b) (((a) << 8) + (b))
@@ -194,8 +189,6 @@ struct stmux
  *  to by file pointers for the stream. It corresponds to the STREAM head.
  */
 
-#if defined(KERNEL_2_1)
-
 typedef struct
 {
     uid_t	uid ;
@@ -215,16 +208,6 @@ typedef struct
 #endif
 
 } lis_kcreds_t ;
-
-#else
-
-typedef struct
-{
-    int		dummy ;
-
-} lis_kcreds_t ;
-
-#endif
 
 typedef
 struct stdata
