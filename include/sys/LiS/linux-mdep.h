@@ -69,7 +69,12 @@
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 #include <linux/kconfig.h>
-#define f_vfsmnt   f_path.mnt   /* define needed for later kernel support */
+/* define needed for later kernel support */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#define f_vfsmnt   __f_path.mnt
+#else
+#define f_vfsmnt   f_path.mnt
+#endif
 #endif
 #ifdef LISAUTOCONF
 #include <sys/autoconf.h>           /* /usr/src/LiS/include/sys */

@@ -163,7 +163,9 @@ void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
 
 #define LIS_PATH_MAX  884   /* Length in characters for a path */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#define f_dentry __f_path.dentry
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
 #define f_dentry f_path.dentry
 #endif
 
