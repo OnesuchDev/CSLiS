@@ -1,0 +1,19 @@
+# Object files
+/fattach
+/fdetach
+/makenodes
+/mkfifo
+/oc
+/pafd
+/psfd
+/rwf
+/strconf
+/streams
+/strtst
+/test
+/test2
+/thrtst
+/timetst
+
+# Generated files
+/makenodes.c
