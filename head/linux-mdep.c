@@ -1196,11 +1196,7 @@ static void lis_cdev_put(struct dentry *d)
 	if (inode && inode->i_cdev)
 	    printk(">> i->i_cdev: c@0x%p/%d/%x \"%s\"\n",
 		inode->i_cdev,
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,8)
-		K_ATOMIC_READ(&inode->i_cdev->kobj.refcount),
-#else
 		K_ATOMIC_READ(&inode->i_cdev->kobj.kref.refcount),
-#endif
 		DEV_TO_INT(inode->i_cdev->dev),
 		(inode->i_cdev->owner ?
 		 inode->i_cdev->owner->name : "No-Owner")) ;
@@ -1217,7 +1213,6 @@ static void lis_cdev_put(struct dentry *d)
 	list_del_init(&inode->i_devices);
     }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,9)
 /*PMR20783 drop this down for RHEL 7.3, kernel 3.10.0-514 */
 //if LINUX_VERSION_CODE < KERNEL_VERSION(3,12,0) .... SLES 12
 #if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(7, 3)) || LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
@@ -1225,9 +1220,6 @@ static void lis_cdev_put(struct dentry *d)
     module_put(cp->owner);
 #else   /* Fix in 3,12,...no 3,10 and level less than 1794 (514 build) PMR20783, system does kobject_put */
     module_put(cp->owner);
-#endif
-#else
-    cdev_put(cp) ;
 #endif
     spin_unlock(&lock) ;
 }
