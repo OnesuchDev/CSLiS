@@ -4814,9 +4814,9 @@ int      lis_kill_proc(int pid, int sig, int priv)
     return(kill_pid(find_vpid(pid), sig, priv)) ;
 }
 
-int      lis_kill_pg (int pgrp, int sig, int priv)
+int      lis_kill_pg (struct pid *pgrp, int sig, int priv)
 {
-    return(kill_pgrp(find_vpid(pgrp), sig, priv)) ;
+    return(kill_pgrp(pgrp, sig, priv)) ;
 }
 
 /************************************************************************
