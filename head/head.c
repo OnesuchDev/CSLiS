@@ -6786,9 +6786,9 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 		    /* 
 		       we should make this the controling terminal...
 		     */
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-		    hd->sd_pgrp = PGRP(f);
-#endif
+		    rcu_read_lock(); /* lock against concurrent setsid */
+		    hd->sd_pgrp = task_pgrp(current);
+		    rcu_read_unlock();
 		}
 	    }
 	}

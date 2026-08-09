@@ -150,6 +150,9 @@ typedef unsigned long long	__kernel_uoff_t;
 
 #include <linux/kdev_t.h>	/* 1.3.xx needs this */
 #include <linux/sched.h>	/* sleep,wake,... */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)
+#include <linux/sched/signal.h> /* task_pgrp, used in head.c */
+#endif
 #include <linux/wait.h>
 #include <linux/kernel.h>	/* suser,...*/
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))
@@ -502,7 +505,7 @@ int lis_loadable_load(const char *name);
  * Process kill
  */
 extern int	lis_kill_proc(int pid, int sig, int priv) ;
-extern int	lis_kill_pg (int pgrp, int sig, int priv) ;
+extern int	lis_kill_pg (struct pid *pgrp, int sig, int priv) ;
 
 /************************************************************************
 *                            major/minor                                *
@@ -701,7 +704,6 @@ typedef	volatile long		lis_atomic_t ;
 #endif
 #endif
 
-#define PGRP(fp)  process_group(current)
 #define PID(fp)	  current->pid
 
 #define OPENFILES()     current->files->count

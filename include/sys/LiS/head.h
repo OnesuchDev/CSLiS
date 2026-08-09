@@ -256,7 +256,7 @@ struct stdata
 	toid_t		  sd_scantimer;	/* scanq timer handle */
 	int		  sd_iocseq;	/* ioc seq # */
         int		  sd_session;   /* controlling session id */
-        int		  sd_pgrp;      /* controlling process group id */
+        struct pid	 *sd_pgrp;      /* controlling process group id */
         int		  sd_closetime; /* time to wait to drain q in close */
         toid_t		  sd_close_timer;/* timer handle for close timer */
 	int		  sd_maxpushcnt; /* currently there's no limit in 
