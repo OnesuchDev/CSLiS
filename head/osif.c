@@ -40,6 +40,9 @@
 #else
 #include <generated/autoconf.h>
 #endif		/* Linux config defines */
+#ifndef RHEL_RELEASE_VERSION
+#define RHEL_RELEASE_VERSION(a, b) (((a) << 8) + (b))
+#endif
 
 #ifdef STR
 #undef STR				/* collides with irq.h */
@@ -63,7 +66,7 @@
 #endif
 
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) )
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > 2309) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > RHEL_RELEASE_VERSION(9, 5)) || \
      (LINUX_VERSION_CODE > KERNEL_VERSION(6,10,0))) /* RHEL 9.6 or RHEL 10, SLES 16 */
 #define _LINUX_PROPERTY_H_  // omit property.h
 #endif
@@ -100,7 +103,7 @@
 #include <linux/bios32.h>		/* old style PCI routines */
 #include <linux/mm.h>			/* vremap */
 #endif
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305)  //For RHEL 9 update 12-2022
+#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1))  //For RHEL 9 update 12-2022
 #include <stdarg.h>                    /* for va_list */
 #endif
 

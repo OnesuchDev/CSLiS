@@ -34,7 +34,7 @@
 #include <sys/stream.h>
 #include <sys/poll.h>
 #include <sys/lislocks.h>
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305)  //For RHEL 9 update 12-2022
+#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1))  //For RHEL 9 update 12-2022
 #include <stdarg.h>                    /* for va_list */
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
