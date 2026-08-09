@@ -8711,9 +8711,7 @@ void lis_terminate_head(void)
 void lis_terminate_final(void)
 {
     lis_terminate_mem() ;
-#if !defined(USER)
     lis_free_all_pages() ;		/* from lis page allocator */
-#endif
 #if (defined(USE_KMEM_CACHE))
     lis_terminate_locks();
 #endif

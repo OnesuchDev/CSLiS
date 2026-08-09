@@ -9,9 +9,5 @@
 
 int	isastream(int fd)
 {
-#ifdef USER
-    return (user_ioctl( fd, I_CANPUT, 0 ) != -1);
-#else
     return (ioctl( fd, I_CANPUT, 0 ) != -1);
-#endif
 }

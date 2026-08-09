@@ -50,13 +50,11 @@
  * portable STREAMS with no kernel poll.h to be included.
  */
 # if !defined(_LIS_M_DEP_H) || !defined(__KERNEL__)
-# ifndef USER		/* Nonsense, and error if no linux/version.h */
 #  include <linux/version.h>
 #  ifndef KERNEL_VERSION
 #  define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #  endif
 #  define	KERNEL_2_1
-# endif				/* USER */
 # endif				/* _LIS_M_DEP_H */
 #endif				/* __linux__ */
 

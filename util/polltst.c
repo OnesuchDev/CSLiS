@@ -42,7 +42,7 @@
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0) || (!defined(_PPC_LIS_) && !defined(_S390X_LIS_)))
 #include <signal.h>                   /* RHEL 7 requires no SIGNAL on ppc64 */
 #else 
-#ifdef __KERNEL__                       /* directly coupled to usrio.h */
+#ifdef __KERNEL__
 #include <signal.h>
 #endif
 #endif

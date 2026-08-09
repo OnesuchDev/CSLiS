@@ -36,14 +36,10 @@ mk_genconf_h()
     echo "#define STREAMS_REGPARM	$STREAMS_REGPARM" >>$f
     CCREGPARM=`echo $CCREGPARM | sed -e's/.*=//'`
     echo "#define CCREGPARM	$CCREGPARM" >>$f
-    if [ "$TARGET" = "l" ]; then
-	if [ "$CCREGPARM" = "0" -a "$STREAMS_REGPARM" = "0" ]; then
-	    echo "#define _RP     " >>$f
-	else
-	    echo "#define _RP  __attribute__ ((regparm($STREAMS_REGPARM)))" >>$f
-	fi
+    if [ "$CCREGPARM" = "0" -a "$STREAMS_REGPARM" = "0" ]; then
+        echo "#define _RP     " >>$f
     else
-	echo "#define _RP     " >>$f
+        echo "#define _RP  __attribute__ ((regparm($STREAMS_REGPARM)))" >>$f
     fi
 }
 

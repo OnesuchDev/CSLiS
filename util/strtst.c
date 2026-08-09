@@ -24,11 +24,9 @@
 #ident "@(#) CSLiS strtst.c 7.11 2022-10-26 15:30:00 "
 #define	inline			/* make disappear */
 
-#if !defined(DIRECT_USER)
 #define _REENTRANT
 #define _THREAD_SAFE
 #define _XOPEN_SOURCE	500		/* single unix spec */
-#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -37,11 +35,11 @@
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0) || (!defined(_PPC_LIS_) && !defined(_S390X_LIS_)))
 #include <signal.h>                   /* RHEL 7 requires no SIGNAL on ppc64 */
-#ifdef __KERNEL__                       /* directly coupled to usrio.h */
+#ifdef __KERNEL__
 #include <sys/stream.h>
 #endif /* end if kernel */
 #else  /* kernel less then Red Hat 7 release */
-#ifdef __KERNEL__                       /* directly coupled to usrio.h */
+#ifdef __KERNEL__
 #include <signal.h>
 #include <sys/stream.h>
 #endif
@@ -50,10 +48,8 @@
 #include <sys/stropts.h>
 #include <sys/LiS/loop.h>		/* an odd place for this file */
 #include <sys/LiS/minimux.h>		/* an odd place for this file */
-#ifndef DIRECT_USER
 #include <sys/LiS/mtdrv.h>
 #include <pthread.h>
-#endif
 
 
 #include <string.h>
@@ -145,11 +141,7 @@ struct strpeek	pk_str = {
 extern void make_nodes(void) ;
 extern int  n_read(int fd) ;
 
-#ifdef DIRECT_USER		/* tie-in to cmn_err */
-#define	ENO(neg_e)	(-(neg_e))
-#else
 #define	ENO(dmy)	(errno)
-#endif
 
 extern int	n_read_msgs(int fd) ;		/* forward decl */
 
@@ -173,7 +165,6 @@ long	lis_mem_alloced ;
 * Return pointer to current time and date in ASCII.			*
 *									*
 ************************************************************************/
-#ifndef DIRECT_USER
 static char *now(void)
 {
     time_t	tim ;
@@ -187,7 +178,6 @@ static char *now(void)
 	*p = 0 ;
     return(buf) ;
 }
-#endif
 
 /************************************************************************
 *                         msg_to_syslog                                 *
@@ -264,10 +254,6 @@ void	xit(void)
 
     print("Dump of memory areas in use:\n\n") ;
 
-#ifdef DIRECT_USER
-    print("\n\n\nDirectory listing:\n\n") ;
-    user_print_dir(NULL, USR_PRNT_INODE) ;
-#endif
     exit(1) ;
 
 } /* xit */
@@ -4583,10 +4569,20 @@ void	clone_test(void)
 
     print("\nclone open test\n") ;
 
-#ifdef DIRECT_USER
-    print("\n\n\nDirectory listing at start of test\n\n") ;
-    user_print_dir(NULL, USR_PRNT_INODE) ;
-#endif
+    rslt = open_clones(&fd1, &fd2) ;
+    if (rslt < 0) xit() ;
+
+    rslt = open_clones(&fd3, &fd4) ;
+    if (rslt < 0) xit() ;
+
+    fd5 = user_open(LOOP_1, O_RDWR, 0) ;
+    if (fd5 < 0) xit() ;
+
+    user_close(fd1) ;
+    user_close(fd2) ;
+    user_close(fd3) ;
+    user_close(fd4) ;
+    user_close(fd5) ;
 
     rslt = open_clones(&fd1, &fd2) ;
     if (rslt < 0) xit() ;
@@ -4597,50 +4593,11 @@ void	clone_test(void)
     fd5 = user_open(LOOP_1, O_RDWR, 0) ;
     if (fd5 < 0) xit() ;
 
-#ifdef DIRECT_USER
-    print("\n\n\nDirectory listing after opens\n\n") ;
-    user_print_dir(NULL, USR_PRNT_INODE) ;
-    user_print_inodes() ;
-#endif
-
     user_close(fd1) ;
     user_close(fd2) ;
     user_close(fd3) ;
     user_close(fd4) ;
     user_close(fd5) ;
-
-#ifdef DIRECT_USER
-    print("\n\n\nDirectory listing after closes\n\n") ;
-    user_print_dir(NULL, USR_PRNT_INODE) ;
-    user_print_inodes() ;
-#endif
-
-    rslt = open_clones(&fd1, &fd2) ;
-    if (rslt < 0) xit() ;
-
-    rslt = open_clones(&fd3, &fd4) ;
-    if (rslt < 0) xit() ;
-
-    fd5 = user_open(LOOP_1, O_RDWR, 0) ;
-    if (fd5 < 0) xit() ;
-
-#ifdef DIRECT_USER
-    print("\n\n\nDirectory listing after 2nd round of opens\n\n") ;
-    user_print_dir(NULL, USR_PRNT_INODE) ;
-    user_print_inodes() ;
-#endif
-
-    user_close(fd1) ;
-    user_close(fd2) ;
-    user_close(fd3) ;
-    user_close(fd4) ;
-    user_close(fd5) ;
-
-#ifdef DIRECT_USER
-    print("\n\n\nDirectory listing after 2nd round of closes\n\n") ;
-    user_print_dir(NULL, USR_PRNT_INODE) ;
-    user_print_inodes() ;
-#endif
 
 } /* clone_test */
 
@@ -4692,13 +4649,11 @@ void bufcall_test(void)
     if (put_msg(fd1, &wr_ctl, &wr_dta, 0, MSG_BAND) < 0) xit() ;
 
     memset(rdbuf, 0, sizeof(rdbuf)) ;
-#ifndef DIRECT_USER
     if (nread_wait_msgs(fd2, 1) != 1)
     {
 	print("loop.2: message failed to appear\n") ;
 	xit() ;
     }
-#endif
     rslt = user_read(fd2, rdbuf, lgth);
     if (rslt < 0)
     {
@@ -4857,21 +4812,12 @@ void sad_test(void)
 		print("sad_test: Shouldn't it be unconfigured?\n");
 		xit();
 	}
-#ifdef DIRECT_USER
-	if (-rslt == ENODEV)
-		print("sad_test: Autopush is unconfigured for loop minor 1.\n");
-	else {
-		print("sad_test: SAD_GAP ioctl failed: %s\n", strerror(ENO(rslt)));
-		xit();
-	}
-#else
 	if (errno == ENODEV)
 		print("sad_test: Autopush is unconfigured for loop minor 1.\n");
 	else {
 		print("sad_test: SAD_GAP ioctl failed: %s\n", strerror(errno));
 		xit();
 	}
-#endif
 
 	/* Configure autopush */
 	apush.sap_cmd = SAP_ONE;
@@ -4938,17 +4884,10 @@ void sad_test(void)
 		print("sad_test: But I just cleared the configuration\n");
 		xit();
 	}
-#ifdef DIRECT_USER
-	if (-rslt != ENODEV) {
-		print("sad_test: SAD_GAP ioctl failed: %s\n", strerror(ENO(rslt)));
-		xit();
-	}
-#else
 	if (errno != ENODEV) {
 		print("sad_test: SAD_GAP ioctl failed: %s\n", strerror(errno));
 		xit();
 	}
-#endif
 
 	print("sad_test: SAD_GAP and SAD_SAP IOCTL tests passed\n");
 
@@ -5749,7 +5688,6 @@ void pullupmsg_test(void)
 * tested using multiple threads.					*
 *									*
 ************************************************************************/
-#ifndef DIRECT_USER
 
 pthread_mutex_t		mt_state_lock ;
 volatile int		mt_state ;
@@ -6124,7 +6062,6 @@ void mt_open_test(void)
     print("multi-thread open test OK\n") ;
     IGNORE_RESULT(system("rmmod streams-mtdrv 2>&1"));
 }
-#endif
 
 /************************************************************************
 *                           module_test                                 *
@@ -6149,28 +6086,20 @@ int module_is_present(int fd, char *name)
 
 int module_load(char *name)
 {
-#ifndef DIRECT_USER
     char	buf[100] ;
 
     print("Loading module %s\n", name) ;
     sprintf(buf, "modprobe streams-%s 2>&1", name) ;
     return(system(buf)) ;
-#else
-    return(0) ;
-#endif
 }
 
 int module_unload(char *name)
 {
-#ifndef DIRECT_USER
     char	buf[100] ;
 
     print("Unloading module %s\n", name) ;
     sprintf(buf, "rmmod streams-%s 2>&1", name) ;
     return(system(buf)) ;
-#else
-    return(0) ;
-#endif
 }
 
 void module_push(int fd, char *name)
@@ -6381,10 +6310,6 @@ void test(void)
 
     set_debug_mask(debug_mask) ;
 
-#ifdef DIRECT_USER
-    print("\n\n\nDirectory listing:\n\n") ;
-    user_print_dir(NULL, USR_PRNT_INODE) ;
-#endif
     print("Memory allocated = %ld\n", lis_mem_alloced) ;
 
     open_close_test() ;
@@ -6392,12 +6317,10 @@ void test(void)
     print("Memory allocated = %ld\n", lis_mem_alloced) ;
     wait_for_logfile("open/close test") ;
 
-#ifndef DIRECT_USER
     mt_open_test();
     print_mem() ;
     print("Memory allocated = %ld\n", lis_mem_alloced) ;
     wait_for_logfile("mt open test") ;
-#endif
 
     ioctl_test() ;
     print_mem() ;
@@ -6468,14 +6391,6 @@ void test(void)
     print("Memory allocated = %ld\n", lis_mem_alloced);
     wait_for_logfile("Flushing test");
 
-#ifdef DIRECT_USER
-    pullupmsg_test() ;
-    print_mem() ;		/* looking for leaked mblks, etc */
-    wait_for_logfile("pullupmsg test");
-    print("\n\n\nDirectory listing:\n\n") ;
-    user_print_dir(NULL, USR_PRNT_INODE) ;
-#endif
-
     set_debug_mask(0L) ;
     print("\n\n*** strtst completed successfully ***\n") ;
 }
@@ -6527,14 +6442,12 @@ int main(int argc, char **argv)
     register_drivers() ;
     print("Memory allocated = %ld\n", lis_mem_alloced) ;
 
-#ifndef DIRECT_USER
     printk_fd = user_open(NPRINTK, O_RDWR, 0) ;
     if (printk_fd < 0)
     {
 	printf( NPRINTK ": %s\n", strerror(ENO(printk_fd))) ;
 	xit() ;
     }
-#endif
 
     test() ;
 /*     test() ; */

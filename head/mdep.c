@@ -23,11 +23,7 @@
 
 #ident "@(#) CSLiS mdep.c 7.11 2022-10-26 15:30:00 "
 
-#if defined(__MSDOS__)				/* DOS version */
-#include "dos-mdep.c"
-#else
 #include "linux-mdep.c"
-#endif
 
 
 

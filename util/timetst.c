@@ -34,9 +34,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/ioctl.h>
-#ifdef SYS_QNX
-#include <ioctl.h>
-#endif
 
 #include <sys/stream.h>
 #include <sys/stropts.h>
@@ -57,11 +54,7 @@
 
 #define	ALL_DEBUG_BITS	( ~ ((unsigned long long) 0) )
 
-#ifdef DIRECT_USER		/* tie-in to cmn_err */
-#define	ENO(neg_e)	(-(neg_e))
-#else
 #define	ENO(dmy)	(errno)
-#endif
 
 /************************************************************************
 *                           Storage                                     *

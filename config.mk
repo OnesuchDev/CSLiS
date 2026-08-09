@@ -81,25 +81,9 @@ RANLIB	=$(CROSS_COMPILE)ranlib
 LN	=ln -sf
 
 #
-# Calculate LIS_TARG
-#
 # This is the name of the target-specific subdirectory used when compiling.
 #
-ifeq ($(TARGET),l)
 LIS_TARG = linux
-else
-ifeq ($(TARGET),u)
-LIS_TARG = user
-else
-ifeq ($(TARGET),q)
-LIS_TARG = qnx
-else
-LIS_TARG = NO_LIS_TARGET
-endif
-endif
-endif
-
-
 
 #
 # See if modules are supported in the kernel
@@ -209,23 +193,6 @@ XOPTS += -D_S390X_LIS_
 endif
 
 #
-# This will make glibc define only the types defined in the good old SysV
-# The only exception is caddr_t, and that is defined on all SVR4 systems anyway.
-#
-# When we do not have the types of _every_ standard, LiS will not compile
-# if somebody tries to use non-SysV types. This helps to keep the LiS source
-# clean, and makes it more portable.
-#
-ifeq ($(LIS_TARG),user)
-XOPTS += -D_SVID_SOURCE -D_BSD_SOURCE
-ifdef OSTYPE
-ifeq ($(OSTYPE),SunOS5)
-XOPTS += -DLIS_HAVE_MAJOR_T -DLIS_HAVE_O_UID_T
-endif
-endif
-endif
-
-#
 # Use a define when running in a SMP environment.
 #
 ifdef CONFIG_SMP
@@ -283,7 +250,6 @@ CCUSEROPT += -I$(KINCL)
 # the following (set by Configure) should all be to kernel-version-specific
 # directories
 #
-ifeq ($(LIS_TARG),linux)
 XOPTS += -I$(KINCL) $(KINCL_MACH_GENERIC) $(KINCL_MACH_DEFAULT) -I$(KARCHINCL) -I$(KARCHINCL2)
 ifeq ($(SPLITUSERKERNEL),y)
 XOPTS += -I$(KARCHINCL4) -I$(KARCHINCL3)
@@ -304,7 +270,6 @@ endif
 ifeq ($(NOKSRC),1)
 XOPTS += -DNOKSRC
 CCUSEROPT += -DNOSRC
-endif
 endif
 
 #
@@ -330,11 +295,7 @@ endif
 #
 # Base name of user-level library
 #
-ifeq ($(LIS_TARG),user)
-LIBBASE = LiSuser
-else
 LIBBASE = LiS
-endif
 
 #
 # If the user wants LiS built for development purposes (lots of internal
