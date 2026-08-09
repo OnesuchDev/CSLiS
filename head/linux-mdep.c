@@ -64,6 +64,13 @@
 #include <linux/init.h>
 #endif
 
+/* I have no idea what is causing this warning */
+#include <linux/dcache.h>
+#ifdef QSTR_INIT
+#undef QSTR_INIT
+#define QSTR_INIT(n,l) { { { .len = l } }, .name = (const unsigned char *)n }
+#endif
+
 #include <linux/fs_struct.h>
 #include <linux/sched.h>
 #define	__KERNEL_SYSCALLS__	1	/* to make kernel_thread visible */
