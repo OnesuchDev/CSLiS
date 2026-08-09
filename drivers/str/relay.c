@@ -289,11 +289,7 @@ relay_close (queue_t *q, int dummy, cred_t *credp)
 
 #ifndef KM26
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-static int relay3_init_module(void)
-#else
 static int __init relay3_init_module(void)
-#endif
 {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
     printk("relay3.init_module: Attempt to register.\n");
@@ -312,11 +308,7 @@ static int __init relay3_init_module(void)
     return 0;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-static void relay3_cleanup_module(void)
-#else
 static void __exit relay3_cleanup_module(void)
-#endif
 {
     if (lis_unregister_strmod(&relay3_info) < 0)
 	printk("relay3.cleanup_module: Unable to unregister module.\n");

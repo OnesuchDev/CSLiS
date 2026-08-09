@@ -379,11 +379,7 @@ extern int lis_strpoll(struct inode *i, struct file *f, void *ptr) ;
 extern int lis_strclose(struct inode *i, struct file *f);
 extern ssize_t lis_strwrite(struct file *, const char *,  size_t, loff_t *);
 extern ssize_t lis_strread(struct file *, char *,  size_t, loff_t *);
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 extern int lis_ioctl32_str(struct file *, unsigned int, unsigned long);
-#else
-extern int lis_ioctl32_str(unsigned int, unsigned int, unsigned long);
-#endif
 
 /* Initialize some glob vars...
  */

@@ -70,24 +70,16 @@
 typedef long		_intptr_t;
 #  define intptr_t	_intptr_t
 #  endif
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-typedef unsigned long   uintptr_t;
-#else
 #ifndef __KERNEL__
 typedef unsigned long	uintptr_t;
-#endif
 #endif
 # else					/* _ASM_IA64_UNISTD_H */
 #  ifndef intptr_t
 typedef int		_intptr_t;
 #  define intptr_t	_intptr_t
 #  endif
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-typedef unsigned int    uintptr_t;
-#else
 #ifndef __KERNEL__
 typedef unsigned int	uintptr_t;
-#endif
 #endif
 # endif					/* _ASM_IA64_UNISTD_H */
 

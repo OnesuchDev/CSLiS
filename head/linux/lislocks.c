@@ -43,11 +43,7 @@
 #endif
 
 #if defined(USE_KMEM_CACHE)
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-kmem_cache_t *lis_locks_cachep;
-#else
 struct kmem_cache *lis_locks_cachep;
-#endif
 #endif
 
 #define FL	char *file, int line
@@ -1531,11 +1527,6 @@ void lis_init_locks(void)
     spin_size = sizeof(*llock) - sizeof(llock->spin_lock_mem) +
 						    sizeof(spinlock_t);
     size = sem_size > spin_size ? sem_size : spin_size ;
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-    lis_locks_cachep =
-          kmem_cache_create("lis_locks_cache", size, 0,
-                            SLAB_HWCACHE_ALIGN, NULL, NULL);
-#else
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0)  // to include Ubuntu 18.4.3
     lis_locks_cachep =
           kmem_cache_create("lis_locks_cache", size, 0,
@@ -1544,7 +1535,6 @@ void lis_init_locks(void)
     lis_locks_cachep =
           kmem_cache_create_usercopy("lis_locks_cache", size, 0,
                             SLAB_HWCACHE_ALIGN,0,size,NULL); 
-#endif
 #endif
 }
 

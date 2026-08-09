@@ -115,7 +115,6 @@ typedef unsigned long long	__kernel_uoff_t;
 #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,16)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
 #define PIPE_SEM(inode)         (&(inode).i_mutex)
 #else
@@ -130,7 +129,6 @@ typedef unsigned long long	__kernel_uoff_t;
 #define PIPE_WRITERS(inode)     ((inode).i_pipe->writers)
 #define PIPE_RCOUNTER(inode)    ((inode).i_pipe->r_counter)
 #define PIPE_WCOUNTER(inode)    ((inode).i_pipe->w_counter)
-#endif
 
 #if defined(NOKSRC)
 
@@ -352,7 +350,6 @@ extern int	lis_in_interrupt(void) _RP ;
 void lis_gettimeofday(struct timeval *tv)_RP;
 
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,15)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
 /* lock inodes...
  *
@@ -368,15 +365,6 @@ void lis_kernel_up(struct mutex *mut)_RP;
  */
 int lis_kernel_down(struct rw_semaphore *i_rwsem)_RP;
 void lis_kernel_up(struct rw_semaphore *i_rwsem)_RP;
-#endif
-#else
-/* lock inodes...
- *
- * Must use kernel semaphore routine directly since the inode semaphore is a
- * kernel semaphore and not an LiS semaphore.
- */
-int lis_kernel_down(struct semaphore *sem)_RP;
-void lis_kernel_up(struct semaphore *sem)_RP;
 #endif
 
 #if 0			/* don't need to hold inode semaphore for I/O oprns */
@@ -405,14 +393,10 @@ struct inode  *lis_set_up_inode(struct file *f, struct inode *inode) ;
 #define SET_INODE_STR(i,s)  lis_set_inode_str(i,s)
 #define	I_COUNT(i)	( (i) ? atomic_read(&((i)->i_count)) : -1 )
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,24)
-   #define F_COUNT(f)	( (f) ? atomic_read(&((f)->f_count)) : -1 )
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,12,0)
    #define F_COUNT(f)   ( (f) ? atomic_long_read(&((f)->f_count)) : -1 )
 #else
    #define F_COUNT(f)   ( (f) ? file_count(f) : -1 )
-#endif
 #endif
 
 struct dentry *lis_d_alloc_root(struct inode *i, int m);
@@ -444,11 +428,7 @@ extern void          lis_cleanup_file_closing(struct file *, struct stdata *);
 
 extern int lis_major;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-extern int lis_strflush(struct file *);
-#else
 extern int lis_strflush(struct file *, fl_owner_t);
-#endif
 
 /*
  * Device node support
@@ -746,17 +726,9 @@ extern lis_atomic_t             lis_head_cnt;
 extern lis_atomic_t             lis_qband_cnt;
 extern lis_atomic_t             lis_queue_cnt;
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-void lis_cache_destroy(kmem_cache_t *p, lis_atomic_t *c, char *label);
-#else
 void lis_cache_destroy(struct kmem_cache *p, lis_atomic_t *c, char *label);
-#endif
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-static inline void *lis_cache_alloc(kmem_cache_t *cp, lis_atomic_t *cntr)
-#else
 static inline void *lis_cache_alloc(struct kmem_cache *cp, lis_atomic_t *cntr)
-#endif
 {
     void *p = kmem_cache_alloc(cp, GFP_ATOMIC) ;
 
@@ -1008,21 +980,12 @@ lis_mntput_fcn(struct vfsmount *m,
 #endif
 
 #define freehdr(a) lis_msgb_cache_freehdr((a))
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-extern kmem_cache_t *lis_msgb_cachep;
-extern kmem_cache_t *lis_queue_cachep;
-extern kmem_cache_t *lis_qsync_cachep;
-extern kmem_cache_t *lis_qband_cachep;
-extern kmem_cache_t *lis_head_cachep;
-extern kmem_cache_t *lis_locks_cachep;
-#else
 extern struct kmem_cache *lis_msgb_cachep;
 extern struct kmem_cache *lis_queue_cachep;
 extern struct kmem_cache *lis_qsync_cachep;
 extern struct kmem_cache *lis_qband_cachep;
 extern struct kmem_cache *lis_head_cachep;
 extern struct kmem_cache *lis_locks_cachep;
-#endif
 extern struct mdbblock *lis_kmem_cache_allochdr(unsigned int);
 extern void lis_msgb_cache_freehdr(void *);
 extern void lis_terminate_msg(void);	/* in linux-mdep.c */
