@@ -1161,9 +1161,9 @@ struct dentry *lis_d_alloc_root(struct inode *i, int mode)
 	dname.hash = i->i_ino;
 #else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)	
-	dname.hash = full_name_hash(dname.name, dname.len);
+	dname.hash = full_name_hash((const char *)dname.name, dname.len);
 #else
-        dname.hash = full_name_hash(NULL,dname.name, dname.len);
+        dname.hash = full_name_hash(NULL,(const char *)dname.name, dname.len);
 #endif
 #endif
 
@@ -2225,9 +2225,9 @@ int	lis_new_file_name_dev(struct file *f, const char *name, dev_t dev)
     dname.name = (unsigned char *)(name) ;	/* set up for d_alloc */
     dname.len  = strlen(name) ;
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0))
-    dname.hash = full_name_hash(dname.name, dname.len) ;
+    dname.hash = full_name_hash((const char *)dname.name, dname.len) ;
 #else
-    dname.hash = full_name_hash(NULL,dname.name, dname.len);
+    dname.hash = full_name_hash(NULL,(const char *)dname.name, dname.len);
 #endif
     lis_parent = lis_mnt->mnt_sb->s_root ;
     new        = d_alloc(lis_parent, &dname) ;
@@ -2470,9 +2470,9 @@ lis_new_inode( struct file *f, dev_t dev )
 	    dname.len  = oldd->d_name.len ;
 	}
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
-        dname.hash = full_name_hash(dname.name, dname.len);
+        dname.hash = full_name_hash((const char *)dname.name, dname.len);
 #else
-        dname.hash = full_name_hash(NULL,dname.name, dname.len);
+        dname.hash = full_name_hash(NULL,(const char *)dname.name, dname.len);
 #endif
 	newd = d_alloc(lis_mnt->mnt_sb->s_root, &dname) ;
 	if (newd == NULL)
@@ -5101,14 +5101,14 @@ lis_thread_stop(pid_t pid)
  */
 int	lis_thread_runqueues(void *p)
 {
-    intptr_t		 cpu_id = (intptr_t) p ;
+    uintptr_t		 cpu_id = (uintptr_t) p ;
     int			 sig_cnt  = 0 ;
     unsigned long	 seconds = 0 ;
     lis_semaphore_t	*semp = &lis_runq_sems[cpu_id] ;
     extern char		 lis_print_buffer[] ;
     extern char		*lis_nxt_print_ptr ;
 
-    printk(KERN_INFO "LiS-RunQ-%s running instance %d pid=%d\n",
+    printk(KERN_INFO "LiS-RunQ-%s running instance %lu pid=%d\n",
 	    lis_version, cpu_id, current->pid) ;
 
     current->fs->umask = 0 ;		/* can set any permissions */
@@ -5183,7 +5183,7 @@ int	lis_thread_runqueues(void *p)
  */
 void	lis_start_qsched(void)
 {
-    int		cpu ;
+    uintptr_t	cpu;
     int		ncpus ;
     char	name[20] ;
 
@@ -5201,7 +5201,7 @@ void	lis_start_qsched(void)
 	lis_sem_init(&lis_runq_sems[cpu], 0) ;	/* initialize semaphore */
 	lis_sem_init(&lis_runq_kill_sems[cpu], 0) ;/* initialize semaphore */
 
-	sprintf(name, "LiS-%s:%u", lis_version, cpu) ;
+	sprintf(name, "LiS-%s:%lu", lis_version, cpu) ;
         lis_runq_pids[cpu] = lis_thread_start(lis_thread_runqueues,
 							  (void *)cpu, name) ;
 	if (lis_runq_pids[cpu] < 0)		/* failed to fork */
