@@ -55,11 +55,7 @@
 #  ifndef KERNEL_VERSION
 #  define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #  endif
-#  if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,0)
-#   define	KERNEL_2_0
-#  else
-#   define	KERNEL_2_1
-#  endif
+#  define	KERNEL_2_1
 # endif				/* USER */
 # endif				/* _LIS_M_DEP_H */
 #endif				/* __linux__ */
