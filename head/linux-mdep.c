@@ -1250,7 +1250,7 @@ static void lis_cdev_put(struct dentry *d)
 #if defined(KERNEL_2_5)
     struct inode	*inode = d->d_inode ;
     struct cdev		*cp ;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,11)
     static spinlock_t	 lock = SPIN_LOCK_UNLOCKED ;
 #else
     static DEFINE_SPINLOCK(lock);
