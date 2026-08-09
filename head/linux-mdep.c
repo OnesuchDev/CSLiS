@@ -1214,6 +1214,8 @@ struct dentry *lis_d_alloc_root(struct inode *i, int mode)
      *  The following also identifies the dentry as a LiS-allocated dentry.
      */
     if (d) {
+        /* already set via set_default_d_op on 6.17+ */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,17,0)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0) 
     if ( LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS){
       printk("lis_d_alloc_root() - d_set_d_op: 0x%p\n",&lis_dentry_ops) ;
@@ -1222,7 +1224,8 @@ struct dentry *lis_d_alloc_root(struct inode *i, int mode)
 #else      
 	      d->d_op = &lis_dentry_ops;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
-        d->d_flags |= DCACHE_OP_DELETE;
+        d->d_flags |= DCACHE_OP_DELETE; /* done automatically, so not needed, on 6.17+ */
+#endif
 #endif
 #endif
     }
@@ -1818,6 +1821,9 @@ int lis_fs_setup_sb(struct super_block *sb, void *ptr, int silent)
     sb->s_blocksize	 = 1024 ;
     sb->s_blocksize_bits = 10 ;
     sb->s_op		 = &lis_super_ops ;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,17,0)
+    set_default_d_op(sb, &lis_dentry_ops);
+#endif
  
     if (ptr) 
         return lis_fs_fattach_sb( sb, ptr, silent );
@@ -2261,12 +2267,15 @@ int	lis_new_file_name_dev(struct file *f, const char *name, dev_t dev)
      *  we will do the initial setting of f_vfsmnt here.
      */
     f->f_vfsmnt = MNTGET(lis_mnt);	/* (re)mount on LiS */
+    /* already set via set_default_d_op on 6.17+ */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,17,0)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)
     d_set_d_op(new, &lis_dentry_ops);
 #else
     new->d_op   = &lis_dentry_ops;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
-    new->d_flags |= DCACHE_OP_DELETE;
+    new->d_flags |= DCACHE_OP_DELETE; /* done automatically, so not needed, on 6.17+ */
+#endif
 #endif
 #endif
     if (dev == 0)
@@ -2507,12 +2516,15 @@ lis_new_inode( struct file *f, dev_t dev )
 	if (oldmnt && oldmnt != lis_mnt)
 	    MNTPUT(oldmnt) ;                    /* do it if not lis_mnt also */
 	    
+        /* already set via set_default_d_op on 6.17+ */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,17,0)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0) 
    d_set_d_op(newd, &lis_dentry_ops);
 #else
    newd->d_op = &lis_dentry_ops;
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
-   newd->d_flags |= DCACHE_OP_DELETE;
+   newd->d_flags |= DCACHE_OP_DELETE; /* done automatically, so not needed on 6.17+ */
+#endif
 #endif
 #endif
 
