@@ -109,8 +109,34 @@
 #define	INCL_FROM_OSIF_DRIVER		/* do not change routine names */
 #include <sys/osif.h>
 
-
-
+/* Prototypes */
+int _RP lis_pcibios_present(void);
+const char * _RP lis_pcibios_strerror(int error);
+struct pci_dev  * _RP lis_osif_pci_find_device(unsigned int vendor,
+				 unsigned int device,
+                                 struct pci_dev *from);
+struct pci_dev  * _RP lis_osif_pci_find_slot(unsigned int bus,
+                                             unsigned int devfn);
+int      _RP lis_osif_pci_read_config_byte(struct pci_dev *dev,
+                                           u8 where, u8 *val);
+int      _RP lis_osif_pci_read_config_word(struct pci_dev *dev,
+					u8 where, u16 *val);
+int      _RP lis_osif_pci_read_config_dword(struct pci_dev *dev,
+					u8 where, u32 *val);
+int      _RP lis_osif_pci_write_config_byte(struct pci_dev *dev,
+					u8 where, u8 val);
+int      _RP lis_osif_pci_write_config_word(struct pci_dev *dev,
+					u8 where, u16 val);
+int      _RP lis_osif_pci_write_config_dword(struct pci_dev *dev,
+                                             u8 where, u32 val);
+void     _RP lis_osif_pci_set_master(struct pci_dev *dev);
+int  _RP lis_osif_pci_enable_device (struct pci_dev *dev);
+void  _RP lis_osif_pci_disable_device (struct pci_dev *dev);
+int  _RP lis_osif_pci_module_init( struct pci_driver *p );
+void  _RP lis_osif_pci_unregister_driver( struct pci_driver *p );
+dma_addr_t  _RP lis_osif_sg_dma_address(struct scatterlist *sg);
+size_t  _RP lis_osif_sg_dma_len(struct scatterlist *sg);
+void lis_free_devid_list(void);
 
 /************************************************************************
 *                       PCI BIOS Functions                              *
