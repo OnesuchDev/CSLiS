@@ -128,9 +128,7 @@ void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
 #endif
 #include <linux/time.h>
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,25)
 #include <linux/fdtable.h>
-#endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 #include <linux/sched.h> // kernel_thread
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
@@ -279,13 +277,6 @@ void lis_print_dentry(struct dentry *d, char *comment) ;
 
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
 extern long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,13)
-extern int register_ioctl32_conversion(unsigned int fd, 
-                                       int (*handler)(unsigned int fd,
-                                                      unsigned int cmd,
-                                                      unsigned long arg));
-extern int unregister_ioctl32_conversion(unsigned int cmd);
-#endif
 typedef struct strioctl32 {
     int     ic_cmd;                 /* command */
     int     ic_timout;              /* timeout value */
@@ -328,27 +319,15 @@ typedef struct lis_free_passfp_tg
 static lis_free_passfp_t free_passfp;
 
 #if defined(USE_KMEM_CACHE)
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-kmem_cache_t *lis_msgb_cachep = NULL;
-kmem_cache_t *lis_queue_cachep = NULL;
-kmem_cache_t *lis_qsync_cachep = NULL;
-kmem_cache_t *lis_qband_cachep = NULL;
-kmem_cache_t *lis_head_cachep = NULL;
-#else
 struct kmem_cache *lis_msgb_cachep = NULL;
 struct kmem_cache *lis_queue_cachep = NULL;
 struct kmem_cache *lis_qsync_cachep = NULL;
 struct kmem_cache *lis_qband_cachep = NULL;
 struct kmem_cache *lis_head_cachep = NULL;
 #endif
-#endif
 
 #if defined(USE_KMEM_TIMER) 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-kmem_cache_t *lis_timer_cachep = NULL;
-#else
 struct kmem_cache *lis_timer_cachep = NULL;
-#endif
 struct lis_timer {
       struct timer_list    lt;
       timo_fcn_t 	  *func;
@@ -420,11 +399,7 @@ extern lis_atomic_t		lis_putnext_flag ;
 extern lis_atomic_t	 	lis_runq_req_cnt ;
 extern lis_spin_lock_t	 	lis_qhead_lock ;
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-extern void lis_cache_destroy(kmem_cache_t *p, lis_atomic_t *c, char *label);
-#else
 extern void lis_cache_destroy(struct kmem_cache *p, lis_atomic_t *c, char *label);
-#endif
 
 /*  -------------------------------------------------------------------  */
 
@@ -437,9 +412,7 @@ int lis_strflush(struct file *f);
 int lis_strflush(struct file *f, fl_owner_t id);
 #endif
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 long lis_compat_ioctl(struct file *fp, unsigned int cmd, unsigned long arg);
-#endif
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
 long lis_unlocked_ioctl (struct file *, unsigned int, unsigned long);
@@ -466,9 +439,7 @@ lis_streams_fops = {
     unlocked_ioctl: lis_unlocked_ioctl,	/*  method to replace ioctl */
 #endif
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
     compat_ioctl: lis_compat_ioctl,    /* 32 over 64 bit ioctl */
-#endif
 #endif
     open:      lis_stropen,		/* open                 */
     flush:     lis_strflush,		/* flush		*/
@@ -478,11 +449,7 @@ lis_streams_fops = {
 /*
  * Dentry operations
  */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
-extern void lis_dentry_delete(struct dentry * dentry) ;
-#else
 static int lis_dentry_delete(const struct dentry * dentry) ;
-#endif
 extern void lis_dentry_iput(struct dentry *dentry, struct inode *inode);
 
 struct dentry_operations lis_dentry_ops =
@@ -520,12 +487,12 @@ struct inode_operations lis_streams_iops = {
 /*
  * LiS inode structure history:
  *
- * We use the generic_ip to point back to the stream head.  We also need
+ * We use the i_private to point back to the stream head.  We also need
  * a place for the LiS dev_t.  In pre-2.6 kernels the i_rdev field was a
  * "short" (16 bits).  We need 32 bits.  So for pre-2.6 kernels we defined
  * a structure that we overlay at the "u" field in the inode structure.
  *
- * The 2.6 kernel got rid of the big union, leaving just the generic_ip
+ * The 2.6 kernel got rid of the big union, leaving just the i_private
  * pointer -- so there is no room for a structure overlay.  This is OK
  * because the 2.6 i_rdev is a 32-bit word, so we can use it directly.
  */
@@ -545,10 +512,8 @@ struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
 				  int flags,
 				  const char *dev_name,
 				  void *ptr
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8) /*vfsmount point not in 3.0 kernel */
 				, struct vfsmount *mnt
-#endif
 #endif
 ) ;
 void lis_fs_kill_sb(struct super_block *);
@@ -1049,20 +1014,12 @@ void lis_set_file_str(struct file *f, struct stdata *s)
 
 struct stdata *lis_inode_str(struct inode *i)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)
     return((struct stdata *)(i)->i_private) ;
-#else
-    return((struct stdata *)(i)->u.generic_ip) ;
-#endif
 }
 
 void lis_set_inode_str(struct inode *i, struct stdata *s)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)
     i->i_private = (void *) s ;
-#else
-    i->u.generic_ip = (void *) s ;
-#endif
 }
 
 struct dentry *lis_d_alloc_root(struct inode *i, int mode)
@@ -1181,11 +1138,7 @@ static void lis_cdev_put(struct dentry *d)
 {
     struct inode	*inode = d->d_inode ;
     struct cdev		*cp ;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,11)
-    static spinlock_t	 lock = SPIN_LOCK_UNLOCKED ;
-#else
     static DEFINE_SPINLOCK(lock);
-#endif
 
 
     if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
@@ -1306,16 +1259,10 @@ char *lis_alloc_file_path(void)
 char *lis_format_file_path(struct file *f, char *page)
 {
     if (page) {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,24)
-	char *path =   d_path( f->f_dentry,
-			       FILE_MNT(f),
-			       page, PAGE_SIZE);
-#else
         char *path =   d_path(
                                &f->f_path,
                                page,
                                PAGE_SIZE);
-#endif
 	return path;
     } else
 	return page;  /* which is NULL... */
@@ -1436,11 +1383,7 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
 
       if (LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) {
 	  printk("lis_fs_fattach_sb(s@0x%p,@0x%p,...) << [%d]"
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-                 " f@0x%p/%d f_vfsmnt 0x%p/%d%s%s\n",
-#else
 		 " f@0x%p/%ld f_vfsmnt 0x%p/%d%s%s\n",
-#endif
 		 sb, data,
 		 K_ATOMIC_READ(&lis_mnt_cnt),
 		 file, (file?F_COUNT(file):0),
@@ -1501,11 +1444,7 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
 		 i_mount, I_COUNT(i_mount),
 		 getmajor(dev), getminor(dev) );
 	  printk("lis_fs_fattach_sb(s@0x%p,@0x%p,...)\n"
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-                 "    >> f@0x%p/%d h@0x%p/%d/%d \"%s\""
-#else
 		 "    >> f@0x%p/%ld h@0x%p/%d/%d \"%s\""
-#endif
 		 " sb@0x%p d@0x%p/%d (i@0x%p/%d)\n",
 		 sb, data,
 		 file, F_COUNT(file),
@@ -1524,11 +1463,7 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
       if ((LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) &&
 	  file) {
 	  printk("lis_fs_fattach_sb(s@0x%p,@0x%p,...) >> [%d]"
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-                 " f@0x%p/%d f_vfsmnt 0x%p/%d%s%s\n",
-#else
 		 " f@0x%p/%ld f_vfsmnt 0x%p/%d%s%s\n",
-#endif
 		 sb, data,
 		 K_ATOMIC_READ(&lis_mnt_cnt),
 		 file, F_COUNT(file),
@@ -1962,11 +1897,7 @@ int	lis_new_file_name(struct file *f, const char *name)
     if (D_IS_LIS(f->f_dentry) &&
 	strcmp(name, (char *)(f->f_dentry->d_name.name)) == 0) {
 	if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-            printk("lis_new_file_name(f@0x%p/%d,\"%s\")"
-#else
 	    printk("lis_new_file_name(f@0x%p/%ld,\"%s\")"
-#endif
 		   " - same name, already <LiS> - ignoring call\n",
 		   f, F_COUNT(f), name);
 	return(0);
@@ -1985,11 +1916,7 @@ int	lis_new_file_name_dev(struct file *f, const char *name, dev_t dev)
 
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) {
 	struct dentry *d = (f ? f->f_dentry : NULL);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_new_file_name_dev(f@0x%p/%d,\"%s\",0x%x)%s",
-#else
 	printk("lis_new_file_name_dev(f@0x%p/%ld,\"%s\",0x%x)%s",
-#endif
 	       f, (f?F_COUNT(f):0), (name?name:""), dev,
 	       (FILE_MNT(f)==lis_mnt?" <lis_mnt>":""));
 	printk(" \"");
@@ -2068,11 +1995,7 @@ int	lis_new_file_name_dev(struct file *f, const char *name, dev_t dev)
 
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) {
 	struct dentry *d = (f ? f->f_dentry : NULL);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_new_file_name_dev(f@0x%p/%d,\"%s\",0x%x)%s",
-#else
 	printk("lis_new_file_name_dev(f@0x%p/%ld,\"%s\",0x%x)%s",
-#endif
 	       f, (f?F_COUNT(f):0), (name?name:""), dev,
 	       (FILE_MNT(f)==lis_mnt?" <lis_mnt>":""));
 	printk(" \"");
@@ -2093,11 +2016,7 @@ void lis_new_stream_name(struct stdata *head, struct file *f)
 {
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
     {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-         printk("lis_new_stream_name(h@0x%p/%d/%d,f@0x%p/%d)\n",
-#else
 	printk("lis_new_stream_name(h@0x%p/%d/%d,f@0x%p/%ld)\n",
-#endif
 	       head, LIS_SD_REFCNT(head), LIS_SD_OPENCNT(head),
 	       f, F_COUNT(f)) ;
 	lis_print_dentry(f->f_dentry, ">> dentry") ;
@@ -2111,11 +2030,7 @@ void lis_new_stream_name(struct stdata *head, struct file *f)
 
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
     {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_new_stream_name(h@0x%p/%d/%d,f@0x%p/%d)\n",
-#else
 	printk("lis_new_stream_name(h@0x%p/%d/%d,f@0x%p/%ld)\n",
-#endif
 	       head, LIS_SD_REFCNT(head), LIS_SD_OPENCNT(head),
 	       f, F_COUNT(f)) ;
 	lis_print_dentry(f->f_dentry, ">> dentry") ;
@@ -2157,11 +2072,7 @@ lis_new_inode( struct file *f, dev_t dev )
 
     if (!old)
     {						/* param checking */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_new_inode(f@0x%p/%d,d0x%x) - "
-#else
 	printk("lis_new_inode(f@0x%p/%ld,d0x%x) - "
-#endif
 	       "old inode must be non-NULL\n",
 	       f, F_COUNT(f), DEV_TO_INT(dev));
 	return(NULL) ;				/* bad return */
@@ -2169,11 +2080,7 @@ lis_new_inode( struct file *f, dev_t dev )
 
     if (lis_mnt == NULL)
     {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_new_inode(f@0x%p/%d,d0x%x) - "
-#else
 	printk("lis_new_inode(f@0x%p/%ld,d0x%x) - "
-#endif
 	       "LiS has been unmounted\n",
 	       f, F_COUNT(f), DEV_TO_INT(dev));
 	return(NULL) ;				/* bad return */
@@ -2181,11 +2088,7 @@ lis_new_inode( struct file *f, dev_t dev )
 
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
     {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_new_inode(f@0x%p/%d,dv0x%x) %s%s",
-#else
 	printk("lis_new_inode(f@0x%p/%ld,dv0x%x) %s%s",
-#endif
 	       f, F_COUNT(f), DEV_TO_INT(dev),
 	       (D_IS_LIS(f->f_dentry)?" <LiS>":""),
 	       (FILE_MNT(f)==lis_mnt?" <lis_mnt>":"")
@@ -2198,11 +2101,7 @@ lis_new_inode( struct file *f, dev_t dev )
 
     if (hd == NULL)
     {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_new_inode(f@0x%p/%d,d0x%x) - "
-#else
 	printk("lis_new_inode(f@0x%p/%ld,d0x%x) - "
-#endif
 	       "no STREAM head\n",
 	       f, F_COUNT(f), DEV_TO_INT(dev));
 	return(NULL) ;				/* bad return */
@@ -2315,11 +2214,7 @@ lis_new_inode( struct file *f, dev_t dev )
 
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
     {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_new_inode(f@0x%p/%d,d0x%x)%s%s",
-#else
 	printk("lis_new_inode(f@0x%p/%ld,d0x%x)%s%s",
-#endif
 	       f, F_COUNT(f), DEV_TO_INT(dev),
 	       (D_IS_LIS(f->f_dentry)?" <LiS>":""),
 	       (f&&FILE_MNT(f)==lis_mnt?" <lis_mnt>":"")
@@ -2349,11 +2244,7 @@ void lis_cleanup_file_opening(struct file *f, stdata_t *head,
 {
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
     {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_cleanup_file_opening(f@0x%p/%d,h@0x%p/%d/%d,%d) %s\n",
-#else
         printk("lis_cleanup_file_opening(f@0x%p/%ld,h@0x%p/%d/%d,%d) %s\n",
-#endif
 	       f, (f?F_COUNT(f):0),
 	       head,
 	       (head?LIS_SD_REFCNT(head):0),
@@ -2435,11 +2326,7 @@ void lis_cleanup_file_closing(struct file *f, stdata_t *head)
 
     if (LIS_DEBUG_VCLOSE || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
     {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_cleanup_file_closing(f@0x%p/%d,h@0x%p/%d/%d)"
-#else
         printk("lis_cleanup_file_closing(f@0x%p/%ld,h@0x%p/%d/%d)"
-#endif
 	       " [%d]%s%s",
 	       f, (f?F_COUNT(f):0),
 	       head,
@@ -2641,11 +2528,7 @@ struct inode *lis_old_inode( struct file *f, struct inode *i )
     struct vfsmount *oldmnt = FILE_MNT(f);
 
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_old_inode(f@0x%p/%d,i@0x%p/%d)%s << "
-#else
 	printk("lis_old_inode(f@0x%p/%ld,i@0x%p/%d)%s << "
-#endif
 	       "i@0x%p/%d%s (dev 0x%x -> 0x%x)\n",
 	       f, F_COUNT(f),
 	       i, I_COUNT(i),
@@ -2675,11 +2558,7 @@ struct inode *lis_old_inode( struct file *f, struct inode *i )
 
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
     {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_old_inode(f@0x%p/%d,i@0x%p/%d)%s\n",
-#else
 	printk("lis_old_inode(f@0x%p/%ld,i@0x%p/%d)%s\n",
-#endif
 	       f, F_COUNT(f),
 	       i, I_COUNT(i),
 	       (I_IS_LIS(FILE_INODE(f))?" <LiS>":""));
@@ -2922,11 +2801,7 @@ int lis_fifo_open_sync( struct inode *i, struct file *f )
     int ret = 0;
 
     if (!i || !f) {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("fifo_open_sync(i@0x%p/%d,f@0x%p/%d)#%ld - NULL PARM!\n",
-#else
 	printk("fifo_open_sync(i@0x%p/%d,f@0x%p/%ld)#%ld - NULL PARM!\n",
-#endif
 	       i, (i?I_COUNT(i):0),
 	       f, (f?F_COUNT(f):0),
 	       this_open );
@@ -2934,11 +2809,7 @@ int lis_fifo_open_sync( struct inode *i, struct file *f )
     }
 
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_fifo_open_sync(i@0x%p/%d,f@0x%p/%d)#%ld"
-#else
 	printk("lis_fifo_open_sync(i@0x%p/%d,f@0x%p/%ld)#%ld"
-#endif
 	       " \"%s\" << mode 0%o flags 0%o\n",
 	       i, I_COUNT(i), f, F_COUNT(f),
 	       this_open, head ? head->sd_name : "No-Strm",
@@ -3036,11 +2907,7 @@ int lis_fifo_open_sync( struct inode *i, struct file *f )
 #endif
 
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_fifo_open_sync(i@0x%p/%d,f@0x%p/%d)#%ld"
-#else
 	printk("lis_fifo_open_sync(i@0x%p/%d,f@0x%p/%ld)#%ld"
-#endif
 	       " \"%s\" >> %d reader(s) %d writer(s)\n",
 	       i, I_COUNT(i), f, F_COUNT(f),
 	       this_open, head ? head->sd_name : "No-Strm",
@@ -3077,11 +2944,7 @@ err_nocleanup:
 err_nolock_nocleanup:
 #endif
     if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_fifo_open_sync(i@0x%p/%d,f@0x%p/%d)#%ld \"%s\""
-#else
 	printk("lis_fifo_open_sync(i@0x%p/%d,f@0x%p/%ld)#%ld \"%s\""
-#endif
 	       " >> error(%d)\n",
 	       i, (i?I_COUNT(i):0),
 	       f, (f?F_COUNT(f):0),
@@ -3105,11 +2968,7 @@ void lis_fifo_close_sync( struct inode *i, struct file *f )
     PIPE_WRITERS(*i) -= (f && f->f_mode & FMODE_WRITE ? 1 : 0);
 
     if (LIS_DEBUG_VCLOSE || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_fifo_close_sync(i@0x%p/%d,f@0x%p/%d)#%ld"
-#else
 	printk("lis_fifo_close_sync(i@0x%p/%d,f@0x%p/%ld)#%ld"
-#endif
 	       " \"%s\" >> %d reader(s) %d writer(s)\n",
 	       i, I_COUNT(i), f, (f?F_COUNT(f):0),
 	       this_close,
@@ -3196,11 +3055,7 @@ int lis_fattach( struct file *f, struct filename *path)
 	    return(-ENOMEM);
 
 	if (LIS_DEBUG_FATTACH)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-            printk("lis_fattach(f@0x%p/%d,\"%s\") << data@0x%p\n",
-#else
 	    printk("lis_fattach(f@0x%p/%ld,\"%s\") << data@0x%p\n",
-#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 		   f, F_COUNT(f), path, data );
 #else
@@ -3236,11 +3091,7 @@ int lis_fattach( struct file *f, struct filename *path)
 	    if (LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
 	    {
 		printk("lis_fattach(...) data @ 0x%p:\n"
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-                       "    >> f@0x%p/%d h@0x%p \"%s\" s@0x%p\n",
-#else
 		       "    >> f@0x%p/%ld h@0x%p \"%s\" s@0x%p\n",
-#endif
 		       data,
 		       data->file, F_COUNT(data->file),
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
@@ -3505,9 +3356,7 @@ static lis_fattach_t *lis_fattach_new(struct file *f, struct filename *path)
     struct nameidata nd;
 #endif
     int error = 0;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27)
     char mnt[LIS_PATH_MAX];
-#endif
 
     if (data && tmp && !IS_ERR(tmp)) {
 	data->file = f;
@@ -3525,9 +3374,6 @@ static lis_fattach_t *lis_fattach_new(struct file *f, struct filename *path)
 	 *  assuming that LIS_PATH_MAX is the size of the buffer getname()
 	 *  allocates.
 	 */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        error = user_path_walk(path, &nd);
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
         error = path_lookup(path, AT_FDCWD, &nd);
 #else
@@ -3541,13 +3387,8 @@ static lis_fattach_t *lis_fattach_new(struct file *f, struct filename *path)
 #endif
 #endif
 #endif
-#endif
 
 	if (!error) {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-	    data->path = d_path(nd.dentry, nd.mnt, tmp, LIS_PATH_MAX);
-	    path_release(&nd);
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
             data->path = d_path(&nd.path, mnt, LIS_PATH_MAX);
 	    path_put(&nd.path);
@@ -3559,8 +3400,6 @@ static lis_fattach_t *lis_fattach_new(struct file *f, struct filename *path)
             data->path->name = d_path(&nd.path, mnt, LIS_PATH_MAX);
 	    path_put(&nd.path);
 #endif
-#endif
-
 #endif
 
 	    if (IS_ERR(data->path)) {
@@ -3599,11 +3438,7 @@ static lis_fattach_t *lis_fattach_new(struct file *f, struct filename *path)
     }
 
     if (LIS_DEBUG_FATTACH || LIS_DEBUG_REFCNTS) {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-            printk("lis_fattach_new(f@0x%p/%d,\"%s\")"
-#else
 	    printk("lis_fattach_new(f@0x%p/%ld,\"%s\")"
-#endif
 		   " => data@0x%p (%d/%d)\n",
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 		   f, F_COUNT(f), path, data,
@@ -3792,20 +3627,12 @@ int lis_sendfd( stdata_t *sendhd, unsigned int fd, struct file *fp )
     lis_spin_unlock_irqrestore(&recvhd->sd_lock, &psw) ;
 
     if (LIS_DEBUG_SNDFD || LIS_DEBUG_IOCTL || LIS_DEBUG_REFCNTS) {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_sendfd(...,%d,f@0x%p/%d) from \"%s\" to \"%s\"",
-#else
 	printk("lis_sendfd(...,%d,f@0x%p/%ld) from \"%s\" to \"%s\"",
-#endif
 	       fd,
 	       oldfp, F_COUNT(oldfp),
 	       sendhd->sd_name, recvhd->sd_name);
 	if (sendfd->r.fp)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-            printk(" as f@0x%p/%d\n", fp, F_COUNT(fp));
-#else
 	    printk(" as f@0x%p/%ld\n", fp, F_COUNT(fp));
-#endif
 	else
 	    printk("\n");
     }
@@ -3867,11 +3694,7 @@ void lis_tq_free_passfp( unsigned long arg )
 	    struct file *f = sent->f.fp;
 
 	    printk("lis_tq_free_passfp(m@0x%p)"
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-                   " %s unreceived %sfile @0x%p/%d\n",
-#else
 		   " %s unreceived %sfile @0x%p/%ld\n",
-#endif
 		   mp,
 		   (sent->r.fp ? "freeing" : "closing"),
 		   (is_a_stream ? "STREAMS " : ""),
@@ -4010,13 +3833,8 @@ int lis_recvfd( stdata_t *recvhd, strrecvfd_t *recv, struct file *fp )
 
     if (sent->r.fp && (sent->r.fp == fp)) {
 	if (LIS_DEBUG_SNDFD | LIS_DEBUG_IOCTL || LIS_DEBUG_REFCNTS)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-            printk("lis_recvfd(...,f@0x%p/%d) "
-                   "S==R, using fp@0x%p/%d, freeing f@0x%p\n",
-#else
 	    printk("lis_recvfd(...,f@0x%p/%ld) "
 		   "S==R, using fp@0x%p/%ld, freeing f@0x%p\n",
-#endif
 		   sent->f.fp, (sent->f.fp?F_COUNT(sent->f.fp):0),
 		   fp, (fp?F_COUNT(fp):0),
 		   sent->f.fp );
@@ -4037,11 +3855,7 @@ int lis_recvfd( stdata_t *recvhd, strrecvfd_t *recv, struct file *fp )
     }
 
     if (LIS_DEBUG_SNDFD || LIS_DEBUG_IOCTL || LIS_DEBUG_REFCNTS) {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_recvfd(...,f@0x%p/%d) as fd %d at \"%s\"\n",
-#else
 	printk("lis_recvfd(...,f@0x%p/%ld) as fd %d at \"%s\"\n",
-#endif
 	       sent->f.fp, (sent->f.fp?F_COUNT(sent->f.fp):0),
 	       recv->f.fd, recvhd->sd_name);
     }
@@ -4112,7 +3926,6 @@ int      _RP lis_in_interrupt(void)
     return(in_atomic() || irqs_disabled()) ;
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,15)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
 /************************************************************************
 *                         Kernel Mutex                                  *
@@ -4150,26 +3963,6 @@ void lis_kernel_up(struct rw_semaphore *i_rwsem)
    up_read(i_rwsem); 
 }
 #endif
-#else
-/************************************************************************
-*                         Kernel Semaphores                             *
-*************************************************************************
-*                                                                       *
-* These routines are used with doing a down/up on a kernel semaphore.   *
-* lis_down/up are used for LiS type semaphores.  Kernel semaphores      *
-* occur in kernel structures, such as inodes.                           *
-*                                                                       *
-************************************************************************/
-int _RP lis_kernel_down(struct semaphore *sem)
-{
-    return(down_interruptible(sem)) ;
-}
-
-void _RP lis_kernel_up(struct semaphore *sem)
-{
-    up(sem) ;
-}
-#endif
 
 /************************************************************************
 *                         User Space Access                             *
@@ -4192,9 +3985,6 @@ int	lis_copyout(struct file *fp, const void *kbuf, void *ubuf, int len)
 int lis_check_umem(struct file *fp, int rd_wr_fcn,
 		   const void *usr_addr, int lgth)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
-    return(verify_area(rd_wr_fcn,usr_addr,lgth)) ;
-#else
 #if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8, 0))  || \
      (LINUX_VERSION_CODE > KERNEL_VERSION(4,18,0)))
     if (1-access_ok(usr_addr,lgth)) 
@@ -4204,7 +3994,6 @@ int lis_check_umem(struct file *fp, int rd_wr_fcn,
 	return(-EFAULT);
     else
 	return(0);
-#endif
 }
 
 /************************************************************************
@@ -4245,7 +4034,6 @@ int lis_loadable_load(const char *name)
 }
 
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 long lis_compat_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 {
   switch (cmd)
@@ -4275,14 +4063,9 @@ long lis_compat_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
   }
 }
 #endif
-#endif
 
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
 int lis_ioctl32_str (struct file * fp, unsigned int cmd, unsigned long arg)
-#else
-int lis_ioctl32_str (unsigned int fd, unsigned int cmd, unsigned long arg)
-#endif
 {
   strioctl_t par64;
   strioctl32_t par32;
@@ -4376,10 +4159,8 @@ int lis_ioctl32_str (unsigned int fd, unsigned int cmd, unsigned long arg)
 #if LINUX_VERSION_CODE > KERNEL_VERSION(3,0,8)
   rc_l = lis_unlocked_ioctl (fp, cmd, (unsigned long)&par64);
   rc = rc_l;
-#elif LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
-  rc = lis_strioctl(NULL, fp, cmd, (unsigned long)&par64);
 #else
-  rc = sys_ioctl(fd,cmd,(unsigned long)&par64);
+  rc = lis_strioctl(NULL, fp, cmd, (unsigned long)&par64);
 #endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)  
   set_fs(old_fs);
@@ -4499,17 +4280,6 @@ int lis_init_module( void )
     lis_start_qsched() ;		/* ensure q running process going */
 
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,13)
-    register_ioctl32_conversion(I_SETSIG,sys_ioctl);
-    register_ioctl32_conversion(I_SRDOPT,sys_ioctl);
-    register_ioctl32_conversion(I_PUSH,sys_ioctl);
-    register_ioctl32_conversion(I_LINK,sys_ioctl);
-    register_ioctl32_conversion(I_UNLINK,sys_ioctl);
-    register_ioctl32_conversion(I_LIS_GETMSG,sys_ioctl);
-    register_ioctl32_conversion(I_LIS_PUTMSG,sys_ioctl);
- 
-    register_ioctl32_conversion(I_STR,lis_ioctl32_str);
-#endif
 #endif
 
     printk(
@@ -4662,20 +4432,6 @@ static void __exit _lis_cleanup_module( void )
     lis_terminate_final() ;		/* LiS internal memory */
     lis_mem_terminate() ;		/* LiS use of slab allocator */
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,13)
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-    unregister_ioctl32_conversion(I_SETSIG);
-    unregister_ioctl32_conversion(I_SRDOPT);
-    unregister_ioctl32_conversion(I_PUSH);
-    unregister_ioctl32_conversion(I_LINK);
-    unregister_ioctl32_conversion(I_UNLINK);
-    unregister_ioctl32_conversion(I_LIS_GETMSG);
-    unregister_ioctl32_conversion(I_LIS_PUTMSG);
- 
-    unregister_ioctl32_conversion(I_STR);
-#endif
-#endif
-
     printk ("Communications Server Linux STREAMS Subsystem removed\n");
 }
 
@@ -4811,11 +4567,7 @@ pid_t	_RP lis_thread_start(int (*fcn)(void *), void *arg, const char *name)
 int _RP
 lis_thread_stop(pid_t pid)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-    return(kill_proc(pid, SIGTERM, 1)) ;
-#else
     return(kill_pid(find_vpid(pid), SIGTERM, 1)) ;
-#endif
 }
 
 
@@ -5100,11 +4852,7 @@ void	lis_kill_qsched(void)
     {
 	if (lis_runq_pids[cpu] > 0) /* Only stop the kernel thread if running */
 	{
-            #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-                kill_proc(lis_runq_pids[cpu], SIGKILL, 1) ;
-            #else
                 kill_pid(find_vpid(lis_runq_pids[cpu]), SIGKILL, 1) ;
-            #endif
 	    lis_down(&lis_runq_kill_sems[cpu]) ;
 	    K_ATOMIC_DEC(&lis_runq_cnt) ;		/* one fewer running */
 	    lis_sem_destroy(&lis_runq_kill_sems[cpu]) ;	/* de-init semaphore */
@@ -5118,20 +4866,12 @@ void	lis_kill_qsched(void)
 ************************************************************************/
 int      lis_kill_proc(int pid, int sig, int priv)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-    return(kill_proc(pid, sig, priv)) ;
-#else
     return(kill_pid(find_vpid(pid), sig, priv)) ;
-#endif
 }
 
 int      lis_kill_pg (int pgrp, int sig, int priv)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-    return(kill_pg(pgrp, sig, priv)) ;
-#else
     return(kill_pgrp(find_vpid(pgrp), sig, priv)) ;
-#endif
 }
 
 /************************************************************************
@@ -5357,9 +5097,6 @@ int mount_permission(char * path)
      *  path's inode.  The owner check we do is process effective user
      *  (FIXME if this isn't appropriate).
      */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        error = user_path_walk(path, &nd);
-#else
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
         error = path_lookup(path, AT_FDCWD, &nd);
@@ -5371,16 +5108,11 @@ int mount_permission(char * path)
 #endif
 #endif
 
-#endif
     if (!error) {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,24)
-    	struct dentry *dentry = nd.dentry; 
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
 	struct dentry *dentry = nd.path.dentry;
 #else
 	struct dentry *dentry = nd_path.dentry;
-#endif
 #endif
 	struct inode *inode   = (dentry ? dentry->d_inode : NULL);
 
@@ -5411,20 +5143,14 @@ int mount_permission(char * path)
             else
                 ns_ptr = NULL;
             error = inode_permission(ns_ptr, inode, mask);
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,27)
-            error = inode_permission(inode, mask);
 #else
-            error = permission(inode, mask, &nd);
+            error = inode_permission(inode, mask);
 #endif
 	}
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,24)
-	path_release(&nd);
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
 	path_put(&nd.path);
 #else
         path_put(&nd_path);
-#endif
 #endif
     }
 
@@ -5637,11 +5363,6 @@ MODULE_INFO(vermagic, VERMAGIC_STRING);
 #if defined(USE_KMEM_CACHE) 
 void lis_init_msg(void)
 {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-        lis_msgb_cachep =
-            kmem_cache_create("LiS-msgb", sizeof(struct mdbblock),
-                                0, SLAB_HWCACHE_ALIGN, NULL, NULL);
-#else
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0) 
         lis_msgb_cachep =
             kmem_cache_create("LiS-msgb", sizeof(struct mdbblock),
@@ -5652,7 +5373,6 @@ void lis_init_msg(void)
                                 0, SLAB_HWCACHE_ALIGN, 
                               offsetof(struct mdbblock, msgblk),
                               sizeof(struct mdbblock), NULL);
-#endif
 #endif
         if (!lis_msgb_cachep) 
                 printk("lis_init_msg: lis_msgb_cachep is NULL. "
@@ -5717,11 +5437,7 @@ void lis_terminate_msg(void)
 *             as a LiS performance improvement under Linux              *
 ************************************************************************/
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-void lis_cache_destroy(kmem_cache_t *p, lis_atomic_t *c, char *label)
-#else
 void lis_cache_destroy(struct kmem_cache *p, lis_atomic_t *c, char *label)
-#endif
 {
     int		n = K_ATOMIC_READ(c);
 
@@ -5742,20 +5458,6 @@ void lis_cache_destroy(struct kmem_cache *p, lis_atomic_t *c, char *label)
 
 void lis_init_queues(void)
 {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-      lis_queue_cachep =
-          kmem_cache_create("LiS-queue", sizeof(queue_t)*2, 0,
-                            SLAB_HWCACHE_ALIGN, NULL, NULL);
-      lis_qsync_cachep =
-          kmem_cache_create("LiS-qsync", sizeof(lis_q_sync_t), 0,
-                            SLAB_HWCACHE_ALIGN, NULL, NULL);
-      lis_qband_cachep =
-          kmem_cache_create("LiS-qband", sizeof(qband_t), 0,
-                            SLAB_HWCACHE_ALIGN, NULL, NULL);
-      lis_head_cachep =
-          kmem_cache_create("LiS-head", sizeof(stdata_t), 0,
-                            SLAB_HWCACHE_ALIGN, NULL, NULL);
-#else
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0) 
       lis_queue_cachep =
           kmem_cache_create("LiS-queue", sizeof(queue_t)*2, 0,
@@ -5792,7 +5494,6 @@ void lis_init_queues(void)
                             sizeof(stdata_t), NULL);
 
 #endif
-#endif
 }
 
 void lis_terminate_queues(void)
@@ -5818,11 +5519,6 @@ int lis_timer_size ;
 void lis_init_timers(int size)
 {
 #if defined(USE_KMEM_TIMER) 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-    lis_timer_cachep = kmem_cache_create("lis_timer_cachep", 
-					 size, 
-					 0, SLAB_HWCACHE_ALIGN, NULL, NULL);
-#else
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0)  
     lis_timer_cachep = kmem_cache_create("lis_timer_cachep",
                                          size,
@@ -5832,7 +5528,6 @@ void lis_init_timers(int size)
                                          size,
                                          0, SLAB_HWCACHE_ALIGN, 
                                          0, size, NULL);
-#endif
 #endif
     if (!lis_timer_cachep) 
 	printk("lis_init_timers: lis_timer_cachep is NULL. "

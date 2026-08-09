@@ -63,11 +63,7 @@ void lis_mem_terminate(void);
 typedef struct
 {
     const char		 *name ;
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-    kmem_cache_t	 *cache_struct ;
-#else
     struct kmem_cache	*cache_struct ;
-#endif
     int			  size ;
     int			  kflags ;
 
@@ -121,10 +117,6 @@ void lis_mem_init(void)
 
 	for (p = lis_slab_table; p->name != NULL; p++)
 	{
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-	    p->cache_struct = kmem_cache_create(p->name, p->size, 0,
-				SLAB_HWCACHE_ALIGN | CACHE_OPTS, NULL,NULL);
-#else
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0)  // to include Ubuntu 18.4.3
             p->cache_struct = kmem_cache_create(p->name, p->size, 0,
                                 SLAB_HWCACHE_ALIGN | CACHE_OPTS, NULL);
@@ -132,7 +124,6 @@ void lis_mem_init(void)
             p->cache_struct = kmem_cache_create_usercopy(p->name, p->size, 0,
                                 SLAB_HWCACHE_ALIGN | CACHE_OPTS, 
                                 0,p->size,NULL);
-#endif
 #endif
 	}
     }
@@ -390,11 +381,7 @@ void	 _RP lis_free_all_pages(void)
 
 typedef struct
 {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-    kmem_cache_t	*slab_ptr ;
-#else
     struct kmem_cache	*slab_ptr ;
-#endif
 
 } mem_hdr_t ;
 
@@ -409,11 +396,7 @@ void *lis__kmalloc(int nbytes, int class, int use_cache)
 {
     mem_hdr_space_t  	*p ;
     lis_slab_table_t	*tp ;
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
-    kmem_cache_t	*cp = NULL ;
-#else
     struct kmem_cache	*cp = NULL ;
-#endif
 
     nbytes += sizeof(mem_hdr_space_t) ;
 

@@ -4296,11 +4296,7 @@ int lis_open_fifo(struct inode *i, struct file *f, stdata_t *head,
     F_SET( head->sd_wropt, SNDZERO|SNDPIPE );
 
     if (LIS_DEBUG_OPEN || LIS_DEBUG_REFCNTS)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_open_fifo(i@0x%p/%d,f@0x%p/%d,h@0x%p/%d/%d)#%d"
-#else
 	printk("lis_open_fifo(i@0x%p/%d,f@0x%p/%li,h@0x%p/%d/%d)#%d"
-#endif
 	       " \"%s\"\n",
 	       i, I_COUNT(i),
 	       f, F_COUNT(f),
@@ -6551,9 +6547,7 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 #define RTN(v)	do { err=(v); goto return_point; } while (0)
 
     if (LIS_DEBUG_IOCTL && LIS_DEBUG_ADDRS)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-	printk("lis_strioctl(i@0x%p/%d,f@0x%p/%d,cmd=0x%x,arg=0x%lx)"
-#elif LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
+#if   LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
         printk("lis_strioctl(i@0x%p/%d,f@0x%p/%li,cmd=0x%x,arg=0x%lx)"
 #else
         printk("lis_unlock_ioctl(i@0x%p/%d,f@0x%p/%li,cmd=0x%x,arg=0x%lx)"
@@ -8265,11 +8259,7 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
 
     if ((LIS_DEBUG_CLOSE || LIS_DEBUG_ADDRS) || LIS_DEBUG_REFCNTS)
     {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-	printk("lis_doclose(i@0x%p/%d,f@0x%p/%d,h@0x%p/%d/%d.%d,...)#%ld/%d\n"
-#else
         printk("lis_doclose(i@0x%p/%d,f@0x%p/%li,h@0x%p/%d/%d.%d,...)#%ld/%d\n"
-#endif
 	       "    << \"%s\" "
 	       "d@0x%p/%d "
 	       "<[%d] %d LiS inode(s), %d open stream(s)>\n",
@@ -8448,11 +8438,7 @@ lis_strclose(struct inode *i, struct file *f)
     }
 
     if ((LIS_DEBUG_CLOSE || LIS_DEBUG_ADDRS) || LIS_DEBUG_REFCNTS)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-        printk("lis_strclose(i@0x%p/%d,f@0x%p/%d)#%ld i_rdev=(%d,%d)\n"
-#else
 	printk("lis_strclose(i@0x%p/%d,f@0x%p/%li)#%ld i_rdev=(%d,%d)\n"
-#endif
 	       "    << "
 	       "d@0x%p/%d "
 	       "<[%d] %d LiS inode(s), %d open stream(s)>\n",
