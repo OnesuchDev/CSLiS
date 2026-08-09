@@ -83,6 +83,9 @@
 #endif
 #include <asm/io.h>			/* ioremap, virt_to_phys */
 #include <asm/irq.h>			/* disable_irq, enable_irq */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 19)
+#include <asm/irq_regs.h>		/* get_irq_regs */
+#endif
 #include <asm/atomic.h>			/* the real kernel routines */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 
@@ -616,9 +619,16 @@ lis_devid_t	*lis_devid_list ;
  * It calls the STREAMS driver's handler using LiS parameter passing
  * convention.
  */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 19)
 static irqreturn_t lis_khandler(int irq, void *dev_id, struct pt_regs *regs)
+#else
+static irqreturn_t lis_khandler(int irq, void *dev_id)
+#endif
 {
     lis_devid_t		*dv = (lis_devid_t *) dev_id ;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 19)
+    struct pt_regs *regs = get_irq_regs();
+#endif
 
     return(dv->handler(irq, dv->dev_id, regs)) ;
 }
@@ -682,11 +692,7 @@ int  _RP lis_request_irq(unsigned int  irq,
     dv->dev_id  = dev_id ;
     dv->irq     = irq ;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
     ret = request_irq(irq, lis_khandler, flags, device, dv) ;
-#else
-    ret = request_irq(irq, (irq_handler_t) lis_khandler, flags, device, dv) ;
-#endif
     if (ret == 0)
     {
 	lis_spin_lock_irqsave(&lis_incr_lock, &psw) ;
