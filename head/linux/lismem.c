@@ -46,6 +46,10 @@
 #define CACHE_OPTS	0
 #endif
 
+/* Prototypes */
+void lis_mem_init(void);
+void lis_mem_terminate(void);
+
 /************************************************************************
 *                         Cache Allocation                              *
 *************************************************************************
@@ -323,7 +327,7 @@ void	 _RP lis_free_all_pages(void)
 {
     contig_memlink_t	*mp ;
     contig_memlink_t	*boundary_ptr = NULL ;
-    volatile static int  freeing ;
+    static volatile int  freeing ;
 
     chk_init ;
 
