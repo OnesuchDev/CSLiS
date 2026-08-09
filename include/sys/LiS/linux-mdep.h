@@ -118,9 +118,6 @@ typedef unsigned long long	__kernel_uoff_t;
 #ifndef KERNEL_VERSION
 #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,1,0)
-#define	KERNEL_2_0
-#else
 # define	KERNEL_2_1	/* 2.1.x and 2.2.x kernel */
 # if LINUX_VERSION_CODE > KERNEL_VERSION(2,3,0)
 # define	KERNEL_2_3	/* 2.3.x and 2.4.x kernel */
@@ -129,7 +126,6 @@ typedef unsigned long long	__kernel_uoff_t;
 #  endif
 
 # endif
-#endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,16)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
@@ -262,16 +258,6 @@ typedef unsigned int		lisdev_t ;
 
 
 /*  -------------------------------------------------------------------  */
-
-#if defined(__KERNEL__) && defined(KERNEL_2_0)
-
-# ifndef MODULE_AUTHOR
-# define MODULE_AUTHOR(str)	 static const char module_author[] = str
-# endif
-# ifndef MODULE_DESCRIPTION
-# define MODULE_DESCRIPTION(str) static const char module_description[] = str
-# endif
-#endif
 
 /* some missing symbols
  */
@@ -952,25 +938,12 @@ extern lis_atomic_t	lis_runq_req_cnt ;
  */
 #ifdef __KERNEL__
 
-#ifdef KERNEL_2_0
-
-typedef struct lis_select_struct
-{
-    struct wait_queue	*sel_wait ;
-
-} lis_select_t ;
-
-extern int	lis_select(struct inode *inode, struct file *file,
-			   int sel_type, select_table *wait) ;
-
-extern void	lis_select_wakeup(struct stdata *hd) ;
-
-#elif defined(KERNEL_2_1)
+#if   defined(KERNEL_2_1)
 
 extern unsigned	lis_poll_2_1(struct file *fp, poll_table * wait);
 
 #else
-#error "Either KERNEL_2_0 or KERNEL_2_1 needs to be defined"
+#error "KERNEL_2_1 needs to be defined"
 #endif
 
 /*
