@@ -258,7 +258,7 @@ void	 lis_mark_mem_fcn(void *ptr, const char *file_name, int line_nr) _RP;
 #if defined(CONFIG_DEV)
 #define	lis_mark_mem	lis_mark_mem_fcn
 #else
-#define	lis_mark_mem(a, b, c)
+#define	lis_mark_mem(a, b, c) do {} while(0)
 #endif
 int      lis_check_guard(void *ptr, char *msg) ;
 int      lis_check_mem(void) ;
