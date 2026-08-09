@@ -778,10 +778,8 @@ void lis_modsync_dbg(const char *file, int line, const char *fn)
     long mod_cnt = lis_modcnt(THIS_MODULE);
 
     if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	if ((THIS_MODULE)->name) {
 	    printk("lis_modsync_dbg() <\"%s\"/%ld> {%s@%d,%s()}\n",
 		   (THIS_MODULE)->name, mod_cnt, BFN(file), line, fn);
-	}
 #endif
 }
 
