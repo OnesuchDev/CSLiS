@@ -3787,6 +3787,8 @@ copyout_blks(struct file *f, char *ubuff, long count, mblk_t *mp)
     return(0) ;
 }
 
+#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
 /*  -------------------------------------------------------------------  */
 /* Uses memcpy because buff is 64-bit stub for 32-bit control block
  * */
@@ -3813,6 +3815,7 @@ memcopyout_blks(struct file *f, char *ibuff, long count, mblk_t *mp)
                   "count (%ld) doesn't match data (%ld)", ocount, ocount-count);
     return(0) ;
 }
+#endif
 
 /*  -------------------------------------------------------------------  */
 /* strdoioctl - ioctl handler used by strioctl
