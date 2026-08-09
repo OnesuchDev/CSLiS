@@ -1012,11 +1012,11 @@ extern unsigned	lis_poll_2_1(struct file *fp, poll_table * wait);
 /*  -------------------------------------------------------------------  */
 
 #include <linux/mount.h>
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(3,0,7)
+#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,37)
 
 #define	MNT_COUNT(m)	atomic_read(&((m)->mnt_count))
 
-#else  /* 3.0 kernel, so test for which to read */
+#else  /* 2.6.38+ kernel, so test for which to read */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 
@@ -1029,7 +1029,7 @@ extern unsigned	lis_poll_2_1(struct file *fp, poll_table * wait);
 #define MNT_COUNT(m)   D_COUNT(m->mnt_root)  
 #endif  /* test for 3.10 kernel */
 
-#endif  /* change needed for mnt_count change in 3.0 kernel */
+#endif  /* change needed for mnt_count change in 2.6.38 kernel */
 
 #define FILE_MNT(f)	((f) ? (f)->f_vfsmnt : (struct vfsmount *)NULL)
 #define FILE_MNTGET(f)  MNTGET(FILE_MNT((f)))
