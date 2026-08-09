@@ -1884,8 +1884,9 @@ void lis_free_q_sync(queue_t *q)
 	      lis_sem_destroy(&origoqsp->qs_sem) ;
 	      LIS_QSYNC_FREE(origoqsp) ;
 	  }
-	  /* fall into next case */
+	  goto lis_qlock_queue_pair;
     case LIS_QLOCK_QUEUE_PAIR:
+lis_qlock_queue_pair:
 	  if (origqsp != NULL)
 	  {
 	      lis_sem_destroy(&origqsp->qs_sem) ;
