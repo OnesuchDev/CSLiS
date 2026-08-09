@@ -188,6 +188,24 @@ char	*lis_stropts_file =
 ;
 
 /************************************************************************
+ *                      Prototypes                                      *
+ ************************************************************************/
+char *lis_alloc_file_path(void);
+char *lis_format_file_path(struct file *f, char *page);
+void lis_free_file_path(char *page);
+void lis_print_file_path(struct file *f);
+int lis_fs_setup_sb(struct super_block *sb, void *ptr, int silent);
+void lis_fdetach_all(void);
+mblk_t *lis_get_passfp(void);
+void lis_tq_free_passfp( unsigned long arg );
+int lis_init_module( void );
+void    streams_init(void);
+int     lis_thread_func(void *argp);
+int     lis_thread_runqueues(void *p);
+void    lis_kill_qsched(void);
+int mount_permission(char * path);
+
+/************************************************************************
 *                      System Call Support                              *
 *************************************************************************
 *									*
