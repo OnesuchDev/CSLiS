@@ -335,6 +335,11 @@ spl_track_t		*lis_spl_track_ptr = lis_spl_track ;
 ************************************************************************/
 
 extern int	     lis_seq_cntr ;
+mblk_t *lis_lock_contention_msg(void);
+mblk_t *lis_queue_contention_msg(void);
+mblk_t *lis_sem_contention_msg(void);
+mblk_t *lis_get_sem_hist_msg(void);
+void lis_spl_init(void);
 
 
 /************************************************************************
