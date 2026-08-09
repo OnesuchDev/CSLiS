@@ -1200,14 +1200,14 @@ struct dentry *lis_d_alloc_root(struct inode *i, int mode)
     }
     else
     {
-	dname.name = (unsigned char *)LIS_FS_NAME"/";
-	dname.len  = strlen((char *)(dname.name));
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
-        dname.hash = full_name_hash(dname.name, dname.len);
-#else
-        dname.hash = full_name_hash(NULL,dname.name, dname.len);
-#endif
-	d = d_alloc(NULL, &dname);
+        /*
+         * The code that was here previously would crash on modern kernels
+         * because it passed a NULL parent to d_alloc(), so it's clear that
+         * this case never occurs normally. If it does somehow, print a warning
+         * and return NULL.
+         */
+        printk(KERN_WARNING "lis_d_alloc_root(): null inode\n");
+        return NULL;
     }
 
     /*
