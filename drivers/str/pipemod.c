@@ -238,7 +238,7 @@ mblk_t *mp;
  */
 
 #ifdef KERNEL_2_5
-int pipemod_init_module(void)
+static int pipemod_init_module(void)
 #else
 int init_module(void)
 #endif
@@ -255,7 +255,7 @@ int init_module(void)
 }
 
 #ifdef KERNEL_2_5
-void pipemod_cleanup_module(void)
+static void pipemod_cleanup_module(void)
 #else
 void cleanup_module(void)
 #endif

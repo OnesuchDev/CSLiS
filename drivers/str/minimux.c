@@ -288,7 +288,7 @@ mux_open (queue_t *q, dev_t *devp, int flag, int sflag, cred_t *credp)
 * messages upstream and downstream to each other.			*
 *									*
 ************************************************************************/
-void	mux_ioctl(mux_tbl_t *muxp, mblk_t *mp)
+static void mux_ioctl(mux_tbl_t *muxp, mblk_t *mp)
 {
     struct iocblk	*iocb;
     struct linkblk	*lk ;

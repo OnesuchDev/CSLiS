@@ -425,8 +425,10 @@ STATIC int _RP sad_wput(queue_t *q, mblk_t *mp)
 
 #ifdef MODULE
 
+#ifndef KM26
+
 #ifdef KERNEL_2_5
-int sad_init_module(void)
+static int sad_init_module(void)
 #else
 int init_module(void)
 #endif
@@ -443,7 +445,7 @@ int init_module(void)
 }
 
 #ifdef KERNEL_2_5
-void sad_cleanup_module(void)
+static void sad_cleanup_module(void)
 #else
 void cleanup_module(void)
 #endif
@@ -458,12 +460,12 @@ void cleanup_module(void)
         return;
 }
 
-#ifndef KM26
 #ifdef KERNEL_2_5
 module_init(sad_init_module) ;
 module_exit(sad_cleanup_module) ;
 #endif
-#endif
+
+#endif /* KM26 */
 
 #endif					/* MODULE */
 

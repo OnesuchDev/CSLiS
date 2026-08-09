@@ -287,11 +287,13 @@ relay_close (queue_t *q, int dummy, cred_t *credp)
 
 #ifdef MODULE
 
+#ifndef KM26
+
 #ifdef KERNEL_2_5
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-int relay3_init_module(void)
+static int relay3_init_module(void)
 #else
-int __init relay3_init_module(void)
+static int __init relay3_init_module(void)
 #endif
 #else
 int init_module(void)
@@ -316,9 +318,9 @@ int init_module(void)
 
 #ifdef KERNEL_2_5
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-void relay3_cleanup_module(void)
+static void relay3_cleanup_module(void)
 #else
-void __exit relay3_cleanup_module(void)
+static void __exit relay3_cleanup_module(void)
 #endif
 #else
 void cleanup_module(void)
@@ -331,12 +333,12 @@ void cleanup_module(void)
     return;
 }
 
-#ifndef KM26
 #ifdef KERNEL_2_5
 module_init(relay3_init_module) ;
 module_exit(relay3_cleanup_module) ;
 #endif
-#endif
+
+#endif /* KM26 */
 
 #if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");

@@ -69,6 +69,9 @@
 #include <sys/osif.h>
 #endif
 
+/* Prototypes */
+void fifo_init(void);
+void fifo_term(void);
 
 /*
  *  Some configuration sanity checks
@@ -531,8 +534,10 @@ void _RP fifo_term(void)
  *  Linux loadable module interface
  */
 
+#ifndef KM26
+
 #ifdef KERNEL_2_5
-int fifo_mod_init(void)
+static int fifo_mod_init(void)
 #else
 int init_module(void)
 #endif
@@ -552,7 +557,7 @@ int init_module(void)
 }
 
 #ifdef KERNEL_2_5
-void fifo_mod_cleanup(void)
+static void fifo_mod_cleanup(void)
 #else
 void cleanup_module(void)
 #endif
@@ -566,12 +571,12 @@ void cleanup_module(void)
     return;
 }
 
-#ifndef KM26
 #ifdef KERNEL_2_5
 module_init(fifo_mod_init) ;
 module_exit(fifo_mod_cleanup) ;
 #endif
-#endif
+
+#endif /* KM26 */
 
 #if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");
