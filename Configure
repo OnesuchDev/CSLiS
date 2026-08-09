@@ -2364,6 +2364,13 @@ if [ $KVER_MAJOR -ge 6 ]; then
       fi
    fi
 fi   
+# In kernel 6.19 and later, some kernel headers require -fms-extensions, since
+# the kernel is compiled with it
+FMS_EXTENSIONS=n
+if [ $KVER_MAJOR -eq 6 -a $KVER_MINOR -ge 19 ] || \
+   [ $KVER_MAJOR -gt 6 ]; then
+      FMS_EXTENSIONS=y
+fi
 
 # the following checks for post-2.4 kernels by version, but also
 # sets some other related variables
@@ -2519,6 +2526,7 @@ cfg_out LIS_OLD_CONSTS $LIS_OLD_CONSTS
 cfg_out SOLARIS_STYLE_CMN_ERR $SOLARIS_STYLE_CMN_ERR
 cfg_out QUOTEDNAMESPACE $QUOTEDNAMESPACE
 cfg_out FCF_PROTECTION $FCF_PROTECTION
+cfg_out FMS_EXTENSIONS $FMS_EXTENSIONS
 cfg_out DBG_OPT $DBG_OPT
 cfg_out LIS_SHLIB $LIS_SHLIB
 cfg_out package ${package}

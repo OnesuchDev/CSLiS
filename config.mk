@@ -171,6 +171,11 @@ ifeq ($(FCF_PROTECTION),y)
    XOPTS += -fcf-protection=branch
 endif
 
+# Add -fms-extensions if it is required
+ifeq ($(FMS_EXTENSIONS),y)
+   XOPTS += -fms-extensions
+endif
+
 #
 # For sparc-architecture we need some patches
 #
