@@ -1083,7 +1083,9 @@ lis_fd2str( int fd )
     stdata_t		* hd ;
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,11,0)
-#if LINUX_VERSION_CODE > KERNEL_VERSION(6,4,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,13,0)
+    if ( (file = fget_raw(fd)) == NULL)
+#elif LINUX_VERSION_CODE > KERNEL_VERSION(6,4,0)
     if ( (file = lookup_fdget_rcu(fd)) == NULL)
 #else	    
     if ( (file = lookup_fd_rcu(fd)) == NULL)
