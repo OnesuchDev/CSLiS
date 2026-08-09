@@ -2442,7 +2442,12 @@ lis_new_inode( struct file *f, dev_t dev )
     new = lis_get_inode( old->i_mode, dev ) ;
     if (new != NULL)
     {						/* got a new inode */
-	new->i_state = I_DIRTY;       /* keep it off the dirty list */
+        /* keep it off the dirty list */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,19,0)
+	inode_state_assign_raw(new, I_DIRTY);
+#else
+	new->i_state = I_DIRTY;
+#endif
 	new->i_mode  = old->i_mode;		/* inherit mode */
 	/*
 	 * Set the user/group ids to the opener, set modification times
