@@ -165,7 +165,8 @@ XOPTS += -ggdb -O $(CC_OPT2)
 else
 XOPTS += $(CC_OPTIMIZE) $(CC_OPT2) -DINLINE=inline -DSTATIC=static -std=gnu11 -fomit-frame-pointer
 endif
-# Add fcf_protection if the double quoted namespace is required
+
+# Add -fcf-protection if it is required
 ifeq ($(FCF_PROTECTION),y)
    XOPTS += -fcf-protection=branch
 endif

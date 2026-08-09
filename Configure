@@ -2352,12 +2352,12 @@ elif [ $KVER_MAJOR -ge 5 ]; then
       NO32OVER64BUILD=y	   
    fi
 fi
-# For  6,12 levels and SLES, use double quoted name spaces
+# For 6.12 levels and SLES, use double quoted name spaces
 QUOTEDNAMESPACE=n
-# For 6,12 and Intel platform, set fcf_protection
+# For 6.12 and Intel platform, set -fcf-protection
 FCF_PROTECTION=n
 if [ $KVER_MAJOR -ge 6 ]; then
-   if [ $KVER_MINOR -ge 12 ]; then
+   if [ $KVER_MINOR -ge 12 ] || [ $KVER_MAJOR -ge 7 ]; then
       QUOTEDNAMESPACE=y
       if [ "$MACHINE" = "x86_64" ]; then 
 	   FCF_PROTECTION=y
