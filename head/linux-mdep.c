@@ -610,8 +610,6 @@ lis_file_system_ops =
 #define	LIS_SB_MAGIC	( ('L' << 16) | ('i' << 8) | 'S' )
 
 struct vfsmount		*lis_mnt ;
-int			 lis_initial_use_cnt ;
-
 
 void lis_mnt_cnt_sync_fcn(const char *file, int line, const char *fn)
 {
