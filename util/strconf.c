@@ -328,8 +328,10 @@ driver_info_t	*mk_driver(char *name, char *prefix,
 	exit(1) ;
     }
 
-    strncpy(p->name, name, sizeof(p->name)) ;
-    strncpy(p->prefix, prefix, sizeof(p->prefix)) ;
+    strncpy(p->name, name, sizeof(p->name) - 1);
+    p->name[sizeof(p->name) - 1] = '\0';
+    strncpy(p->prefix, prefix, sizeof(p->prefix) - 1);
+    p->prefix[sizeof(p->prefix) - 1] = '\0';
     p->major = maj ;
     p->nmajors = nmaj ;
     p->nminors = nmin ;
@@ -362,8 +364,10 @@ module_info_t	*mk_module(char *name, char *prefix, int units)
 	exit(1) ;
     }
 
-    strncpy(p->name, name, sizeof(p->name)) ;
-    strncpy(p->prefix, prefix, sizeof(p->prefix)) ;
+    strncpy(p->name, name, sizeof(p->name) - 1);
+    p->name[sizeof(p->name) - 1] = '\0';
+    strncpy(p->prefix, prefix, sizeof(p->prefix) - 1);
+    p->prefix[sizeof(p->prefix) - 1] = '\0';
     p->units = units;
     p->obj = NULL ;		/* default object */
     p->id = 0 ;			/* not yet known */
@@ -393,7 +397,8 @@ object_info_t	*mk_object(char *name)
 	exit(1) ;
     }
 
-    strncpy(p->name, name, sizeof(p->name)) ;
+    strncpy(p->name, name, sizeof(p->name) - 1);
+    p->name[sizeof(p->name) - 1] = '\0';
     p->loadable = 0 ;		/* default is not loadable */
     p->printed = 0 ;		/* not printed yet */
 
@@ -421,7 +426,8 @@ node_info_t	*mk_node(char *name, int type, int maj, int min)
 	exit(1) ;
     }
 
-    strncpy(p->name, name, sizeof(p->name)) ;
+    strncpy(p->name, name, sizeof(p->name) - 1);
+    p->name[sizeof(p->name) - 1] = '\0';
     p->type  = type ;
     p->major = maj ;
     p->minor = min ;
@@ -694,6 +700,12 @@ void	process_line(void)
 	    return ;
 	}
 
+	if (strlen(token) > sizeof(prefix) - 1)
+	{
+		err("Driver prefix too long (maximum %zu characters): %s\n", sizeof(prefix) - 1, token);
+		return;
+	}
+
 	strncpy(prefix, token, sizeof(prefix)-1) ;
 	name[sizeof(prefix)-1] = 0 ;
 
@@ -819,6 +831,12 @@ void	process_line(void)
 	{
 	    err("Module prefix must be identifier: %s\n", token) ;
 	    return ;
+	}
+
+	if (strlen(token) > sizeof(prefix) - 1)
+	{
+		err("Module prefix too long (maximum %zu characters): %s\n", sizeof(prefix) - 1, token);
+		return;
 	}
 
 	strncpy(prefix, token, sizeof(prefix)-1) ;
