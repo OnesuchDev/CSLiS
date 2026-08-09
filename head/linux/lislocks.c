@@ -36,23 +36,11 @@
 #endif
 #include <linux/spinlock.h>
 
-#if defined(KERNEL_2_5)
-
 #if defined(CONFIG_DEV)
 #define	SAVE_FLAGS(x)		local_save_flags(x)
 #else 
 #define	SAVE_FLAGS(x)
 #endif
-
-#else	/* KERNEL_2_5 */
-
-#if defined(CONFIG_DEV)
-#define	SAVE_FLAGS(x)		save_flags(x)
-#else 
-#define	SAVE_FLAGS(x)
-#endif
-
-#endif	/* KERNEL_2_5 */
 
 #if defined(USE_KMEM_CACHE)
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,22)
@@ -770,11 +758,7 @@ void	 _RP lis_print_spl_track(void)
 	    }
 
 	    printk("%u:%s State=%d "
-#if defined(INT_PSW) && !defined(KERNEL_2_5)
-		    "Flgs=%03x "
-#else
 		    "Flgs=%03lx "
-#endif
 		    "%s #%u\n",
 		    p->cntr,
 		    typep,

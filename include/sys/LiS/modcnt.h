@@ -57,11 +57,7 @@ void lis_modget_local(const char *file, int line, const char *fn)
 	printk("lis_modget_local() <\"%s\">++ {%s@%d,%s()}\n",
 		     (THIS_MODULE)->name, file, line, fn) ;
 
-#if defined(KERNEL_2_5)
     try_module_get(THIS_MODULE);
-#else
-    MOD_INC_USE_COUNT;
-#endif
 #endif
 }
 
@@ -72,11 +68,7 @@ void lis_modput_local(const char *file, int line, const char *fn)
     if (LIS_DEBUG_REFCNTS)
 	printk("lis_modput_local() <\"%s\">-- {%s@%d,%s()}\n",
 		     (THIS_MODULE)->name, file, line, fn) ;
-#if defined(KERNEL_2_5)
     module_put(THIS_MODULE);
-#else
-    MOD_DEC_USE_COUNT;
-#endif
 #endif
 }
 

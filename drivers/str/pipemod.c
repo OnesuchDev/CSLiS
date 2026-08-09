@@ -234,11 +234,7 @@ mblk_t *mp;
  *  Linux loadable module interface
  */
 
-#ifdef KERNEL_2_5
 static int pipemod_init_module(void)
-#else
-int init_module(void)
-#endif
 {
     int ret = lis_register_strmod( &pipemod_info, MOD_NAME );
     if (ret < 0) {
@@ -251,11 +247,7 @@ int init_module(void)
     return 0;
 }
 
-#ifdef KERNEL_2_5
 static void pipemod_cleanup_module(void)
-#else
-void cleanup_module(void)
-#endif
 {
     if (lis_unregister_strmod(&pipemod_info) < 0)
 	cmn_err( CE_CONT,
@@ -264,10 +256,8 @@ void cleanup_module(void)
     return;
 }
 
-#ifdef KERNEL_2_5
 module_init(pipemod_init_module) ;
 module_exit(pipemod_cleanup_module) ;
-#endif
 
 #if defined(LINUX)			/* linux kernel */
 

@@ -114,11 +114,7 @@ typedef volatile struct lis_spin_lock
 /*
  * These are the real routines.  Not to be called directly.
  */
-#if defined(INT_PSW) && !defined(KERNEL_2_5)
-typedef int		lis_flags_t ;
-#else
 typedef unsigned long	lis_flags_t ;
-#endif
 
 int	lis_spin_is_locked_fcn(lis_spin_lock_t *lock, FL) _RP;
 void	lis_spin_lock_fcn(lis_spin_lock_t *lock, FL) _RP;

@@ -289,14 +289,10 @@ relay_close (queue_t *q, int dummy, cred_t *credp)
 
 #ifndef KM26
 
-#ifdef KERNEL_2_5
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 static int relay3_init_module(void)
 #else
 static int __init relay3_init_module(void)
-#endif
-#else
-int init_module(void)
 #endif
 {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
@@ -316,14 +312,10 @@ int init_module(void)
     return 0;
 }
 
-#ifdef KERNEL_2_5
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 static void relay3_cleanup_module(void)
 #else
 static void __exit relay3_cleanup_module(void)
-#endif
-#else
-void cleanup_module(void)
 #endif
 {
     if (lis_unregister_strmod(&relay3_info) < 0)
@@ -333,10 +325,8 @@ void cleanup_module(void)
     return;
 }
 
-#ifdef KERNEL_2_5
 module_init(relay3_init_module) ;
 module_exit(relay3_cleanup_module) ;
-#endif
 
 #endif /* KM26 */
 

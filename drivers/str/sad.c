@@ -427,11 +427,7 @@ STATIC int _RP sad_wput(queue_t *q, mblk_t *mp)
 
 #ifndef KM26
 
-#ifdef KERNEL_2_5
 static int sad_init_module(void)
-#else
-int init_module(void)
-#endif
 {
         int ret = lis_register_strdev(SAD__CMAJOR_0, &sad_info,
 				      SAD_N_MINOR, LIS_OBJNAME_STR);
@@ -444,11 +440,7 @@ int init_module(void)
         return 0;
 }
 
-#ifdef KERNEL_2_5
 static void sad_cleanup_module(void)
-#else
-void cleanup_module(void)
-#endif
 {
 	int err = lis_unregister_strdev(SAD__CMAJOR_0);
         if (err < 0)
@@ -460,10 +452,8 @@ void cleanup_module(void)
         return;
 }
 
-#ifdef KERNEL_2_5
 module_init(sad_init_module) ;
 module_exit(sad_cleanup_module) ;
-#endif
 
 #endif /* KM26 */
 

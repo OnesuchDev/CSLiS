@@ -1758,12 +1758,7 @@ void	build_modconf(void)
 	       "__%sintr(int vect,void *dev,struct pt_regs *reg)\n",
 	       dp->prefix);
 	    p0("{\n");
-	    p0("#if defined(KERNEL_2_5)\n");
 	    p1("    return(%sintr\(vect,dev,reg)); \n", dp->prefix);
-	    p0("#else\n");
-	    p1("    %sintr\(vect,dev,reg); \n", dp->prefix);
-	    p0("    return(lis_irqreturn_handled);\n");
-	    p0("#endif\n");
 	    p0("}\n");
 	}
 

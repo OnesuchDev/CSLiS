@@ -60,9 +60,7 @@
 #endif
 #include <linux/module.h>
 #include <sys/LiS/modcnt.h>             /* after linux-mdep.h & module.h */
-#if defined(KERNEL_2_5)
 #include <linux/init.h>
-#endif
 
 /* I have no idea what is causing this warning */
 #include <linux/dcache.h>
@@ -121,10 +119,8 @@ void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
 #include <linux/fs.h>		/* linux file sys externs */
 #endif
 #include <linux/vfs.h>		/* linux file sys externs */
-#if defined(KERNEL_2_5)
 #include <linux/namei.h>	/* linux file sys externs */
 #include <linux/cdev.h>		/* cdev_put */
-#endif
 #include <linux/pipe_fs_i.h>
 #include <linux/mount.h>
 #if defined(FATTACH_VIA_MOUNT)
@@ -155,10 +151,8 @@ void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
  */
 #if ( defined(__s390__) || defined(__s390x__) ) && defined(KERNEL_2_4)
 #define NUM_CPUS		smp_num_cpus
-#elif defined(KERNEL_2_5)
-#define NUM_CPUS		num_online_cpus()
 #else
-#define NUM_CPUS		smp_num_cpus
+#define NUM_CPUS		num_online_cpus()
 #endif
 
 #define LIS_PATH_MAX  884   /* Length in characters for a path */
@@ -441,12 +435,10 @@ extern void lis_cache_destroy(struct kmem_cache *p, lis_atomic_t *c, char *label
 /* This should be entry points from the kernel into LiS
  * kernel should be fixed to call them when appropriate.
  */
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 int lis_strflush(struct file *f);
 #else
 int lis_strflush(struct file *f, fl_owner_t id);
-#endif
 #endif
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,13)
@@ -483,9 +475,7 @@ lis_streams_fops = {
 #endif
 #endif
     open:      lis_stropen,		/* open                 */
-#if defined(KERNEL_2_5)
     flush:     lis_strflush,		/* flush		*/
-#endif
     release:   lis_strclose,		/* release 		*/
 };
 
@@ -514,7 +504,6 @@ struct dentry_operations lis_dentry_ops =
 /*
  * Inode operations
  */
-# if defined(KERNEL_2_5)
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
 
@@ -528,42 +517,26 @@ struct dentry_operations lis_dentry_ops =
   struct dentry *lis_inode_lookup(struct inode *, struct dentry *, unsigned int );
 #endif
 
-# else
-  struct dentry *lis_inode_lookup(struct inode *, struct dentry *);
-# endif
-
 struct inode_operations lis_streams_iops = {
     lookup:		&lis_inode_lookup
 };
 
 /*
- * LiS inode structure.
+ * LiS inode structure history:
  *
  * We use the generic_ip to point back to the stream head.  We also need
- * a place for the LiS dev_t.  In pre-2.6 kernels the i_rdev field is a
- * "short" (16 bits).  We need 32 bits.  So for pre-2.6 kernels we define
+ * a place for the LiS dev_t.  In pre-2.6 kernels the i_rdev field was a
+ * "short" (16 bits).  We need 32 bits.  So for pre-2.6 kernels we defined
  * a structure that we overlay at the "u" field in the inode structure.
  *
  * The 2.6 kernel got rid of the big union, leaving just the generic_ip
  * pointer -- so there is no room for a structure overlay.  This is OK
  * because the 2.6 i_rdev is a 32-bit word, so we can use it directly.
- *
- * This all leads to some messiness of if-def-ing.
  */
-#if !defined(KERNEL_2_5)
-typedef struct
-{
-    stdata_t	*hdp ;		/* to stream head structure */
-    dev_t	 dev ;		/* LiS device */
-
-} lis_inode_info_t ;
-
-#endif
 
 /*
  * File system operations
  */
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 struct super_block *lis_fs_get_sb(struct file_system_type *fs_type,
 #else
@@ -583,11 +556,6 @@ struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
 #endif
 ) ;
 void lis_fs_kill_sb(struct super_block *);
-#else
-struct super_block *lis_fs_read_super(struct super_block *sb,
-				      void *ptr,
-				      int silent) ;
-#endif
 
 
 #define LIS_FS_NAME     "CSLiS"
@@ -603,7 +571,6 @@ lis_file_system_ops =
     fs_flags:   (FS_NOMOUNT | FS_SINGLE),
 #endif
 
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
     get_sb:	lis_fs_get_sb,
 #else
@@ -611,10 +578,6 @@ lis_file_system_ops =
 #endif
     kill_sb:	lis_fs_kill_sb,
     owner:	NULL,
-#else
-    read_super:	lis_fs_read_super,
-    owner:	NULL,
-#endif
 } ;
 #define	LIS_SB_MAGIC	( ('L' << 16) | ('i' << 8) | 'S' )
 
@@ -689,26 +652,20 @@ void lis_mntput_fcn(struct vfsmount *m,
 /*
  * Super block operations
  */
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 int lis_super_statfs(struct super_block *sb, struct kstatfs *stat) ;
 #else 
 int lis_super_statfs(struct dentry *, struct kstatfs *) ;
-#endif
-#else
-int lis_super_statfs(struct super_block *sb, struct statfs *stat) ;
 #endif
 
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,25)
 void lis_super_put_inode(struct inode *) ;
 #endif
 
-#if defined(KERNEL_2_5)
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8))
 void lis_drop_inode(struct inode *) ;
 #else
 int lis_drop_inode(struct inode *) ;
-#endif
 #endif
 #if defined(FATTACH_VIA_MOUNT)
 void lis_super_umount_begin(struct super_block *) ;
@@ -721,20 +678,14 @@ struct super_operations lis_super_ops =
     put_inode:		lis_super_put_inode,
 #endif
     statfs:		lis_super_statfs,
-#if defined(KERNEL_2_5)
     drop_inode:		lis_drop_inode,
-#endif
 #if defined(FATTACH_VIA_MOUNT)
     umount_begin:       lis_super_umount_begin,
     put_super:          lis_super_put_super,
 #endif
 } ;
 
-#if defined(KERNEL_2_5)
 #define S_FS_INFO(s)    ((s)->s_fs_info)
-#else
-#define S_FS_INFO(s)    ((s)->u.generic_sbp)
-#endif
 
 /*
  *  the following predicate macros identify structures as
@@ -760,23 +711,17 @@ static inline
 long lis_modcnt( struct module *mod )
 {
 #if defined(THIS_MODULE)
-# if defined(KERNEL_2_5)
 #  ifdef CONFIG_MODULE_UNLOAD
     return(module_refcount(mod)) ;
 #  else
     return (0);			/* refcnts are very buried */
 #  endif
-# else
-    return (mod ? (long) atomic_read(&(mod->uc.usecount)) : 0);
-# endif
 #else
     return 0
 #endif
 }
 
 
-
-#if defined(KERNEL_2_5)
 
 #define MODSYNC()	lis_modsync_dbg(__LIS_FILE__,__LINE__,__FUNCTION__)
 
@@ -791,12 +736,6 @@ void lis_modsync_dbg(const char *file, int line, const char *fn)
 		   (THIS_MODULE)->name, mod_cnt, BFN(file), line, fn);
 #endif
 }
-
-#else				/* defined(KERNEL_2_5) */
-
-#define MODSYNC()	do {} while (0)
-
-#endif				/* defined(KERNEL_2_5) */
 
 void _RP lis_modget_dbg(const char *file, int line, const char *fn)
 {
@@ -822,7 +761,7 @@ void _RP lis_modput_dbg(const char *file, int line, const char *fn)
 	       lis_modcnt(THIS_MODULE),
 	       BFN(file), line, fn) ;
 
-#if !defined(KERNEL_2_5) || defined(CONFIG_MODULE_UNLOAD)
+#ifdef CONFIG_MODULE_UNLOAD
     if ((cnt = lis_modcnt(THIS_MODULE)) <= 0)
     {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
@@ -931,20 +870,10 @@ dev_t lis_kern_to_lis_dev(dev_t dev)
  */
 dev_t lis_i_rdev(struct inode *i)
 {
-#if defined(KERNEL_2_5)
     if (I_IS_LIS(i))
 	return(RDEV_TO_DEV(i->i_rdev)) ;
 
     return(lis_kern_to_lis_dev(i->i_rdev)) ;
-#else
-    if (I_IS_LIS(i))
-    {
-	lis_inode_info_t *p = (lis_inode_info_t *) &i->u ;
-	return( p->dev ) ;
-    }
-
-    return(lis_kern_to_lis_dev(i->i_rdev)) ;
-#endif
 }
 
 
@@ -1124,31 +1053,19 @@ void lis_set_file_str(struct file *f, struct stdata *s)
 
 struct stdata *lis_inode_str(struct inode *i)
 {
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)
     return((struct stdata *)(i)->i_private) ;
 #else
     return((struct stdata *)(i)->u.generic_ip) ;
 #endif
-#else
-    {
-	lis_inode_info_t *p = (lis_inode_info_t *) &i->u ;
-	return(p->hdp) ;
-    }
-#endif
 }
 
 void lis_set_inode_str(struct inode *i, struct stdata *s)
 {
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)
     i->i_private = (void *) s ;
 #else
     i->u.generic_ip = (void *) s ;
-#endif
-#else
-    lis_inode_info_t *p = (lis_inode_info_t *) &i->u ;
-    p->hdp = s ;
 #endif
 }
 
@@ -1266,7 +1183,6 @@ struct dentry *lis_d_alloc_root(struct inode *i, int mode)
  */
 static void lis_cdev_put(struct dentry *d)
 {
-#if defined(KERNEL_2_5)
     struct inode	*inode = d->d_inode ;
     struct cdev		*cp ;
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,11)
@@ -1318,7 +1234,6 @@ static void lis_cdev_put(struct dentry *d)
     cdev_put(cp) ;
 #endif
     spin_unlock(&lock) ;
-#endif
 }
 
 void lis_dput(struct dentry *d)
@@ -1493,7 +1408,6 @@ char *lis_alloc_file_path(void)
 char *lis_format_file_path(struct file *f, char *page)
 {
     if (page) {
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,24)
 	char *path =   d_path( f->f_dentry,
 			       FILE_MNT(f),
@@ -1503,13 +1417,6 @@ char *lis_format_file_path(struct file *f, char *page)
                                &f->f_path,
                                page,
                                PAGE_SIZE);
-#endif
-#else
-	char *path = __d_path( f->f_dentry,
-			       FILE_MNT(f),
-			       FILE_MNT(f)->mnt_root,
-			       NULL,
-			       page, PAGE_SIZE);
 #endif
 	return path;
     } else
@@ -1571,11 +1478,9 @@ void lis_print_dentry(struct dentry *d, char *comment)
     {
 	printk(" i@0x%p/%d%s",
 	       i, I_COUNT(i), (I_IS_LIS(i)?" <LiS>":""));
-#if defined(KERNEL_2_5)
 	if (i->i_cdev)
 	    printk(" c@0x%p/%x\"%s\"", i->i_cdev, DEV_TO_INT(i->i_cdev->dev),
 		(i->i_cdev->owner ? i->i_cdev->owner->name : "No-Owner")) ;
-#endif
     }
     if (*dname)
 	printk(" \"%s\"", dname );
@@ -1592,14 +1497,10 @@ void lis_print_dentry(struct dentry *d, char *comment)
 * Return file system stats.						*
 *									*
 ************************************************************************/
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 int lis_super_statfs(struct super_block *sb, struct kstatfs *stat)
 #else
 int lis_super_statfs(struct dentry *de, struct kstatfs *stat)
-#endif
-#else
-int lis_super_statfs(struct super_block *sb, struct statfs *stat)
 #endif
 {
     stat->f_type = LIS_SB_MAGIC ;
@@ -1789,15 +1690,7 @@ int lis_fs_kern_mount_sb( struct super_block *sb, void *ptr, int silent )
 #endif
 #endif    
     isb->i_op    = &lis_streams_iops;
-#if defined(KERNEL_2_5)
     isb->i_rdev  = makedevice(lis_major, 0);	/* LiS dev_t */
-#else
-    isb->i_rdev  = MKDEV(lis_major, 0);	/* kernel dev_t */
-    {
-	lis_inode_info_t *p = (lis_inode_info_t *) &isb->u ;
-	p->dev = makedevice(lis_major, 0) ;
-    }
-#endif
     
     sb->s_root = lis_d_alloc_root(isb,LIS_D_ALLOC_ROOT_MOUNT);
     if (sb->s_root == NULL)
@@ -1831,7 +1724,6 @@ int lis_fs_setup_sb(struct super_block *sb, void *ptr, int silent)
         return lis_fs_kern_mount_sb( sb, ptr, silent );
 }
 
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 struct super_block *lis_fs_get_sb(struct file_system_type *fs_type,
 #else
@@ -1877,17 +1769,6 @@ void lis_fs_kill_sb(struct super_block *sb)
 {
     kill_anon_super(sb);
 }
-#else		/* 2.4 kernel */
-struct super_block *lis_fs_read_super(struct super_block *sb,
-				      void *ptr,
-				      int   silent)
-{
-    if (lis_fs_setup_sb(sb, ptr, silent) < 0)
-        return(NULL) ;
-
-    return(sb) ;
-}
-#endif
 
 /************************************************************************
 *                         lis_dentry_delete                             *
@@ -1963,9 +1844,6 @@ void lis_super_put_inode(struct inode *i)
 	else
 	    K_ATOMIC_DEC(&lis_inode_cnt) ;
 
-#if !defined(KERNEL_2_5)
-	force_delete(i) ;
-#endif
     }
 }
 #endif
@@ -2680,7 +2558,6 @@ void lis_cleanup_file_closing(struct file *f, stdata_t *head)
     }
 }
 
-#if defined(KERNEL_2_5)
 /*
  * lis_strflush - see file_operations
  */
@@ -2699,13 +2576,11 @@ int lis_strflush( struct file *f, fl_owner_t id)
 
     return err;
 }
-#endif
 
 /*
  * lis_inode_lookup - must be present for namei on LiS mounted file system
  * to work properly.  Return of NULL should suffice.
  */
-#if defined(KERNEL_2_5)
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,26,32))
@@ -2735,15 +2610,6 @@ int lis_drop_inode(struct inode *inode)
     return inode_just_drop(inode);
 #endif
 }
-
-#else
-
-struct dentry *lis_inode_lookup(struct inode *dir, struct dentry *dentry)
-{
-    return(NULL) ;
-}
-
-#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
 /*
@@ -2852,18 +2718,7 @@ static struct inode *lis_get_inode( mode_t mode, dev_t dev )
 	 *  field, reflecting that this is a LiS-only inode which has
 	 *  no file system hosting it (other than LiS itself)
 	 */
-#if defined(KERNEL_2_5)
 	i->i_rdev  = DEV_TO_RDEV(dev);	/* set desired dev */
-#else
-	/*
-	 * i_rdev will show our minor device number modulo 256
-	 */
-	i->i_rdev       = MKDEV( getmajor(dev), getminor(dev) );
-	{
-	    lis_inode_info_t *p = (lis_inode_info_t *) &i->u ;
-	    p->dev = dev ;
-	}
-#endif
 
 	if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
 	    printk("lis_get_inode(m0x%x,dv0x%x) >> i@0x%p/%d"
@@ -4096,11 +3951,7 @@ mblk_t *lis_get_passfp(void)
  *  is encountered.  This effectively closes the passed file, then
  *  frees the message.
  */
-#if defined(KERNEL_2_5)
 void lis_tq_free_passfp( unsigned long arg )
-#else
-void lis_tq_free_passfp( void *arg )
-#endif
 {
     mblk_t *mp;
     strrecvfd_t *sent;
@@ -4158,7 +4009,6 @@ void lis_tq_free_passfp( void *arg )
  */
 void lis_free_passfp( mblk_t *mp )
 {
-#if defined(KERNEL_2_5)
 
 #if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 5)) /* Red Hat version check */
 
@@ -4177,9 +4027,6 @@ void lis_free_passfp( mblk_t *mp )
 #endif
 
 #endif  /* End of Red Have version check */	
-#else
-    static struct tq_struct	 lis_tq ;
-#endif
     int				 emptyq ;
     lis_flags_t 	         psw;
     strrecvfd_t			*sent;
@@ -4208,12 +4055,7 @@ void lis_free_passfp( mblk_t *mp )
 
     if (emptyq)
     {
-#if defined(KERNEL_2_5)
 	tasklet_schedule(&lis_tq) ;
-#else
-	lis_tq.routine = lis_tq_free_passfp;	/* 2.4 kernel, do it later */
-	schedule_task(&lis_tq);
-#endif
     }
     return;
 
@@ -4369,11 +4211,7 @@ int     _RP lis_atomic_dec_and_test(lis_atomic_t *atomic_addr)
 ************************************************************************/
 int      _RP lis_in_interrupt(void)
 {
-#if defined(KERNEL_2_5)
     return(in_atomic() || irqs_disabled()) ;
-#else
-    return(in_interrupt()) ;
-#endif
 }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,15)
@@ -4797,11 +4635,7 @@ int lis_init_module( void )
 /*
  * Magic named routine called by kernel module support code.
  */
-#ifdef KERNEL_2_5
 static int __init _lis_init_module( void )
-#else
-int init_module( void )
-#endif
 {
     return(lis_init_module()) ;
 }
@@ -4809,11 +4643,7 @@ int init_module( void )
 /*
  * Magic named routine called by kernel module support code.
  */
-#ifdef KERNEL_2_5
 static void __exit _lis_cleanup_module( void )
-#else
-void cleanup_module( void )
-#endif
 {
    extern void	lis_kill_qsched(void) ;
    extern void	lis_mem_terminate(void) ;
@@ -4928,12 +4758,10 @@ void cleanup_module( void )
     }
 #endif
 
-#ifdef KERNEL_2_5
     {
 	void lis_free_devid_list(void) ;	/* in osif.c */
 	lis_free_devid_list() ;
     }
-#endif
     lis_terminate_final() ;		/* LiS internal memory */
     lis_mem_terminate() ;		/* LiS use of slab allocator */
 
@@ -4954,10 +4782,8 @@ void cleanup_module( void )
     printk ("Communications Server Linux STREAMS Subsystem removed\n");
 }
 
-#ifdef KERNEL_2_5
 module_init(_lis_init_module) ;
 module_exit(_lis_cleanup_module) ;
-#endif
 
 #endif
 
@@ -5028,15 +4854,8 @@ int	lis_thread_func(void *argp)
     struct cred         *loccred = prepare_creds();
 #endif
 
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     daemonize("%s", arg->name) ;	/* make me a daemon */
-#endif
-#else
-    daemonize() ;			/* make me a daemon */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,16)
-    reparent_to_init() ;		/* disown all parentage */
-#endif
 #endif
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
@@ -5051,9 +4870,6 @@ int	lis_thread_func(void *argp)
     loccred->euid = GLOBAL_ROOT_UID;    /* become root */
 #endif
     commit_creds(loccred);
-#endif
-#if !defined(KERNEL_2_5)
-    strcpy(current->comm, arg->name) ;
 #endif
 
     func = arg->func ;
@@ -5151,12 +4967,8 @@ int	lis_thread_runqueues(void *p)
     sigfillset(&MY_BLKS) ;		/* block all signals */
     sigdelset(&MY_BLKS, SIGKILL) ;	/* enable KILL */
 
-#if defined(KERNEL_2_5)
     yield() ;				/* reschedule our thread */
     					/* we will wake up on proper CPU */
-#else
-    schedule() ;			/* maybe this will do the same */
-#endif
     for (;;)
     {
 	lis_run_queues(cpu_id) ;	/* run the STREAMS queues */
@@ -5559,11 +5371,7 @@ int	_RP lis_mknod(char *name, int mode, dev_t dev)
 #endif    
 #endif
 #if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
-#if defined(KERNEL_2_5)
     ret = syscall_mknod(name, mode, kdev_val(dev)) ;
-#else
-    ret = syscall_mknod(name, mode, dev) ;
-#endif
 #endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
     set_fs(old_fs);
@@ -5681,12 +5489,6 @@ int mount_permission(char * path)
 #endif
 	struct inode *inode   = (dentry ? dentry->d_inode : NULL);
 
-#if !defined(KERNEL_2_5)
-	/* 2.4.x kernels do something like the following... */
-	if (inode && inode->i_op && inode->i_op->revalidate)
-	    error = inode->i_op->revalidate(dentry);
-#endif
-	
 	/* check process euid == inode uid */
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
 	if (!error && (current->euid != inode->i_uid))

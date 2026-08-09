@@ -98,13 +98,8 @@
 #endif
 #define	LIS_NAMESZ	64	/* LiS internal name length */
 
-#ifdef KERNEL_2_5		/* 2.5/2.6 kernel */
 #define MAX_STRDEV	1024	/*Max # of stream devices */
 #define MAX_STRMOD	256	 /* Max # of stream modules */
-#else
-#define MAX_STRDEV	MAX_CHRDEV /*Max # of stream devices */
-#define MAX_STRMOD	MAX_CHRDEV /* Max # of stream modules */
-#endif
 #define MAX_STRAMOD	8	/* max # of autopushed mods per str */
 #define MAX_APUSH       8	/* max # of autopushed mods */
 #ifdef __KERNEL__

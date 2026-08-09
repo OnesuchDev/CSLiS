@@ -386,11 +386,7 @@ static int _RP connld_rput( queue_t *q, mblk_t *mp )
 
 #ifndef KM26
 
-#ifdef KERNEL_2_5
 static int connld_init_module(void)
-#else
-int init_module(void)
-#endif
 {
     int ret = lis_register_strmod( &connld_info, MOD_NAME );
     if (ret < 0) {
@@ -403,11 +399,7 @@ int init_module(void)
     return 0;
 }
 
-#ifdef KERNEL_2_5
 static void connld_cleanup_module(void)
-#else
-void cleanup_module(void)
-#endif
 {
     if (lis_unregister_strmod(&connld_info) < 0)
 	cmn_err( CE_CONT,
@@ -416,10 +408,8 @@ void cleanup_module(void)
     return;
 }
 
-#ifdef KERNEL_2_5
 module_init(connld_init_module) ;
 module_exit(connld_cleanup_module) ;
-#endif
 
 #endif /* KM26 */
 
