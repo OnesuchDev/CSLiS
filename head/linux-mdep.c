@@ -5047,10 +5047,12 @@ pid_t	_RP lis_thread_start(int (*fcn)(void *), void *arg, const char *name)
     if (argp == NULL)
 	return(-ENOMEM) ;
 
-    if (name != NULL && name[0] != 0)
-	strncpy(argp->name, name, sizeof(argp->name)) ;
-    else
+    if (name != NULL && name[0] != 0) {
+	strncpy(argp->name, name, sizeof(argp->name) - 1) ;
+        argp->name[sizeof(argp->name) - 1] = 0;
+    } else {
 	strcpy(argp->name, "LiS-Thread") ;
+    }
 
     argp->func = fcn ;
     argp->func_arg = arg ;
