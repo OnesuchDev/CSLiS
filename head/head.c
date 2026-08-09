@@ -3796,7 +3796,6 @@ memcopyout_blks(struct file *f, char *ibuff, long count, mblk_t *mp)
     mblk_t *mb;
     long ocount=count;
     int len;
-    int err = 0 ;
 
     for (mb=mp ; mb && count > 0; mp=mb)
     {
@@ -3839,10 +3838,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 #if (defined(_X86_64_LIS_))
     int minus_err ;
 #endif
-#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
-     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
-    int save_cmd;
-#endif    
 
     /* Use RTN after getting wioc semaphore */
 #define RTN(v)	do { errv=(v); goto return_point; } while (0)
@@ -3973,7 +3968,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 #if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
      (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
     if (ioc->ic_cmd == I_STR32) {
-            save_cmd = I_STR32;
     	    iocb->ioc_cmd = I_STR;   /* Reset for message handling */
     }
 #endif
@@ -4431,7 +4425,6 @@ int lis_open_fifo(struct inode *i, struct file *f, stdata_t *head,
 static void check_for_wantenable(stdata_t *hd)
 {
     lis_flags_t  psw ;
-    unsigned	 flags ;
     queue_t	*q ;
     queue_t	*oq ;
 
@@ -4439,7 +4432,6 @@ static void check_for_wantenable(stdata_t *hd)
     for (q = hd->sd_wq; q != NULL; q = q->q_next)
     {
 	LIS_QISRLOCK(q, &psw) ;
-	flags = q->q_flag ;
 	q->q_flag &= ~(QOPENING | QFROZEN) ;
 	LIS_QISRUNLOCK(q, &psw) ;
 	lis_do_deferred_puts(q) ;
@@ -4449,7 +4441,6 @@ static void check_for_wantenable(stdata_t *hd)
         if (oq)
         {
 	  LIS_QISRLOCK(oq, &psw) ;
-	  flags = oq->q_flag ;
 	  oq->q_flag &= ~(QOPENING | QFROZEN) ;
 	  LIS_QISRUNLOCK(oq, &psw) ;
 	  lis_do_deferred_puts(oq) ;
@@ -5623,7 +5614,6 @@ lis_strread(struct file *fp, char *ubuff, size_t ulen, loff_t *op)
     int		 msg_marked ;
     int		 msgs_read = 0 ;
     int		 mread_sent ;
-    int		 msg_is_pc_proto = 0 ;
     int err;
     unsigned long  time_cell = 0 ;
     struct inode *i = FILE_INODE(fp);
@@ -5846,7 +5836,6 @@ lis_strread(struct file *fp, char *ubuff, size_t ulen, loff_t *op)
 	    break;
 	case M_PCPROTO:
 		CLR_SD_FLAG(hd,STRPRI);
-		msg_is_pc_proto = 1 ;
 		/* fall into next case */
 	case M_PROTO: 
 	    msgs_read++ ;
@@ -5964,7 +5953,6 @@ lis_strputpmsg(struct inode *i, struct file *fp,
     int		    couldput ;
     mblk_t	   *msg;
     stdata_t	   *hd;
-    const char     *name = "" ;
     strbuf_t	   *ctl = (strbuf_t *) ctlp ;
     strbuf_t	   *dat = (strbuf_t *) datp ;
     queue_t	   *q ;
@@ -5979,7 +5967,6 @@ lis_strputpmsg(struct inode *i, struct file *fp,
     CLOCKON() ;
     lis_head_get(hd) ;
     K_ATOMIC_INC(&lis_in_syscall) ;	/* processing a system call */
-    if (LIS_DEBUG_PUTMSG) name = lis_strm_name(hd) ;
 
     if (F_ISSET(hd->sd_flag,STPLEX))
     {
