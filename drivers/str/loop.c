@@ -943,11 +943,7 @@ static int _RP loop_close(queue_t * q, int dummy, cred_t * credp)
 
 #ifndef KM26
 
-#ifdef KERNEL_2_5
 static int loop_init_module(void)
-#else
-int init_module(void)
-#endif
 {
     int ret = lis_register_strdev(SLOOP__CMAJOR_0, &sloop_info,
 				  NLOOP, "loop");
@@ -959,11 +955,7 @@ int init_module(void)
     return 0;
 }
 
-#ifdef KERNEL_2_5
 static void loop_cleanup_module(void)
-#else
-void cleanup_module(void)
-#endif
 {
     if (lis_unregister_strdev(SLOOP__CMAJOR_0) < 0)
 	printk("loop.cleanup_module: Unable to unregister driver.\n");
@@ -972,10 +964,8 @@ void cleanup_module(void)
     return;
 }
 
-#ifdef KERNEL_2_5
 module_init(loop_init_module) ;
 module_exit(loop_cleanup_module) ;
-#endif
 
 #endif /* KM26 */
 

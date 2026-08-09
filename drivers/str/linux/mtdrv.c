@@ -379,11 +379,7 @@ static int _RP mtdrv_close(queue_t * q, int dummy, cred_t * credp)
 
 #ifdef MODULE
 
-#ifdef KERNEL_2_5
 static int mtdrv_init_module(void)
-#else
-int init_module(void)
-#endif
 {
     int ret = lis_register_strdev(0, &mtdrv_info, 10, "mtdrv");
     if (ret < 0)
@@ -396,11 +392,7 @@ int init_module(void)
     return 0;
 }
 
-#ifdef KERNEL_2_5
 static void mtdrv_cleanup_module(void)
-#else
-void cleanup_module(void)
-#endif
 {
     mtdrv_term() ;
     if (lis_unregister_strdev(mtdrv_major) < 0)
@@ -410,10 +402,8 @@ void cleanup_module(void)
     return;
 }
 
-#ifdef KERNEL_2_5
 module_init(mtdrv_init_module) ;
 module_exit(mtdrv_cleanup_module) ;
-#endif
 
 #if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");

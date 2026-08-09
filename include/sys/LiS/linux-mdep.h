@@ -127,15 +127,8 @@ typedef unsigned long long	__kernel_uoff_t;
 #  if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,7)
 #  define	KERNEL_2_4_7	/* 2.4.7+ redefines dentry structure */
 #  endif
-#  if LINUX_VERSION_CODE > KERNEL_VERSION(2,5,0)
-#  define	KERNEL_2_5	/* 2.5.x and 2.6.x kernel */
-#  endif
 
 # endif
-#endif
-
-#if !defined(KERNEL_2_5) && !defined(KERNEL_2_3)
-#errof "LiS cannot be compiled for pre 2.4 kernels"
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,16)
@@ -210,12 +203,10 @@ typedef unsigned long long	__kernel_uoff_t;
 #include <linux/kmod.h>
 #define LIS_LOADABLE_SUPPORT 1
 #endif
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE > KERNEL_VERSION(5,10,0)
 #define INCLUDE_VERMAGIC 1
 #endif
 #include <linux/vermagic.h>
-#endif
 #undef queue_t			/* allow visibility for LiS */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)
@@ -329,11 +320,7 @@ typedef struct {
 #endif
 
 #ifdef __KERNEL__
-#if defined(KERNEL_2_5)
 #define lis_suser(fp)	capable(CAP_SYS_ADMIN)
-#else
-#define lis_suser(fp)	suser()
-#endif
 #endif				/* __KERNEL__ */
 
 /*  -------------------------------------------------------------------  */
@@ -524,12 +511,10 @@ extern void          lis_cleanup_file_closing(struct file *, struct stdata *);
 
 extern int lis_major;
 
-#if defined(KERNEL_2_5)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 extern int lis_strflush(struct file *);
 #else
 extern int lis_strflush(struct file *, fl_owner_t);
-#endif
 #endif
 
 /*
@@ -700,36 +685,20 @@ extern dev_t			lis_i_rdev(struct inode *) ;
  * MKDEV is defined by the kernel and makes a kernel device "structure"
  * out of a major and minor device number.
  */
-#if defined(KERNEL_2_5)
 #define	DEV_TO_RDEV(dev)	(dev)
 #define	RDEV_TO_DEV(rdev)	(rdev)
 #define	RDEV_TO_INT(rdev)	((int)(rdev))
-#else
-#define	DEV_TO_RDEV(dev)	((kdev_t)(dev))
-#define	RDEV_TO_DEV(rdev)	((dev_t)(rdev))
-#define	RDEV_TO_INT(rdev)	((int)(rdev))
-#endif
 
 
 #define	LIS_FIFO  FIFO__CMAJOR_0
 #define LIS_CLONE CLONE__CMAJOR_0
 
 /* Use Linux system macros for MAJOR and MINOR */
-#if defined(KERNEL_2_5)
 
 #define	STR_MAJOR		lis_getmajor	/* for dev_t */
 #define	STR_MINOR		lis_getminor	/* for dev_t */
 #define	STR_KMAJOR		MAJOR		/* for kdev struct */
 #define	STR_KMINOR		MINOR		/* for kdev struct */
-
-#else			/* not KERNEL_2_5 */
-
-#define	STR_MAJOR		lis_getmajor	/* for dev_t */
-#define	STR_MINOR		lis_getminor	/* for dev_t */
-#define	STR_KMAJOR		MAJOR		/* for kdev struct */
-#define	STR_KMINOR		MINOR		/* for kdev struct */
-
-#endif			/* KERNEL_2_5 */
 
 /*			End of Major/Minor Device Definitions		*/
 
@@ -819,11 +788,7 @@ typedef	volatile long		lis_atomic_t ;
 #endif
 #endif
 
-#if defined(KERNEL_2_5)
 #define PGRP(fp)  process_group(current)
-#else
-#define PGRP(fp)  current->pgrp
-#endif
 #define PID(fp)	  current->pid
 
 #define OPENFILES()     current->files->count

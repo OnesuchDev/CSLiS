@@ -533,11 +533,7 @@ void _RP fifo_term(void)
 
 #ifndef KM26
 
-#ifdef KERNEL_2_5
 static int fifo_mod_init(void)
-#else
-int init_module(void)
-#endif
 {
     int ret = lis_register_strdev( FIFO__CMAJOR_0, &fifo_info,
 				   fifo_units, MOD_NAME );
@@ -553,11 +549,7 @@ int init_module(void)
     return 0;
 }
 
-#ifdef KERNEL_2_5
 static void fifo_mod_cleanup(void)
-#else
-void cleanup_module(void)
-#endif
 {
     fifo_term();
 
@@ -568,10 +560,8 @@ void cleanup_module(void)
     return;
 }
 
-#ifdef KERNEL_2_5
 module_init(fifo_mod_init) ;
 module_exit(fifo_mod_cleanup) ;
-#endif
 
 #endif /* KM26 */
 
