@@ -391,7 +391,9 @@ static void mux_ioctl(mux_tbl_t *muxp, mblk_t *mp)
 
     case MINIMUX_UP:				/* point lower to upper */
 	uplink = 1 ;	
+	goto minimux_down;
     case MINIMUX_DOWN:				/* point upper to lower */
+minimux_down:
 	{
 	    mux_tbl_t	*lwr ;
 	    int		 l_index ;
