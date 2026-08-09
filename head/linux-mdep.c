@@ -1205,7 +1205,7 @@ struct dentry *lis_d_alloc_root(struct inode *i, int mode)
         d_set_d_op(d, &lis_dentry_ops); 
 #else      
 	      d->d_op = &lis_dentry_ops;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
         d->d_flags |= DCACHE_OP_DELETE;
 #endif
 #endif
@@ -2249,7 +2249,7 @@ int	lis_new_file_name_dev(struct file *f, const char *name, dev_t dev)
     d_set_d_op(new, &lis_dentry_ops);
 #else
     new->d_op   = &lis_dentry_ops;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
     new->d_flags |= DCACHE_OP_DELETE;
 #endif
 #endif
@@ -2495,7 +2495,7 @@ lis_new_inode( struct file *f, dev_t dev )
    d_set_d_op(newd, &lis_dentry_ops);
 #else
    newd->d_op = &lis_dentry_ops;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
    newd->d_flags |= DCACHE_OP_DELETE;
 #endif
 #endif
