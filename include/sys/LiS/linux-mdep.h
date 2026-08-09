@@ -109,10 +109,6 @@ typedef unsigned long long	__kernel_uoff_t;
 #ifdef MODVERSIONS
 # ifdef LISMODVERS
 # include <sys/modversions.h>           /* /usr/src/LiS/include/sys */
-# else
-#  if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,5)
-#   include <linux/modversions.h>
-#  endif
 # endif
 #endif
 #ifndef KERNEL_VERSION
@@ -169,9 +165,6 @@ typedef unsigned long long	__kernel_uoff_t;
 #include <linux/mm.h>		/* memory manager, pages,... */
 #include <linux/slab.h>		/* memory manager, pages,... */
 #include <linux/stat.h>		/* S_ISCHR */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,10)
-#include <asm/segment.h>	/* memcpy_{to,from}_fs */
-#endif
 #include <linux/errno.h>	      /* for errno */
 #include <linux/signal.h>	      /* for signal numbers */
 #include <sys/poll.h>		/* ends up being linux/poll.h */

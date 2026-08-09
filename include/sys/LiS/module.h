@@ -41,10 +41,6 @@
 #    ifdef MODVERSIONS
 #     ifdef LISMODVERS
 #      include <sys/modversions.h>      /* /usr/src/LiS/include/sys */
-#     else
-#      if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,5)
-#       include <linux/modversions.h>
-#      endif
 #     endif
 #    endif
 #    include <linux/module.h>
