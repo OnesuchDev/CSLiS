@@ -62,9 +62,9 @@
 
 
 static lis_pci_dev_t	*lis_pci_dev_list = NULL ;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 static lis_pci_dev_t 	*lis_pci_dev_list_end = NULL ;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 
 /************************************************************************
 *                       lis_map_pci_device                              *
