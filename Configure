@@ -496,21 +496,19 @@ check_ksrc()
 #
 ac_get_config()
 {
+    cp dummy.c /tmp/dummy.c
     if [ -f $KSRC/include/linux/utsrelease.h ]; then
-        if [[ $(grep utsrelease dummy.c) != 0 ]]; then
-            echo "#include <linux/utsrelease.h>" >> dummy.c
-        fi
+         echo "#include <linux/utsrelease.h>" >> /tmp/dummy.c
     elif [ -f $KBIN/include/generated/utsrelease.h ]; then
-        if [[ $(grep utsrelease dummy.c) != 0 ]]; then
-            echo "#include <generated/utsrelease.h>" >> dummy.c
-        fi
+        echo "#include <generated/utsrelease.h>" >> /tmp/dummy.c
     else
         echo "KSRC/include/linux/utsrelease.h failed: $KSRC"
     fi
 
     if [ -f $KSRC/include/linux/config.h ]; then
 	cc -D__KERNGLUE__ -I$KSRC/include -E -dM \
-		-include $KSRC/include/linux/config.h dummy.c > /tmp/kconfig
+		-include $KSRC/include/linux/config.h /tmp/dummy.c > /tmp/kconfig
+        rm /tmp/dummy.c
 	x=`grep $1 /tmp/kconfig 2>&1`
 	if [ $? -eq 0 ]; then			# found it
 	    if expr "$x" : "#define" >/dev/null 2>/dev/null; then
@@ -530,7 +528,7 @@ ac_get_config()
 
     else
         echo "KSRC/include/linux/config.h failed: $KSRC"
-
+        rm /tmp/dummy.c
     fi
 						# no autoconf.h
     return 1					# not found
@@ -674,24 +672,16 @@ get_vers_h()
 #     echo "KBIN = $KBIN" 
 
     GET_VERS_H=0
+    cp dummy.c /tmp/dummy.c
     if [ -f $KSRC/include/linux/utsrelease.h ]; then
-        if [[ $(grep utsrelease dummy.c) != 0 ]]; then
-#            echo "inside linux test $KSRC"
-            echo "#include <linux/utsrelease.h>" >> dummy.c
-            GET_VERS_H=1
-        fi
+         echo "#include <linux/utsrelease.h>" >> /tmp/dummy.c
+         GET_VERS_H=1
     elif [ -f $KBIN/include/linux/utsrelease.h ]; then
-        if [[ $(grep utsrelease dummy.c) != 0 ]]; then
-#            echo "inside linux test $KBIN"
-            echo "#include <linux/utsrelease.h>" >> dummy.c
-            GET_VERS_H=1
-        fi
+         echo "#include <linux/utsrelease.h>" >> /tmp/dummy.c
+         GET_VERS_H=1
     elif [ -f $KBIN/include/generated/utsrelease.h ]; then
-        if [[ $(grep utsrelease dummy.c) != 0 ]]; then
-#            echo "inside linux test $KBIN/generated"
-            echo "#include <generated/utsrelease.h>" >> dummy.c
-            GET_VERS_H=1
-        fi
+         echo "#include <generated/utsrelease.h>" >> /tmp/dummy.c
+         GET_VERS_H=1
      else
          echo " ...-f $KSRC/include/linux/utsrelease.h failed"
          echo " ...-f $KBIN/include/linux/utsrelease.h failed" 
@@ -701,12 +691,13 @@ get_vers_h()
 
     if [ -f $1 ]; then
 #        echo " this test is for $1"
-	cc -D__KERNGLUE__ -I$KSRC/include -I$KBIN/include -E -dM -include $1 dummy.c > /tmp/kver
+	cc -D__KERNGLUE__ -I$KSRC/include -I$KBIN/include -E -dM -include $1 /tmp/dummy.c > /tmp/kver
 	KVER_H=`grep UTS_RELEASE /tmp/kver | \
 	     sed -e 's/^.*UTS_RELEASE.//' -e's/"//g' -e's/  *$//'`
 	NKVER_H=`echo $KVER_H | sed -e 's/-.*//'`
 #        echo "KVER_H set to $KVER_H "
     fi
+    rm /tmp/dummy.c
 }
 
 #
