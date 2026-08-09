@@ -295,7 +295,6 @@ lis_semaphore_t			lis_runq_sems[LIS_NR_CPUS] ;
 lis_semaphore_t			lis_runq_kill_sems[LIS_NR_CPUS] ;
 extern volatile unsigned long	lis_runq_wakeups[LIS_NR_CPUS] ; /* head.c */
 int				lis_runq_sched ;     /* q's are scheduled */
-lis_atomic_t			lis_inode_cnt ;
 lis_atomic_t                    lis_mnt_cnt;   /* for lis_mnt only, for now */
 int                             lis_mnt_init_cnt;  /* initial/final value */
 lis_spin_lock_t			lis_task_lock ; /* for creds operations */
@@ -619,10 +618,6 @@ int lis_super_statfs(struct super_block *sb, struct kstatfs *stat) ;
 int lis_super_statfs(struct dentry *, struct kstatfs *) ;
 #endif
 
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,25)
-void lis_super_put_inode(struct inode *) ;
-#endif
-
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8))
 void lis_drop_inode(struct inode *) ;
 #else
@@ -635,9 +630,6 @@ void lis_super_put_super(struct super_block *) ;
 
 struct super_operations lis_super_ops =
 {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,25)
-    put_inode:		lis_super_put_inode,
-#endif
     statfs:		lis_super_statfs,
     drop_inode:		lis_drop_inode,
 #if defined(FATTACH_VIA_MOUNT)
@@ -862,7 +854,6 @@ static struct inode *lis_get_new_inode(struct super_block *sb)
      *  mark this inode as a LiS inode, and count it
      */
     i->i_sb = sb;          /* ASSERT: sb is or will be lis_mnt->mnt_sb */
-    K_ATOMIC_INC(&lis_inode_cnt);
 
     if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
 	printk("lis_get_new_inode(s@0x%p)%s%s >> i@0x%p/%d%s\n",
@@ -1641,45 +1632,6 @@ void lis_dentry_iput( struct dentry *d, struct inode *i )
     if (i && I_COUNT(i) > 0)
 	lis_put_inode(i);
 }
-
-/************************************************************************
-*                        lis_super_put_inode                            *
-*************************************************************************
-*									*
-* Called when an LiS inode is being "iput".				*
-*									*
-************************************************************************/
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,25)
-void lis_super_put_inode(struct inode *i)
-{
-    MNTSYNC();
-
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-    {
-	printk("lis_super_put_inode(i@0x%p/%d)%s "
-	       "i_rdev=0x%x <[%d] %d LiS inode(s)>%s\n",
-	       i, I_COUNT(i), (I_IS_LIS(i)?" <LiS>":""),
-	       GET_I_RDEV(i),
-	       K_ATOMIC_READ(&lis_mnt_cnt),
-	       K_ATOMIC_READ(&lis_inode_cnt),
-	       (I_COUNT(i) == 1 ? "--" : ""));
-    }
-
-    if (I_COUNT(i) <= 1)
-    {
-	if (I_COUNT(i) < 1)
-	    printk("lis_super_put_inode(i@0x%p/%d)%s i_rdev=0x%x UNUSED"
-		   " <[%d] %d LiS inode(s)>\n",
-		   i, I_COUNT(i), (I_IS_LIS(i)?" <LiS>":""),
-		   GET_I_RDEV(i),
-		   K_ATOMIC_READ(&lis_mnt_cnt),
-		   K_ATOMIC_READ(&lis_inode_cnt));
-	else
-	    K_ATOMIC_DEC(&lis_inode_cnt) ;
-
-    }
-}
-#endif
 
 #if defined(FATTACH_VIA_MOUNT)
 /*
@@ -2507,11 +2459,10 @@ static struct inode *lis_get_inode( mode_t mode, dev_t dev )
 
 	if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
 	    printk("lis_get_inode(m0x%x,dv0x%x) >> i@0x%p/%d"
-		   " <[%d] %d LiS inodes>\n",
+		   " <%d LiS mount(s)>\n",
 		   mode, dev,
 		   i, I_COUNT(i),
-		   K_ATOMIC_READ(&lis_mnt_cnt),
-		   K_ATOMIC_READ(&lis_inode_cnt));
+		   K_ATOMIC_READ(&lis_mnt_cnt));
     }
 
     return i;
@@ -4417,12 +4368,6 @@ static void __exit _lis_cleanup_module( void )
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 
     unregister_filesystem(&lis_file_system_ops) ;
-    {
-	int	n ;
-
-	if ((n = K_ATOMIC_READ(&lis_inode_cnt)) != 0)
-	    printk("LiS inode count is %d, should be 0\n", n) ;
-    }
 #endif
 
     {

@@ -315,7 +315,6 @@ extern lis_semaphore_t   lis_stdata_sem;        /* for stdata list locking */
 extern lis_atomic_t      lis_open_cnt;
 extern lis_atomic_t      lis_close_cnt;
 
-extern lis_atomic_t      lis_inode_cnt;
 extern lis_atomic_t      lis_mnt_cnt;
 
 extern void    		 lis_task_to_creds(lis_kcreds_t *cp) ;
