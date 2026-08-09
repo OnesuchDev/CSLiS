@@ -39,10 +39,8 @@
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 #define ERANGE 34
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,18)
 #ifndef PCI_STD_NUM_BARS
 #define PCI_STD_NUM_BARS	6	/* Number of standard BARs */
-#endif
 #endif
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) )
 #if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > 2309) || \

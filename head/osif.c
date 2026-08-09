@@ -48,10 +48,8 @@
 # ifdef RH_71_KLUDGE			/* boogered up incls in 2.4.2 */
 #  undef CONFIG_HIGHMEM			/* b_page has semi-circular reference */
 # endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,3,18)
 #ifndef PCI_STD_NUM_BARS
 #define PCI_STD_NUM_BARS	6	/* Number of standard BARs */
-#endif
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
