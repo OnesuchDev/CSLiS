@@ -40,11 +40,7 @@
 
 #include <sys/stream.h>
 #include <sys/cmn_err.h>
-#if defined(LINUX)		/* Linux kernel compile */
 #include <linux/string.h>
-#else				/* user mode compile */
-#include <string.h>
-#endif
 #include <sys/osif.h>
 
 static struct module_info putst_minfo =

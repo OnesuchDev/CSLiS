@@ -30,12 +30,10 @@
 #include <time.h>
 #include <sys/time.h>
 #include <string.h>			/* for strerror */
-#ifdef LINUX
 #include <stdio.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/ioctl.h>
-#endif
 #ifdef SYS_QNX
 #include <ioctl.h>
 #endif
@@ -43,35 +41,19 @@
 #include <sys/stream.h>
 #include <sys/stropts.h>
 
-#if	defined(LINUX)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 #define _SYS_POLL_H 1                /* for 3.10 kernel, do not include kernel header */ 
 #endif
 #include <sys/LiS/linuxio.h>
-#elif	defined(SYS_QNX)
-#include <sys/LiS/qnxio.h>
-#else
-#include <sys/LiS/usrio.h>
-#endif
 
 #include <sys/LiS/loop.h>		/* an odd place for this file */
 
 /************************************************************************
 *                      File Names                                       *
 ************************************************************************/
-#if	defined(LINUX)
 #define	LOOP_1		"/dev/loop.1"
 #define	LOOP_2		"/dev/loop.2"
 #define LOOP_CLONE	"/dev/loop_clone"
-#elif	defined(QNX)
-#define	LOOP_1		"/dev/gcom/loop.1"
-#define	LOOP_2		"/dev/gcom/loop.2"
-#define LOOP_CLONE	"/dev/gcom/loop_clone"
-#else
-#define	LOOP_1		"loop.1"
-#define	LOOP_2		"loop.2"
-#define LOOP_CLONE	"loop_clone"
-#endif
 
 #define	ALL_DEBUG_BITS	( ~ ((unsigned long long) 0) )
 
@@ -239,9 +221,6 @@ void print_hist(histogram_bucket_t *h, int minimum)
 ************************************************************************/
 void	register_drivers(void)
 {
-#if	!defined(LINUX) && !defined(QNX)
-    port_init() ;			/* stream head init routine */
-#endif
 
 } /* register_drivers */
 
@@ -591,11 +570,6 @@ void get_options(int argc, char **argv)
 int main(int argc, char **argv)
 {
     get_options(argc, argv) ;
-
-#if	!defined(LINUX) && !defined(QNX)
-    register_drivers() ;
-    make_nodes() ;
-#endif
 
     printf("Timing test version %s\n\n", "2.5 09/02/04");
     printf("Using safe constructs and message tracing\n") ;

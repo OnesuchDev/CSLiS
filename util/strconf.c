@@ -1938,31 +1938,15 @@ void	build_mknods(void)
     p0("/* WARNING:  THIS FILE WAS GENERATED. "
        " MANUAL CHANGES MAY BE LOST. */\n");
     p0("\n") ;
-    p0("#if defined(LINUX)\n") ;
-    p0("#  include <sys/types.h>\n") ;
-    p0("#  include <sys/stat.h>\n") ;
-    p0("#  include <sys/sysmacros.h>\n") ;
-    p0("#  define makedevice(maj,min) makedev(maj,min)\n") ;
-    p0("#elif defined(QNX)\n") ;
-    p0("#  include <sys/types.h>\n") ;
-    p0("#  include <sys/stat.h>\n") ;
-    p0("#  define makedevice(maj,min) makedev(1,maj,min)\n") ;
-    p0("#elif defined(USER)\n") ;
-    p0("#  include <sys/stropts.h>\n") ;
-    p0("#  include <sys/LiS/usrio.h>\n") ;
-    p0("#else\n") ;
-    p0("#  include <sys/types.h>\n") ;
-    p0("#  include <sys/stat.h>\n") ;
-    p0("#  define makedevice(maj,min) makedev(maj,min)\n") ;
-    p0("#endif\n") ;
+    p0("#include <sys/types.h>\n") ;
+    p0("#include <sys/stat.h>\n") ;
+    p0("#include <sys/sysmacros.h>\n") ;
+    p0("#define makedevice(maj,min) makedev(maj,min)\n") ;
     p0("\n") ;
     p0("#include <stdio.h>\n") ;
     p0("#include <unistd.h>\n") ;
     p0("#include <stdlib.h>\n") ;
     p0("\n") ;
-    p0("#if !defined(LINUX)\n") ;
-    p0("#  include <fcntl.h>\n") ;
-    p0("#endif\n") ;
     p0("\n") ;
 
     p1("int %s( int argc, char *argv[] )\n", func_name) ;

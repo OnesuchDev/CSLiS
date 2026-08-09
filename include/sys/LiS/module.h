@@ -30,7 +30,7 @@
 
 #ident "@(#) CSLiS module.h 7.11 2025-11-20 15:30:00 "
 
-#if defined(LINUX) && defined(__KERNEL__)
+#if defined(__KERNEL__)
 
 #include <sys/LiS/linux-mdep.h>
 
@@ -39,7 +39,7 @@
 #endif
 
 #ifdef MODULE
-#  if defined(LINUX) && defined(__KERNEL__)
+#  if defined(__KERNEL__)
 #    ifdef MODVERSIONS
 #     ifdef LISMODVERS
 #      include <sys/modversions.h>      /* /usr/src/LiS/include/sys */
@@ -69,11 +69,11 @@ MODULE_IMPORT_NS(STREAMS);
 #  endif
 #endif
 
-#elif defined(USER)		/* defined(LINUX) && defined(__KERNEL__) */
+#elif defined(USER)		/* defined(__KERNEL__) */
 
-#include <sys/LiS/user-mdep.h>
+#error remove me
 
-#endif				/* defined(LINUX) && defined(__KERNEL__) */
+#endif				/* defined(__KERNEL__) */
 
 #include <sys/LiS/modcnt.h>	/* MODGET(), MODPUT() */
 

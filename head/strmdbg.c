@@ -43,9 +43,7 @@
 #define __iovec_defined 1
 #endif
 #include <sys/osif.h>
-#if defined(LINUX)			/* Linux kernel version */
 #include <sys/lismem.h>
-#endif
 
 /************************************************************************
 *                          Memory Links                                 *
@@ -234,12 +232,10 @@ void	* _RP lis_malloc(int nbytes, int class, int use_cache,
      */
     abytes = (nbytes + 15) & ~0x0F ;
     tbytes = abytes + sizeof(*pp) + sizeof(long) ;
-#if defined(LINUX)			/* Linux kernel version */
     if (abytes > MAX_KMALLOC_SIZE)
 	p = (mem_link_t *) lis_get_free_pages_fcn(tbytes, class,
 						  file_name, line_nr) ;
     else
-#endif
 	p = (mem_link_t *) KALLOC(tbytes, class, use_cache) ;
 
     if (p == NULL)
@@ -394,11 +390,9 @@ void	_RP lis_free(void *ptr, char *file_name, int line_nr)
     }
 
 
-#if defined(LINUX)				/* Linux kernel version */
     if (p->size > MAX_KMALLOC_SIZE)
 	lis_free_pages(p) ;			/* pages, not slab */
     else
-#endif
 	KFREE(p) ;
 
 } /* lis_free */
@@ -1069,14 +1063,3 @@ char	* _RP lis_poll_events(short events)
 
 } /* lis_poll_events */
 
-#if !defined(LINUX)
-const char *lis_basename( const char *filename )
-{
-    char	*p ;
-
-    p = strrchr(filename, '/') ;
-    if (p == NULL)
-	return(filename) ;
-    return(p+1) ;
-}
-#endif

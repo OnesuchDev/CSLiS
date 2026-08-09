@@ -524,7 +524,6 @@ void _RP fifo_term(void)
     SEM_DESTROY(&fifo_sem);
 }
 
-#ifdef LINUX
 #ifdef MODULE
 
 /*
@@ -579,4 +578,3 @@ MODULE_INFO(vermagic, VERMAGIC_STRING);
 #endif
 
 #endif				/* MODULE */
-#endif

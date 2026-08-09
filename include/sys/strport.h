@@ -48,13 +48,9 @@
 
 #if	defined( __MSDOS__)
 #include <sys/LiS/dos-mdep.h>
-#elif defined(LINUX)
+#else
 #include <sys/LiS/linux-mdep.h>
-#elif defined(USER)
-#include <sys/LiS/user-mdep.h>
-#elif defined(PORTABLE)
-#include <sys/LiS/port-mdep.h>
-#endif /* !__MSDOS__ */
+#endif
 
 /*
  * INLINE and STATIC

@@ -108,7 +108,7 @@ long	     lis_max_msg_mem ;		  /* maximum to allocate */
  * Use DBLK_ALLOC to get the memory.  Since a header (mblk) also
  * contains a small data block it must be DMA-able memory.
  */
-#if !(defined(LINUX) && defined(USE_KMEM_CACHE))
+#if !(defined(USE_KMEM_CACHE))
 #if defined(CONFIG_DEV)
 static struct mdbblock *
 allochdr(unsigned int priority, char *file_name, int line_nr)
@@ -179,7 +179,7 @@ static struct mdbblock * allochdr(unsigned int priority)
 }/*allochdr*/
 #else
 /*
- * This case (defined(LINUX) && defined(USE_KMEM_CACHE) is 
+ * This case (defined(USE_KMEM_CACHE) is 
  * covered/handled in include/sys/LiS/linux-mdep.h as:
  *
  *  #if defined(CONFIG_DEV)
@@ -195,7 +195,7 @@ static struct mdbblock * allochdr(unsigned int priority)
 /* freehdr - return a header to the free list. For internal use.
  */
 
-#if !(defined(LINUX) && defined(USE_KMEM_CACHE))
+#if !(defined(USE_KMEM_CACHE))
 static void
 freehdr(mblk_t *bp)
 {
@@ -235,12 +235,12 @@ freehdr(mblk_t *bp)
     LisUpCount(FREEHDRS);
 
 }/*freehdr*/
-#else /* !(defined(LINUX) && defined(USE_KMEM_CACHE)) */
+#else /* !(defined(USE_KMEM_CACHE)) */
 /*
- *  This case - LINUX and USE_KMEM_CACHE - is handled/covered 
- *  in linux-mdep.h via #define freehdr(a) lis_msgb_cache_freehdr((a))
+ * This case is handled/covered in linux-mdep.h via:
+ *  #define freehdr(a) lis_msgb_cache_freehdr((a))
  */
-#endif /* !(defined(LINUX) && defined(USE_KMEM_CACHE)) */
+#endif /* !(defined(USE_KMEM_CACHE)) */
 
 
 /*  -------------------------------------------------------------------  */
@@ -248,7 +248,7 @@ freehdr(mblk_t *bp)
  *
  * This will clean up any memory leaks.					*
  */
-#if !(defined(LINUX) && defined(USE_KMEM_CACHE))
+#if !(defined(USE_KMEM_CACHE))
 void
 lis_terminate_msg(void)
 {
@@ -262,12 +262,11 @@ lis_terminate_msg(void)
 	FREE(p);
     }
 }
-#else  /* !(defined(LINUX) && defined(USE_KMEM_CACHE)) */
+#else  /* !(defined(USE_KMEM_CACHE)) */
 /*
- *  This case - LINUX and USE_KMEM_CACHE - is handled/covered 
- *  in linux-mdep.h via #define 
+ *  This case is handled/covered in linux-mdep.h via #define
  */
-#endif  /* !(defined(LINUX) && defined(USE_KMEM_CACHE)) */
+#endif  /* !(defined(USE_KMEM_CACHE)) */
 
 
 /*  -------------------------------------------------------------------  */

@@ -48,11 +48,7 @@
 #ident "@(#) CSLiS events.h 7.11 2022-10-26 15:30:00 "
 
 #ifndef _SYS_TYPES_H
-#if	defined(LINUX)
 #include <linux/types.h>
-#else
-#include <sys/types.h>
-#endif
 #endif
 
 #ifdef __KERNEL__

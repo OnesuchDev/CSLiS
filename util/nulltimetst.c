@@ -11,30 +11,15 @@
 
 #include <unistd.h>
 #include <time.h>
-#if 	defined(LINUX)
 #include <stdio.h>
 #include <fcntl.h>
 #include "linuxio.h"
-#elif	defined(SYS_QNX)
-#include "qnxio.h"
-#include <ioctl.h>
-#else
-#include "usrio.h"
-#endif
 
 /************************************************************************
 *                      File Names                                       *
 ************************************************************************/
-#if	defined(LINUX)
 #define NULL_CLONE	"/dev/null_clone"
 #define	LOOP_1		"/dev/loop.1"
-#elif	defined(QNX)
-#define NULL_CLONE	"/dev/gcom/null_clone"
-#define	LOOP_1		"/dev/gcom/loop.1"
-#else
-#define NULL_CLONE	"null_clone"
-#define	LOOP_1		"loop.1"
-#endif
 
 
 /************************************************************************
@@ -64,9 +49,6 @@ extern void make_nodes(void) ;
 ************************************************************************/
 void	register_drivers(void)
 {
-#if	!defined(LINUX) && !defined(QNX)
-    port_init() ;			/* stream head init routine */
-#endif
 
 } /* register_drivers */
 
@@ -202,11 +184,6 @@ void main(int argc, char **argv)
 {
     if (argc > 1)
 	sscanf(argv[1], "%ld", &iter_cnt) ;
-
-#if	!defined(LINUX) && !defined(QNX)
-    register_drivers() ;
-    make_nodes() ;
-#endif
 
     printf("Timing test version %s\n\n", "1.4 4/25/97") ;
     printf("Using safe constructs and message tracing\n") ;

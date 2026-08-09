@@ -24,7 +24,7 @@
 #ident "@(#) CSLiS strtst.c 7.11 2022-10-26 15:30:00 "
 #define	inline			/* make disappear */
 
-#if defined(LINUX) && !defined(DIRECT_USER)
+#if !defined(DIRECT_USER)
 #define _REENTRANT
 #define _THREAD_SAFE
 #define _XOPEN_SOURCE	500		/* single unix spec */
@@ -62,7 +62,6 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#ifdef LINUX
 #include <errno.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
@@ -73,13 +72,6 @@
 extern unsigned long long int strtoull (char *nptr, char **endptr, int base);
 #endif
 #include <sys/LiS/linuxio.h>
-#else
-# if defined(SCO)
-# include <prototypes.h>
-# include <varargs.h>
-# endif
-#include <sys/LiS/usrio.h>
-#endif
 
 #include <sys/LiS/config.h>
 #include <sys/strport.h>
@@ -101,7 +93,6 @@ static inline void ignore_result_helper(int __attribute__((unused)) dummy, ...)
 /************************************************************************
 *                      File Names                                       *
 ************************************************************************/
-#ifdef LINUX
 #define	LOOP_1		"/dev/loop.1"
 #define	LOOP_2		"/dev/loop.2"
 #define	LOOP_9		"/dev/loop.9"
@@ -115,21 +106,6 @@ static inline void ignore_result_helper(int __attribute__((unused)) dummy, ...)
 #define CLONE_FIFO      "/dev/fifo"
 #define FIFO_0          "/dev/fifo.0"
 #define PUTST		"/dev/putst"
-#else
-#define	LOOP_1		"loop.1"
-#define	LOOP_2		"loop.2"
-#define	LOOP_9		"loop.9"
-#define	LOOP_255	"loop.255"
-#define LOOP_CLONE	"loop_clone"
-#define MUX_CLONE	"mux_clone"
-#define MUX_1		"minimux.1"
-#define MUX_2		"minimux.2"
-#define	NPRINTK		"printk"
-#define	SAD_CLONE	"sad"
-#define CLONE_FIFO      "fifo"
-#define FIFO_0          "fifo.0"
-#define PUTST		"putst"
-#endif
 
 
 /************************************************************************
@@ -186,13 +162,9 @@ extern int	n_read_msgs(int fd) ;		/* forward decl */
 *									*
 ************************************************************************/
 
-#ifdef LINUX
-
 
 long	lis_mem_alloced ;
 
-
-#endif
 
 /************************************************************************
 *                              now                                      *
@@ -228,7 +200,6 @@ static char *now(void)
 void
 msg_to_syslog(char *msg)
 {
-#ifdef LINUX
     static int		initialized ;
 
     if (!initialized)
@@ -239,9 +210,6 @@ msg_to_syslog(char *msg)
 
     syslog(LOG_WARNING, msg) ;
 
-#else
-    (void) msg ;
-#endif
 } /* msg_to_syslog */
 #endif
 /************************************************************************
@@ -296,10 +264,6 @@ void	xit(void)
 
     print("Dump of memory areas in use:\n\n") ;
 
-#ifndef LINUX
-    port_print_mem() ;
-#endif
-
 #ifdef DIRECT_USER
     print("\n\n\nDirectory listing:\n\n") ;
     user_print_dir(NULL, USR_PRNT_INODE) ;
@@ -318,9 +282,6 @@ void	xit(void)
 ************************************************************************/
 void	register_drivers(void)
 {
-#ifndef LINUX
-    port_init() ;			/* stream head init routine */
-#endif
 
 } /* register_drivers */
 
@@ -6565,11 +6526,6 @@ int main(int argc, char **argv)
 
     register_drivers() ;
     print("Memory allocated = %ld\n", lis_mem_alloced) ;
-
-#ifndef LINUX
-    make_nodes() ;
-    print("Memory allocated = %ld\n", lis_mem_alloced) ;
-#endif
 
 #ifndef DIRECT_USER
     printk_fd = user_open(NPRINTK, O_RDWR, 0) ;

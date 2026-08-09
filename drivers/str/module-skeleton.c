@@ -23,8 +23,6 @@
 
 #ident "@(#) CSLiS module-skeleton.c 7.11 2022-10-26 15:30:00 "
 
-#ifdef LINUX
-
 static int svi_major;
 char kernel_version
 = UTS_RELEASE;
@@ -62,5 +60,4 @@ char * bcopy(const char * src, char * dest, int count)
 
         return dest;
 }
-#endif /* LINUX */
 
