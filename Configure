@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: LGPL-2.1
 #
 
-Configure_version="7.113 11/17/25"
+Configure_version="7.114 2026/08/08"
 
 if [ -f /proc/kallsyms ]; then
     KSYMS=/proc/kallsyms
