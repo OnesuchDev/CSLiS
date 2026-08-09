@@ -50,11 +50,15 @@
 #     endif
 #    endif
 #    include <linux/module.h>
+
+#ifndef RHEL_RELEASE_VERSION
+#define RHEL_RELEASE_VERSION(a, b) (((a) << 8) + (b))
+#endif
+
 #if LINUX_VERSION_CODE > KERNEL_VERSION(5,3,0)
-/* Check for a RHEL 10 by any RHEL RELEASE > "9.f" */
 /* This change has not been seen in SLES 16 6.12.0 kernel, yet */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,13,0) || \
-	(defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > 2320)
+	(defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(10, 0))
 MODULE_IMPORT_NS("STREAMS");
 #else
 MODULE_IMPORT_NS(STREAMS);

@@ -38,7 +38,12 @@
 
 #include <sys/strport.h>
 #include <sys/cmn_err.h>
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305)  //For RHEL 9 update 12-2022
+
+#ifndef RHEL_RELEASE_VERSION
+#define RHEL_RELEASE_VERSION(a, b) (((a) << 8) + (b))
+#endif
+
+#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1))  //For RHEL 9 update 12-2022
 #include <stdarg.h>                    /* for va_list */
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)

@@ -49,7 +49,7 @@
 #define __iovec_defined 1
 #endif
 #include <sys/osif.h>
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305)  //For RHEL 9 update 12-2022
+#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1))  //For RHEL 9 update 12-2022
 #include <stdarg.h>                    /* for va_list */
 #endif
 

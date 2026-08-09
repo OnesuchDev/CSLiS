@@ -82,6 +82,10 @@
 # endif
 #endif
 
+#ifndef RHEL_RELEASE_VERSION
+#define RHEL_RELEASE_VERSION(a, b) (((a) << 8) + (b))
+#endif
+
 /*  -------------------------------------------------------------------  */
 /*				   Symbols                               */
 
@@ -128,7 +132,7 @@
 #define STRFLUSHWT	0x04000000L /* waiting on sd_close_wt sem for flush */
 #define STRFROZEN	0x08000000L /* successful freezestr() performed */
 
-#ifndef VERIFY_READ  /* RHEL_RELEASE_CODE >= 2049 or Distro > 4.18.0, type not included */
+#ifndef VERIFY_READ  /* RHEL >= 8.1 or kernel > 4.18.0, type not included */
 #define VERIFY_READ 0           /* argument for lis_check_umem */
 #endif
 #ifndef VERIFY_WRITE    

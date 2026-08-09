@@ -101,9 +101,9 @@ void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
 #include <linux/mm.h>
 #include <linux/file.h>
  /* In RHEL 8.5, 4.18.0-348 kernel moved definition for __invalidate_device()  */
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2053)  || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8, 5))  || \
      (LINUX_VERSION_CODE > KERNEL_VERSION(4,18,0)))
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE > KERNEL_VERSION(5,14,20))) //For RHEL 9 & SLES 15 SP5 update 02-2023
 #include <linux/blkdev.h>
 #else
@@ -1287,9 +1287,9 @@ static void lis_cdev_put(struct dentry *d)
     }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,9)
-/*PMR20783 drop this down for RHEL 7.3, kernel 3.10.0-514... RHEL RELEASE 1795 */
+/*PMR20783 drop this down for RHEL 7.3, kernel 3.10.0-514 */
 //if LINUX_VERSION_CODE < KERNEL_VERSION(3,12,0) .... SLES 12
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 1795) || LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(7, 3)) || LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
     kobject_put(&cp->kobj);
     module_put(cp->owner);
 #else   /* Fix in 3,12,...no 3,10 and level less than 1794 (514 build) PMR20783, system does kobject_put */
@@ -4125,7 +4125,7 @@ void lis_free_passfp( mblk_t *mp )
 {
 #if defined(KERNEL_2_5)
 
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2309) /* Red Hat version check */
+#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 5)) /* Red Hat version check */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,0)  
         static DECLARE_TASKLET(lis_tq, lis_tq_free_passfp,0);
@@ -4424,8 +4424,7 @@ int lis_check_umem(struct file *fp, int rd_wr_fcn,
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,15)
     return(verify_area(rd_wr_fcn,usr_addr,lgth)) ;
 #else
-/* #if RHEL_RELEASE_CODE >= 2049 or Distro > 4.18.0, type not included  */
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2048)  || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8, 0))  || \
      (LINUX_VERSION_CODE > KERNEL_VERSION(4,18,0)))
     if (1-access_ok(usr_addr,lgth)) 
 #else   /* type, rd_wr_fcn, is required in older releases */
@@ -4519,7 +4518,7 @@ int lis_ioctl32_str (unsigned int fd, unsigned int cmd, unsigned long arg)
   strioctl32_t par32;
   strioctl32_t * ptr32;
   char * data32p;
-#if (!((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+#if (!((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0)))) /* version < RHEL 9.1 or 5.18 */
   mm_segment_t old_fs;
 #else  /* for RHEL 9 and later */
@@ -4549,8 +4548,7 @@ int lis_ioctl32_str (unsigned int fd, unsigned int cmd, unsigned long arg)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
   data32p = (char*)par32.ic_dp;
 #else
-/* #if RHEL_RELEASE_CODE >= 1537 */
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 1537) || LINUX_VERSION_CODE > KERNEL_VERSION(3,0,32))
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(6, 1)) || LINUX_VERSION_CODE > KERNEL_VERSION(3,0,32))
 
 #if (defined(_X86_64_LIS_))
 
@@ -4596,7 +4594,7 @@ int lis_ioctl32_str (unsigned int fd, unsigned int cmd, unsigned long arg)
   old_fs = get_fs();
   set_fs(KERNEL_DS);
 #else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */  
   old_fs = force_uaccess_begin();
 #else
@@ -4616,7 +4614,7 @@ int lis_ioctl32_str (unsigned int fd, unsigned int cmd, unsigned long arg)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)  
   set_fs(old_fs);
 #else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */  
   force_uaccess_end(old_fs);
 #else
@@ -4844,9 +4842,9 @@ void cleanup_module( void )
     *      PSeries or Intel                                          */
 
 #if ((LINUX_VERSION_CODE >= KERNEL_VERSION(6,0,0)) || \
-    ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) && \
+    ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 1)) && \
      ((defined(_S390X_LIS_)))) || \
-    ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > 2308) && \	       	
+    ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > RHEL_RELEASE_VERSION(9, 4)) && \
      ((defined(_X86_64_LIS_) || defined(_PPC64_LIS_)))))
 	    		    
     invalidate_bdev(lis_mnt->mnt_sb->s_bdev);
@@ -4862,8 +4860,7 @@ void cleanup_module( void )
        invalidate_inodes() interface changed in the kernel...
        a bad day when this happened....
     */
-/* #if RHEL_RELEASE_CODE >= 1537 */
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 1537)
+#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(6, 1))
     /* printk("linux-mdep: lis_cleanup_module \n");  */
     if (invalidate_inodes(lis_mnt->mnt_sb,NULL))
 #else
@@ -5511,7 +5508,7 @@ void	lis_creds_to_task(lis_kcreds_t *cp)
 ************************************************************************/
 int	_RP lis_mknod(char *name, int mode, dev_t dev)
 {
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */
     mm_segment_t	old_fs;
 #endif    
@@ -5521,7 +5518,7 @@ int	_RP lis_mknod(char *name, int mode, dev_t dev)
     old_fs = get_fs();
     set_fs(KERNEL_DS);
 #else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
     old_fs = force_uaccess_begin();
 #endif    
@@ -5536,7 +5533,7 @@ int	_RP lis_mknod(char *name, int mode, dev_t dev)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
     set_fs(old_fs);
 #else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
     force_uaccess_end(old_fs);
 #endif    
@@ -5553,7 +5550,7 @@ int	_RP lis_mknod(char *name, int mode, dev_t dev)
 ************************************************************************/
 int	_RP lis_unlink(char *name)
 {
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */	
     mm_segment_t	old_fs;
 #endif    
@@ -5563,7 +5560,7 @@ int	_RP lis_unlink(char *name)
     old_fs = get_fs();
     set_fs(KERNEL_DS);
 #else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */ 
     old_fs = force_uaccess_begin();
 #endif    
@@ -5576,7 +5573,7 @@ int	_RP lis_unlink(char *name)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
     set_fs(old_fs);
 #else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
     force_uaccess_end(old_fs);
 #endif    
@@ -5607,7 +5604,7 @@ int mount_permission(char * path)
     struct path nd_path;
 #endif
 #if ((LINUX_VERSION_CODE > KERNEL_VERSION(6,0,0)) || \
-    (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > 2309))
+    (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > RHEL_RELEASE_VERSION(9, 5)))
     struct mnt_idmap *idmap;
 #elif LINUX_VERSION_CODE > KERNEL_VERSION(5,11,0)
     struct user_namespace *ns_ptr;
@@ -5672,7 +5669,7 @@ int mount_permission(char * path)
 	if (!error)
         {
 #if ((LINUX_VERSION_CODE > KERNEL_VERSION(6,0,0)) ||  \
-    (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > 2309))
+    (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > RHEL_RELEASE_VERSION(9, 5)))
             idmap = mnt_idmap(nd_path.mnt);
             error = inode_permission(idmap, inode, mask);
 
@@ -5718,7 +5715,7 @@ int	lis_mount(char *dev_name,
 		  unsigned long rwflag,
 		  void *data)
 {
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */	
     mm_segment_t	old_fs;
 #endif    
@@ -5736,7 +5733,7 @@ int	lis_mount(char *dev_name,
     old_fs = get_fs();
     set_fs(KERNEL_DS);
 #else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
     old_fs = force_uaccess_begin();
 #endif    
@@ -5784,7 +5781,7 @@ int	lis_mount(char *dev_name,
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
     set_fs(old_fs);
 #else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
     force_uaccess_end(old_fs);
 #endif    
@@ -5805,7 +5802,7 @@ int	lis_mount(char *dev_name,
 ************************************************************************/
 int	lis_umount2(char *path, int flags)
 {
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */	
     mm_segment_t	old_fs;
 #endif    
@@ -5823,7 +5820,7 @@ int	lis_umount2(char *path, int flags)
     old_fs = get_fs();
     set_fs(KERNEL_DS);
 #else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
     old_fs = force_uaccess_begin();
 #endif    
@@ -5870,7 +5867,7 @@ int	lis_umount2(char *path, int flags)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
     set_fs(old_fs);
 #else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
     force_uaccess_end(old_fs);
 #endif    
