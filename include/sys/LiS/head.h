@@ -264,13 +264,7 @@ struct stdata
 					  * an artificial one to aid debugging
 					  */
 	struct strevent   *sd_siglist;  /* processes to be sent SIGPOLL */
-#if defined(PORTABLE_POLL)
-	struct pollhead    sd_polllist;	/* polling processes*/
-#elif defined(LINUX_POLL)
 	wait_queue_head_t  sd_task_list;/* tasks waiting on poll */
-#else
-#error "Either PORTABLE_POLL or LINUX_POLL must be defined"
-#endif
 	lis_semaphore_t	   sd_opening;	/* stream is opening */
 	lis_semaphore_t    sd_close_wt;	/* Waiting for close to complete*/
         lis_semaphore_t    sd_wioc;     /* wait for ioctl */
@@ -283,10 +277,6 @@ struct stdata
         struct stmux       sd_mux;      /* info for muxing streams */
         int		   sd_l_index;	/* muxid cntr for stream head */
         dev_t		   sd_dev ;	/* major/minor from inode */
-#ifdef PORTABLE_POLL
-	lis_select_t	   sd_select ;	/* abstract select structure */
-					/* see *-mdep.h */
-#endif
 	unsigned long	   sd_save_sigs[8] ;	/* opaque mem area */
 	char		   sd_name[32] ;	/* name of stream */
 	lis_kcreds_t	   sd_kcreds ;	/* creds of stream opener */
