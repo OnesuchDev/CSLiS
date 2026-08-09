@@ -3840,9 +3840,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
     int msgtype ;
     int ignore_errors = 0 ;
     unsigned long  time_cell = 0 ;
-#if (defined(_X86_64_LIS_))
-    int minus_err ;
-#endif
 
     /* Use RTN after getting wioc semaphore */
 #define RTN(v)	do { errv=(v); goto return_point; } while (0)
@@ -4150,11 +4147,8 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
   /* copy memory of 32 bits over */
                 {
                    /* printk("head: lis_strdoioctl -M_COPYIN (err %d)\n", err); */
-     
-                    cr->cp_rval= 0;
-                    minus_err = -err;
-                    memcpy(&(cr->cp_rval)+4,&minus_err,sizeof(int));
-                }
+		   cr->cp_rval = (caddr_t)((uintptr_t)((unsigned int)(-(int)err) /* to stop sign extension */));
+		}
 #else
                 {
                      cr->cp_rval=(caddr_t)(-err);
@@ -4211,10 +4205,8 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
   /* copy memory of 32 bits over */
                 {
                    /* printk("head: lis_strdoioctl -M_COPYOUT (err %d)\n", err); */
-                   cr->cp_rval= 0;
-                   minus_err = (-err);
-                   memcpy(&(cr->cp_rval)+4,&minus_err,sizeof(int));
-                }
+		   cr->cp_rval = (caddr_t)((uintptr_t)((unsigned int)(-(int)err) /* to stop sign extension */));
+		}
 #else
                 {
                     cr->cp_rval=(caddr_t)(-err);
