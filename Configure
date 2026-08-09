@@ -2312,10 +2312,10 @@ fi
 LINUX_TYPE=RPM
 MAKEDIRTYPE=SUBDIRS
 # 5.3 and higher must have dummy Modules.symvers file
-if [ $KVER_MAJOR -ge 5 -a $KVER_MINOR -ge 3 ]; then
+if [ $KVER_MAJOR -eq 5 -a $KVER_MINOR -ge 3 ] || \
+   [ $KVER_MAJOR -gt 5 ]; then
      TOUCHSYMVERS=y
      MAKEDIRTYPE=M
-     echo " TOUCHSYMVERS is set the 'y' for all to see!!"
 fi
 #
 UBUNTU=`grep -i "ubuntu" /etc/os-release 2>/dev/null | wc -l`
