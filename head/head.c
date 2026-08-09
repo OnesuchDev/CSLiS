@@ -293,8 +293,8 @@ void lis_terminate_final(void);
 #define f_dentry f_path.dentry
 #endif
 
-#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) && \
-     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0))) /* version >= RHEL 9 */
+#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
 #define I_STR32     (__SID | 48)   /* Construct an internal STREAMS `ioctl32' */
 #endif
 
@@ -3839,8 +3839,8 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 #if (defined(_X86_64_LIS_))
     int minus_err ;
 #endif
-#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) && \
-     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0))) /* version >= RHEL 9 */
+#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
     int save_cmd;
 #endif    
 
@@ -3864,16 +3864,16 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 	if (do_copyin && 
 	    (err=lis_check_umem(f,VERIFY_READ,ioc->ic_dp,ioc->ic_len))<0)
 	{
-#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) && \
-     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0))) /* version >= RHEL 9 */
+#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
             if (ioc->ic_cmd != I_STR32)
             {	
 #endif		    
 	      ioc->ic_len = 0 ;		/* no data */
 	      CLOCKOFF(IOCTLTIME) ;
 	      return(err);
-#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) && \
-     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0))) /* version >= RHEL 9 */
+#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
             }
             else
            {
@@ -3893,8 +3893,8 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 	}
 	if (do_copyin)
 	{
-#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) && \
-     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0))) /* version >= RHEL 9 */
+#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
            if (ioc->ic_cmd == I_STR32) {
 	    memcpy((void *)mdta->b_wptr,(void *)ioc->ic_dp,ioc->ic_len);
 	   } 
@@ -3970,8 +3970,8 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 	RTN(err) ;
     }
 
-#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) && \
-     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0))) /* version >= RHEL 9 */
+#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
     if (ioc->ic_cmd == I_STR32) {
             save_cmd = I_STR32;
     	    iocb->ioc_cmd = I_STR;   /* Reset for message handling */
@@ -4063,8 +4063,8 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 	    {
 		if (len > 0)
 		{				/* data to return */
-#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) && \
-     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0))) /* version >= RHEL 9 */
+#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
                     if (ioc->ic_cmd == I_STR32) {
                         memcopyout_blks(f,ioc->ic_dp, len, dat);
                         dat = NULL;             /* see memcopyout_blks() */
@@ -6851,8 +6851,8 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 	}
 	break;
 
-#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) && \
-     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0))) /* version >= RHEL 9 */
+#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
 /*   RHEL 9 and later does not allow copy_to_user or copy_from_user 
  *                                        to use non-User space dest/src */
     case I_STR32:

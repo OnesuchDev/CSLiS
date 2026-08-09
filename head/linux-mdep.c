@@ -4503,8 +4503,8 @@ int lis_ioctl32_str (unsigned int fd, unsigned int cmd, unsigned long arg)
   strioctl32_t par32;
   strioctl32_t * ptr32;
   char * data32p;
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < 2305) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */ 
+#if (!((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= 2305) || \
+     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0)))) /* version < RHEL 9.1 or 5.18 */
   mm_segment_t old_fs;
 #else  /* for RHEL 9 and later */
 #define I_STR32	    (__SID | 48)   /* Construct an internal STREAMS `ioctl32' */
