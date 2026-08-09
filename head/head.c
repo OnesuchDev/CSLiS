@@ -260,6 +260,23 @@ C) Open vs Close
 #include <linux/cred.h>
 #endif  
 
+/* Prototypes */
+int     lis_incr(int *intp);
+int     lis_down_nintr(lis_semaphore_t *sem);
+int     lis_down_nintr_head(stdata_t *hd, lis_semaphore_t *sem);
+int	lis_i_link(struct inode	*i,
+		   struct file	*f,
+	       stdata_t	*hd,
+	       int		 muxfd,
+	       int		 cmd,
+	       cred_t	*creds);
+int lis_check_ino(struct inode *i, char *msg);
+void lis_process_rput(stdata_t *shead, queue_t *q, mblk_t *mp);
+long lis_unlocked_ioctl (struct file *f, unsigned int cmd, unsigned long arg);
+unsigned lis_poll_bits(stdata_t *hd);
+void    _RP lis_wakeup_flush(caddr_t arg);
+void lis_terminate_final(void);
+
 /*  -------------------------------------------------------------------  */
 /*				   Symbols                               */
 
