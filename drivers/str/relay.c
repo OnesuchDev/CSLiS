@@ -343,5 +343,8 @@ module_exit(relay3_cleanup_module) ;
 #if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");
 #endif
+#if defined(MODULE_DESCRIPTION)
+MODULE_DESCRIPTION("STREAMS relay3 test driver");
+#endif
 
 #endif			/* MODULE */
