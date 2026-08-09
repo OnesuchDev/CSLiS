@@ -54,6 +54,9 @@
 #endif
 #include <sys/osif.h>
 
+/* Prototypes */
+int lis_sleep_on_close_wt(void *q_str);
+void lis_wakeup_close_wt(void *q_str);
 
 /*  -------------------------------------------------------------------  */
 /*				   Symbols                               */

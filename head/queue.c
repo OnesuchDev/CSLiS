@@ -60,6 +60,11 @@
 #define	__FUNCTION__	""
 #endif
 
+/* Prototypes */
+mblk_t *lis_queue_contention_msg(void);
+void lis_put_rput_q(stdata_t *hd, mblk_t *mp);
+mblk_t *lis_get_rput_q(stdata_t *hd);
+void lis_free_q_sync(queue_t *q);
 
 /*  -------------------------------------------------------------------  */
 /*			   Global Variables				 */
