@@ -1,0 +1,7 @@
+# All source files are copied from elsewhere
+*.c
+# Generated files
+/modconf.inc
+/streams.mod
+Module.symvers
+modules.order

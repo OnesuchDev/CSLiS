@@ -1,0 +1,20 @@
+# Object files
+*.a
+*.ko
+*.o
+*.so
+
+# Generated/intermediate files
+*.cmd
+*.mod
+*.o.d
+.compiler
+.config_mk
+.depend
+.modules
+/Config.master
+/config.in
+/drvrconf.mk
+/modprobe.conf.incl
+/modprobe.conf.streams
+/modules.conf
