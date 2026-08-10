@@ -433,14 +433,8 @@ struct dentry_operations lis_dentry_ops =
  * Inode operations
  */
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
-
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,26,32))
-  struct dentry *lis_inode_lookup(struct inode *, struct dentry *);
-#else
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,6,0))
   struct dentry *lis_inode_lookup(struct inode *,struct dentry *, struct nameidata *);
-#endif
-
 #else
   struct dentry *lis_inode_lookup(struct inode *, struct dentry *, unsigned int );
 #endif
@@ -2282,14 +2276,8 @@ int lis_strflush( struct file *f, fl_owner_t id)
  * lis_inode_lookup - must be present for namei on LiS mounted file system
  * to work properly.  Return of NULL should suffice.
  */
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
-
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,26,32))
-struct dentry *lis_inode_lookup(struct inode *dir, struct dentry *dentry)
-#else
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,6,0))
 struct dentry *lis_inode_lookup(struct inode *inode,struct dentry *dentry, struct nameidata *nd)
-#endif
-
 #else
 struct dentry *lis_inode_lookup(struct inode *dir, struct dentry *dentry, unsigned int i)
 #endif
