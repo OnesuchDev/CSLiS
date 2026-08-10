@@ -2339,7 +2339,7 @@ void lis_drop_inode(struct inode *inode)
 int lis_drop_inode(struct inode *inode)
 #endif
 {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8))
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36))
     generic_delete_inode(inode) ;
 #elif (LINUX_VERSION_CODE < KERNEL_VERSION(6,18,0))
     return generic_delete_inode(inode) ;
