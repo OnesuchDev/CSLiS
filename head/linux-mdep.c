@@ -1575,10 +1575,10 @@ struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
    */
 #if defined(FATTACH_VIA_MOUNT) && 1
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 39)
     return(get_sb_nodev(fs_type, flags, ptr, lis_fs_setup_sb, mnt)); /*? ?*/
 #else
-     /* In Linux 3.0 kernel, the get_sb_nodev was replaced by mount_nodev() */
+     /* In Linux 2.6.39, get_sb_nodev was replaced by mount_nodev() */
     return(mount_nodev(fs_type, flags, ptr, lis_fs_setup_sb));
 #endif
 #else
