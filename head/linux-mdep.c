@@ -414,7 +414,11 @@ lis_streams_fops = {
 /*
  * Dentry operations
  */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 38)
 static int lis_dentry_delete(const struct dentry * dentry) ;
+#else
+static int lis_dentry_delete(struct dentry * dentry) ;
+#endif
 extern void lis_dentry_iput(struct dentry *dentry, struct inode *inode);
 
 struct dentry_operations lis_dentry_ops =
@@ -1564,10 +1568,10 @@ void lis_fs_kill_sb(struct super_block *sb)
 * message about dangling inodes.					*
 *									*
 ************************************************************************/
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
-void lis_dentry_delete(struct dentry *d)
-#else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 38)
 static int lis_dentry_delete(const struct dentry *d)
+#else
+static int lis_dentry_delete(struct dentry *d)
 #endif
 {
     if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
@@ -1575,11 +1579,7 @@ static int lis_dentry_delete(const struct dentry *d)
 	       d, D_COUNT(d),
 	       K_ATOMIC_READ(&lis_mnt_cnt),
 	       (D_IS_LIS(d)?" d<LiS>":""));
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,18)
-    return;
-#else
     return(1);
-#endif
 }
 
 void lis_dentry_iput( struct dentry *d, struct inode *i )
