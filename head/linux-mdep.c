@@ -502,7 +502,7 @@ struct inode_operations lis_streams_iops = {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 struct super_block *lis_fs_get_sb(struct file_system_type *fs_type,
 #else
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8) /*vfsmount point not in 3.0 kernel */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 int lis_fs_get_sb(struct file_system_type *fs_type,
 #else
 struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
@@ -511,7 +511,7 @@ struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
 				  int flags,
 				  const char *dev_name,
 				  void *ptr
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8) /*vfsmount point not in 3.0 kernel */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39) /* only .get_sb has the mnt parameter */
 				, struct vfsmount *mnt
 #endif
 ) ;
@@ -531,7 +531,7 @@ lis_file_system_ops =
     fs_flags:   (FS_NOMOUNT | FS_SINGLE),
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
     get_sb:	lis_fs_get_sb,
 #else
     mount:      lis_fs_get_sb,
@@ -1551,7 +1551,7 @@ int lis_fs_setup_sb(struct super_block *sb, void *ptr, int silent)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
 struct super_block *lis_fs_get_sb(struct file_system_type *fs_type,
 #else
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8) /*vfsmount point not in 3.0 kernel */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 int lis_fs_get_sb(struct file_system_type *fs_type,
 #else
 struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
@@ -1561,7 +1561,7 @@ struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
 				  const char *dev_name,
 				  void *ptr
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8) /*vfsmount point not in 3.0 kernel */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39) /* only .get_sb has the mnt parameter */
 				, struct vfsmount *mnt
 #endif
 #endif
