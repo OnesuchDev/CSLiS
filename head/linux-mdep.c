@@ -1560,10 +1560,8 @@ struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
 				  int flags,
 				  const char *dev_name,
 				  void *ptr
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39) /* only .get_sb has the mnt parameter */
 				, struct vfsmount *mnt
-#endif
 #endif
 				)
 {
