@@ -142,6 +142,14 @@ void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
 #include <linux/kthread.h>
 #endif
 
+#include <linux/kprobes.h>
+
+#ifndef CONFIG_KPROBES
+#error CONFIG_KPROBES must be enabled in the kernel for CSLiS to function
+#endif
+
+#include <linux/security.h> /* security_path_mknod */
+
 /*  -------------------------------------------------------------------  */
 /*
  * S/390 2.4 kernels export smp_num_cpus
@@ -205,48 +213,6 @@ int     lis_thread_func(void *argp);
 int     lis_thread_runqueues(void *p);
 void    lis_kill_qsched(void);
 int mount_permission(char * path);
-
-/************************************************************************
-*                      System Call Support                              *
-*************************************************************************
-*									*
-* LiS provides wrappers for a selected few system calls.  The functions	*
-* return 0 upon success and a negative errno on failure.		*
-*									*
-************************************************************************/
-
-static int	lis_errnos[LIS_NR_CPUS] ;
-#define	errno	lis_errnos[smp_processor_id()]
-
-#define __NR_syscall_mknod	__NR_mknod
-#define __NR_syscall_unlink	__NR_unlink
-#define __NR_syscall_mount	__NR_mount
-#if defined(_ASM_IA64_UNISTD_H)
-#define __NR_syscall_umount2	__NR_umount
-#else
-#define __NR_syscall_umount2	__NR_umount2
-#endif
-
-/*
- * For gcc 3.3.3 the combination of inlining these functions and the
- * register passing conventions causes the parameters to the system
- * call to get messed up.  Simply defeating the inlining takes care
- * of the problem.  You won't see the problem unless you are working
- * with a 2.6 based distribution.  I first noticed it in SuSE 9.1.
- */
-#if defined(noinline) 		/* kernel has this defined */
-#define _NI     noinline
-#else				/* no special meaning */
-#define	_NI	__attribute__((noinline)) 
-#endif
-
-#if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
-static _NI _syscall3(long,syscall_mknod,const char *,file,int,mode,int,dev)
-static _NI _syscall1(long,syscall_unlink,const char *,file)
-static _NI _syscall5(long,syscall_mount,char *,dev,char *,dir,
-			char *,type,unsigned long,flg,void *,data)
-static _NI _syscall2(long,syscall_umount2,char *,file,int,flags)
-#endif
 
 /************************************************************************
 *                            lis_assert_fail                            *
@@ -4924,6 +4890,15 @@ void	lis_creds_to_task(lis_kcreds_t *cp)
 }
 
 /************************************************************************
+*                      System Call Support                              *
+*************************************************************************
+*									*
+* LiS provides wrappers for a selected few system calls.  The functions	*
+* return 0 upon success and a negative errno on failure.		*
+*									*
+************************************************************************/
+
+/************************************************************************
 *                           lis_mknod                                   *
 *************************************************************************
 *									*
@@ -4931,35 +4906,98 @@ void	lis_creds_to_task(lis_kcreds_t *cp)
 * requested mode and device major/minor.				*
 *									*
 ************************************************************************/
+
+/*
+ * Based on fs/init.c:init_mknod - mostly merged automatically using diff -D.
+ * We can't use it directly because it is freed after init.
+ */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0) /* up to 7.1.7 */
+
+/* filename_mknodat is not exported but not static */
+static int (*filename_mknodat_func_ptr)(int dfd, struct filename *name,
+                                        umode_t mode, unsigned int dev);
+
+static int syscall_mknod(const char *filename, umode_t mode, unsigned int dev)
+{
+        if (!filename_mknodat_func_ptr) {
+            struct kprobe kp;
+
+            memset(&kp, 0, sizeof(struct kprobe));
+            kp.symbol_name = "filename_mknodat";
+            if (register_kprobe(&kp) < 0) {
+                printk(KERN_ERR "Unable to find filename_mknodat symbol; CSLiS will not work correctly!\n");
+                return -ENOSYS;
+            }
+            filename_mknodat_func_ptr = (int (*)(int, struct filename *, umode_t, unsigned int))kp.addr;
+            unregister_kprobe(&kp);
+        }
+
+	CLASS(filename_kernel, name)(filename);
+	return filename_mknodat_func_ptr(AT_FDCWD, name, mode, dev);
+}
+
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0) /* up to 6.19.14 */
+
+/* FIXME: we can't use this directly because it's GPL */
+static int syscall_mknod(const char *filename, umode_t mode, unsigned int dev)
+{
+	struct dentry *dentry;
+	struct path path;
+	int error;
+
+	if (S_ISFIFO(mode) || S_ISSOCK(mode))
+		dev = 0;
+	else if (!(S_ISBLK(mode) || S_ISCHR(mode)))
+		return -EINVAL;
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 18, 0)
+	dentry = start_creating_path(AT_FDCWD, filename, &path, 0);
+#else
+	dentry = kern_path_create(AT_FDCWD, filename, &path, 0);
+#endif
+	if (IS_ERR(dentry))
+		return PTR_ERR(dentry);
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 7, 0)
+	if (!IS_POSIXACL(path.dentry->d_inode))
+		mode &= ~current_umask();
+#else /* Kernel 6.7 */
+	mode = mode_strip_umask(d_inode(path.dentry), mode);
+#endif /* Kernel 6.7 */
+	error = security_path_mknod(&path, dentry, mode, dev);
+	if (!error)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 12, 0)
+		error = vfs_mknod(path.dentry->d_inode, dentry, mode,
+				  new_decode_dev(dev));
+#else /* Kernel 5.12 */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0)
+		error = vfs_mknod(mnt_user_ns(path.mnt), path.dentry->d_inode,
+#else /* Kernel 6.3 */
+		error = vfs_mknod(mnt_idmap(path.mnt), path.dentry->d_inode,
+#endif /* Kernel 6.3 */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 19, 0)
+				  dentry, mode, new_decode_dev(dev));
+#else /* Kernel 6.19 */
+				  dentry, mode, new_decode_dev(dev), NULL);
+#endif /* Kernel 6.19 */
+#endif /* Kernel 5.12 */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 18, 0)
+	end_creating_path(&path, dentry);
+#else
+	done_path_create(&path, dentry);
+#endif
+	return error;
+}
+
+#else
+
+#error FIXME
+
+#endif
+
 int	_RP lis_mknod(char *name, int mode, dev_t dev)
 {
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */
-    mm_segment_t	old_fs;
-#endif    
-    int			ret = 0;
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
-    old_fs = get_fs();
-    set_fs(KERNEL_DS);
-#else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
-    old_fs = force_uaccess_begin();
-#endif    
-#endif
-#if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
-    ret = syscall_mknod(name, mode, kdev_val(dev)) ;
-#endif
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
-    set_fs(old_fs);
-#else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
-    force_uaccess_end(old_fs);
-#endif    
-#endif
-    return(ret < 0 ? -errno : ret) ;
+    return syscall_mknod(name, (umode_t)mode, new_encode_dev(dev));
 }
 
 /************************************************************************
@@ -4969,39 +5007,95 @@ int	_RP lis_mknod(char *name, int mode, dev_t dev)
 * Remove a name from the directory structure.				*
 *									*
 ************************************************************************/
-int	_RP lis_unlink(char *name)
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0) /* same up to 7.0.14 */
+
+/* filename_unlinkat is not exported but not static */
+static int (*filename_unlinkat_func_ptr)(int dfd, struct filename *name);
+
+/*
+ * Based on Linux 7.0.14 fs/init.c:init_unlink().
+ * We can't use it directly because it is freed after init.
+ */
+int _RP lis_unlink(char *pathname_not_const)
 {
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */	
-    mm_segment_t	old_fs;
-#endif    
-    int			ret = 0;
+    const char *pathname = (const char *)pathname_not_const;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
-    old_fs = get_fs();
-    set_fs(KERNEL_DS);
-#else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */ 
-    old_fs = force_uaccess_begin();
-#endif    
-#endif
+    if (!filename_unlinkat_func_ptr) {
+        struct kprobe kp;
 
-#if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
-    ret = syscall_unlink(name) ;
-#endif
+        memset(&kp, 0, sizeof(struct kprobe));
+        kp.symbol_name = "filename_unlinkat";
+        if (register_kprobe(&kp) < 0) {
+            printk(KERN_ERR "Unable to find filename_unlinkat symbol; CSLiS will not work correctly!\n");
+            return -ENOSYS;
+        }
+        filename_unlinkat_func_ptr = (int (*)(int, struct filename *))kp.addr;
+        unregister_kprobe(&kp);
+    }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
-    set_fs(old_fs);
-#else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
-    force_uaccess_end(old_fs);
-#endif    
-#endif    
-    return(ret < 0 ? -errno : ret) ;
+    CLASS(filename_kernel, name)(pathname);
+    return filename_unlinkat_func_ptr(AT_FDCWD, name);
 }
 
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 15, 0) /* same up to 6.19.14 */
+
+/* getname_kernel is not exported before 6.4, but not static */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0)
+#define getname_kernel_func_ptr getname_kernel
+#else
+static struct filename *(*getname_kernel_func_ptr)(const char *path);
+#endif
+
+/* do_unlinkat is not exported, but not static */
+static int (*do_unlinkat_func_ptr)(int dfd, struct filename *name);
+
+/*
+ * Based on Linux 6.19.14 fs/init.c:init_unlink().
+ * We can't use it directly because it is freed after init.
+ * init_unlink does not exist before 5.9, but do_unlinkat and getname_kernel do.
+ */
+
+int _RP lis_unlink(char *pathname_not_const)
+{
+    const char *pathname = (const char *)pathname_not_const;
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 4, 0)
+    if (!getname_kernel_func_ptr) {
+        struct kprobe kp;
+
+        memset(&kp, 0, sizeof(struct kprobe));
+        kp.symbol_name = "getname_kernel";
+        if (register_kprobe(&kp) < 0) {
+            printk(KERN_ERR "Unable to find getname_kernel symbol; CSLiS will not work correctly!\n");
+            return -ENOSYS;
+        }
+        getname_kernel_func_ptr = (struct filename *(*)(const char *))kp.addr;
+        unregister_kprobe(&kp);
+    }
+#endif
+
+    if (!do_unlinkat_func_ptr) {
+        struct kprobe kp;
+
+        memset(&kp, 0, sizeof(struct kprobe));
+        kp.symbol_name = "do_unlinkat";
+        if (register_kprobe(&kp) < 0) {
+            printk(KERN_ERR "Unable to find do_unlinkat symbol; CSLiS will not work correctly!\n");
+            return -ENOSYS;
+        }
+        do_unlinkat_func_ptr = (int (*)(int, struct filename *))kp.addr;
+        unregister_kprobe(&kp);
+    }
+
+    return do_unlinkat_func_ptr(AT_FDCWD, getname_kernel_func_ptr(pathname));
+}
+
+#else
+
+#error FIXME
+
+#endif
 
 #if defined(FATTACH_VIA_MOUNT)
 /*
@@ -5108,16 +5202,59 @@ int mount_permission(char * path)
 * A wrapper for a mount system call.					*
 *									*
 ************************************************************************/
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
+/*
+ * Based on fs/init.c:init_mount, which is line-for-line identical between 5.9.0
+ * and 7.1.7. We can't use it directly because it is freed after init.
+ *
+ * path_umount is not exported but is not static.
+ */
+
+static int (*path_mount_func_ptr)(const char *dev_name, struct path *path,
+                                  const char *type_page, unsigned long flags,
+                                  void *data_page);
+
+static int syscall_mount(const char *dev_name, const char *dir_name,
+                  const char *type_page, unsigned long flags, void *data_page)
+{
+    struct path path;
+    int ret;
+
+    if (!path_mount_func_ptr) {
+        struct kprobe kp;
+
+        memset(&kp, 0, sizeof(struct kprobe));
+        kp.symbol_name = "path_mount";
+        if (register_kprobe(&kp) < 0) {
+            printk(KERN_ERR "Unable to find path_mount symbol; CSLiS will not work correctly!\n");
+            return -ENOSYS;
+        }
+        path_mount_func_ptr = (int (*)(const char *, struct path *,
+                                       const char *, unsigned long,
+                                       void *))kp.addr;
+        unregister_kprobe(&kp);
+    }
+
+    ret = kern_path(dir_name, LOOKUP_FOLLOW, &path);
+    if (ret)
+        return ret;
+    ret = path_mount_func_ptr(dev_name, &path, type_page, flags, data_page);
+    path_put(&path);
+    return ret;
+}
+#else
+
+#error FIXME
+
+#endif
+
 int	lis_mount(char *dev_name,
 		  char *dir_name,
 		  char *fstype,
 		  unsigned long rwflag,
 		  void *data)
 {
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */	
-    mm_segment_t	old_fs;
-#endif    
     int			ret;
 #if defined(FATTACH_VIA_MOUNT)
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
@@ -5126,28 +5263,14 @@ int	lis_mount(char *dev_name,
     kernel_cap_t        cap = current_cap();
     int                 admin;
 #endif
-#endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
-    old_fs = get_fs();
-    set_fs(KERNEL_DS);
-#else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
-    old_fs = force_uaccess_begin();
-#endif    
-#endif     
-
-#if defined(FATTACH_VIA_MOUNT)
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
     if (!(ret = mount_permission(dir_name))) {
 
 	if (!cap_raise(current->cap_effective, CAP_SYS_ADMIN))
 	    ret = -EPERM;
 	else
-#if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
 	    ret = syscall_mount(dev_name, dir_name, fstype, rwflag, data) ;
-#endif
 
 	current->cap_effective = cap;
     }
@@ -5160,9 +5283,7 @@ int	lis_mount(char *dev_name,
 	    cap_raise(loccred->cap_effective, CAP_SYS_ADMIN);
             commit_creds(loccred);
         }
-#if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
-	    ret = syscall_mount(dev_name, dir_name, fstype, rwflag, data) ;
-#endif
+        ret = syscall_mount(dev_name, dir_name, fstype, rwflag, data) ;
 	if (!admin) {
             loccred = prepare_creds();
 	    cap_lower(loccred->cap_effective, CAP_SYS_ADMIN);
@@ -5172,22 +5293,84 @@ int	lis_mount(char *dev_name,
 #endif
 
 #else
-#if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
     ret = syscall_mount(dev_name, dir_name, fstype, rwflag, data) ;
 #endif
-#endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
-    set_fs(old_fs);
-#else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
-    force_uaccess_end(old_fs);
-#endif    
-#endif 
-
-    return(ret < 0 ? ret : -ret) ;
+    return ret;
 }
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 9, 0)
+
+static int (*path_umount_func_ptr)(struct path *path, int flags);
+
+/*
+ * Modified based on Linux 7.0.14 fs/namespace.c:ksys_umount - identical back
+ * to 5.9, barring a bug fix
+ */
+static int syscall_umount2(char *name, int flags)
+{
+    int ret;
+    int lookup_flags = LOOKUP_MOUNTPOINT;
+    struct path path;
+
+    if (!path_umount_func_ptr) {
+        struct kprobe kp;
+
+        memset(&kp, 0, sizeof(struct kprobe));
+        kp.symbol_name = "path_umount";
+        if (register_kprobe(&kp) < 0) {
+            printk(KERN_ERR "Unable to find path_umount symbol; CSLiS will not work correctly!\n");
+            return -ENOSYS;
+        }
+        path_umount_func_ptr = (int (*)(struct path *, int))kp.addr;
+        unregister_kprobe(&kp);
+    }
+
+    // basic validity checks done first
+    if (flags & ~(MNT_FORCE | MNT_DETACH | MNT_EXPIRE | UMOUNT_NOFOLLOW))
+        return -EINVAL;
+
+    if (!(flags & UMOUNT_NOFOLLOW))
+        lookup_flags |= LOOKUP_FOLLOW;
+    ret = kern_path(name, lookup_flags, &path); /* AT_FDCWD is implied */
+    if (ret)
+        return ret;
+    return path_umount_func_ptr(&path, flags);
+}
+
+#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
+/* Before 5.9, ksys_umount was non-static and took a user fumction pointer */
+static int (*ksys_umount_func_ptr)(char __user *path, int flags);
+
+static int syscall_umount2(char *path, int flags)
+{
+    int ret;
+    mm_segment_t	old_fs;
+
+    if (!ksys_umount_func_ptr) {
+        struct kprobe kp;
+
+        memset(&kp, 0, sizeof(struct kprobe));
+        kp.symbol_name = "ksys_umount";
+        if (register_kprobe(&kp) < 0) {
+            printk(KERN_ERR "Unable to find ksys_umount symbol; CSLiS will not work correctly!\n");
+            return -ENOSYS;
+        }
+        ksys_umount_func_ptr = (int (*)(char __user *, int))kp.addr;
+        unregister_kprobe(&kp);
+    }
+
+    old_fs = get_fs();
+    set_fs(KERNEL_DS); /* disable user pointer check */
+    ret = ksys_umount_func_ptr(char __user *)path, flags);
+    set_fs(old_fs); /* re-enable user pointer check */
+
+    return ret;
+}
+
+#else
+#error FIXME
+#endif
 
 /************************************************************************
 *                            lis_umount                                 *
@@ -5201,10 +5384,6 @@ int	lis_mount(char *dev_name,
 ************************************************************************/
 int	lis_umount2(char *path, int flags)
 {
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */	
-    mm_segment_t	old_fs;
-#endif    
     int			ret;
 #if defined(FATTACH_VIA_MOUNT)
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
@@ -5215,15 +5394,6 @@ int	lis_umount2(char *path, int flags)
 #endif
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
-    old_fs = get_fs();
-    set_fs(KERNEL_DS);
-#else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
-    old_fs = force_uaccess_begin();
-#endif    
-#endif
 #if defined(FATTACH_VIA_MOUNT)
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
    if (!(ret = mount_permission(path))) {
@@ -5231,9 +5401,7 @@ int	lis_umount2(char *path, int flags)
 	if (!cap_raise(current->cap_effective, CAP_SYS_ADMIN))
 	    ret = -EPERM;
 	else
-#if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
 	    ret = syscall_umount2(path, flags) ;
-#endif
 
 	current->cap_effective = cap;
     }
@@ -5246,9 +5414,7 @@ int	lis_umount2(char *path, int flags)
 	    cap_raise(loccred->cap_effective, CAP_SYS_ADMIN);
             commit_creds(loccred);
         }
-#if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
 	    ret = syscall_umount2(path, flags) ;
-#endif
 	if (!admin) {
             loccred = prepare_creds();
 	    cap_lower(loccred->cap_effective, CAP_SYS_ADMIN);
@@ -5258,21 +5424,10 @@ int	lis_umount2(char *path, int flags)
 #endif
 
 #else
-#if (!defined(_X86_64_LIS_) && (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,22)))
     ret = syscall_umount2(path, flags) ;
 #endif
-#endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)
-    set_fs(old_fs);
-#else
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))) /* version less than RHEL 9.2 and SLES 15 SP5 */    
-    force_uaccess_end(old_fs);
-#endif    
-#endif
-
-    return(ret < 0 ? ret : -ret) ;
+    return ret;
 }
 
 /************************************************************************
