@@ -317,9 +317,6 @@ extern lis_atomic_t      lis_close_cnt;
 
 extern lis_atomic_t      lis_mnt_cnt;
 
-extern void    		 lis_task_to_creds(lis_kcreds_t *cp) ;
-extern void    		 lis_creds_to_task(lis_kcreds_t *cp) ;
-
 #if defined(CONFIG_DEV)
 extern stdata_t *lis_head_get_fcn(stdata_t *hd, const char *file, int line);
 extern stdata_t *lis_head_put_fcn(stdata_t *hd, const char *file, int line);
