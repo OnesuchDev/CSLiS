@@ -1516,15 +1516,11 @@ struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
    *
    * 2002/11/18 - nodev is the right one for fattach... - JB
    */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 39)
     return(get_sb_nodev(fs_type, flags, ptr, lis_fs_setup_sb, mnt)); /*? ?*/
 #else
      /* In Linux 2.6.39, get_sb_nodev was replaced by mount_nodev() */
     return(mount_nodev(fs_type, flags, ptr, lis_fs_setup_sb));
-#endif
-#else
-    return(get_sb_nodev(fs_type, flags, ptr, lis_fs_setup_sb));
 #endif
 }
 
