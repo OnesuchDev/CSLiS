@@ -2614,11 +2614,7 @@ int lis_ioc_pipe( unsigned int *fildes )
 static inline void lis_fifo_wait(struct inode * i)
 {
 	DECLARE_WAITQUEUE(wait, current);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,18,0)
         set_current_state(TASK_INTERRUPTIBLE);
-#else
-	current->state = TASK_INTERRUPTIBLE;
-#endif
 	add_wait_queue(PIPE_WAIT(*i), &wait);
 #ifdef PIPE_SEM
 	lis_kernel_up(PIPE_SEM(*i));
@@ -2627,11 +2623,7 @@ static inline void lis_fifo_wait(struct inode * i)
 #endif
 	schedule();
 	remove_wait_queue(PIPE_WAIT(*i), &wait);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,18,0)
         set_current_state(TASK_RUNNING);
-#else
-	current->state = TASK_RUNNING;
-#endif
 #ifdef PIPE_SEM
 	lis_kernel_down(PIPE_SEM(*i));
 #else
