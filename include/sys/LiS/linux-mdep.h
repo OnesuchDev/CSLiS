@@ -968,11 +968,6 @@ lis_mntput_fcn(struct vfsmount *m,
 #define MNTPUT(m)      lis_mntput((m))
 #endif  /* CONFIG_DEV  */
 
-/*
- * For convenience, define FATTACH_VIA_MOUNT if appropriate
- */
-#define FATTACH_VIA_MOUNT 1
-
 #if defined(USE_KMEM_CACHE)
 
 #if defined(CONFIG_DEV)
