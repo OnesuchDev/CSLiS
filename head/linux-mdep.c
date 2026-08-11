@@ -379,9 +379,11 @@ long lis_unlocked_ioctl (struct file *, unsigned int, unsigned long);
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
-struct block_device lis_tmpbd;
-struct inode  lis_tmpinode; 
-struct address_space lis_tmpmapping; /* create a temp mapping that will have no pages */
+static struct block_device lis_tmpbd;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,12,0)
+static struct inode lis_tmpinode;
+static struct address_space lis_tmpmapping; /* create a temp mapping that will have no pages */
+#endif
 #endif
 
 /*
@@ -4213,8 +4215,10 @@ static void __exit _lis_cleanup_module( void )
    /*  Create a temp structure to satisfy a blk device being invalidated */
    /*  set to zero so no buffers are invalidated */
     memset ((void *)&lis_tmpbd,0,sizeof(struct block_device));
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,12,0)
     memset ((void *)&lis_tmpinode,0,sizeof(struct inode));
     memset ((void *)&lis_tmpmapping,0,sizeof(struct address_space));
+#endif
 
     lis_mnt->mnt_sb->s_bdev = &lis_tmpbd;
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,12,0)    
