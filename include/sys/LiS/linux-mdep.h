@@ -783,25 +783,6 @@ extern void *lis__kfree(void *ptr) ;
 #endif				/* __KERNEL__ */
 
 /*  -------------------------------------------------------------------  */
-
-/* This should be entry points from the kernel into LiS
- * kernel should be fixed to call them when appropriate.
- */
-
-/* some kernel memory has been free'd 
- * tell STREAMS
- */
-#ifdef __KERNEL__
-extern void
-lis_memfree( void );
-
-/* Get avail kernel memory size
- */
-#define lis_kmemavail()	((unsigned long)-1) /* lots of mem avail :) */
-
-#endif				/* __KERNEL__ */
-
-/*  -------------------------------------------------------------------  */
 /* This will copyin usr string pointed by ustr and return the result  in
  * *kstr. It will stop at  '\0' or max bytes copyed in.
  * caller should call free_page(*kstr) on success.

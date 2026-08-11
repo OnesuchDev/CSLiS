@@ -685,15 +685,6 @@ void _RP lis_modput_dbg(const char *file, int line, const char *fn)
 #endif
 }
 
-
-
-/* some kernel memory has been free'd 
- * tell STREAMS
- */
-void lis_memfree( void )
-{
-}/*lis_memfree*/
-
 /* This will copyin usr string pointed by ustr and return the result  in
  * *kstr. It will stop at  '\0' or max bytes copyed in.
  * caller should call FREE(*kstr) on success.
