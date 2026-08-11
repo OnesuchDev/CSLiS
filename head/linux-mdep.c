@@ -622,7 +622,7 @@ long lis_modcnt( struct module *mod )
     return (0);			/* refcnts are very buried */
 #  endif
 #else
-    return 0
+    return 0;
 #endif
 }
 
