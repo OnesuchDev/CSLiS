@@ -575,18 +575,17 @@ int lis_super_statfs(struct super_block *sb, struct kstatfs *stat) ;
 int lis_super_statfs(struct dentry *, struct kstatfs *) ;
 #endif
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8))
-void lis_drop_inode(struct inode *) ;
-#else
-int lis_drop_inode(struct inode *) ;
-#endif
 void lis_super_umount_begin(struct super_block *) ;
 void lis_super_put_super(struct super_block *) ;
 
 struct super_operations lis_super_ops =
 {
     statfs:		lis_super_statfs,
-    drop_inode:		lis_drop_inode,
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,18,0)
+    drop_inode:		generic_delete_inode,
+#else
+    drop_inode:		inode_just_drop,
+#endif
     umount_begin:       lis_super_umount_begin,
     put_super:          lis_super_put_super,
 } ;
@@ -2254,21 +2253,6 @@ struct dentry *lis_inode_lookup(struct inode *dir, struct dentry *dentry, unsign
 #endif
 {
     return(NULL) ;
-}
-
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8))
-void lis_drop_inode(struct inode *inode)
-#else
-int lis_drop_inode(struct inode *inode)
-#endif
-{
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,36))
-    generic_delete_inode(inode) ;
-#elif (LINUX_VERSION_CODE < KERNEL_VERSION(6,18,0))
-    return generic_delete_inode(inode) ;
-#else
-    return inode_just_drop(inode);
-#endif
 }
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
