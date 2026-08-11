@@ -4907,11 +4907,11 @@ static int syscall_mknod(const char *filename, umode_t mode, unsigned int dev)
 		error = vfs_mknod(path.dentry->d_inode, dentry, mode,
 				  new_decode_dev(dev));
 #else /* Kernel 5.12 */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 3, 0) && !(defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > RHEL_RELEASE_VERSION(9, 5))
 		error = vfs_mknod(mnt_user_ns(path.mnt), path.dentry->d_inode,
-#else /* Kernel 6.3 */
+#else /* Kernel 6.3, or RHEL 9.6 which has mnt_idmap backported */
 		error = vfs_mknod(mnt_idmap(path.mnt), path.dentry->d_inode,
-#endif /* Kernel 6.3 */
+#endif /* Kernel 6.3, or RHEL 9.6 which has mnt_idmap backported */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 19, 0)
 				  dentry, mode, new_decode_dev(dev));
 #else /* Kernel 6.19 */
