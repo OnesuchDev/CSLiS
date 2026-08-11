@@ -123,9 +123,7 @@ void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
 #include <linux/cdev.h>		/* cdev_put */
 #include <linux/pipe_fs_i.h>
 #include <linux/mount.h>
-#if defined(FATTACH_VIA_MOUNT)
 #include <linux/capability.h>
-#endif
 #include <linux/time.h>
 
 #include <linux/fdtable.h>
@@ -301,7 +299,6 @@ struct lis_timer {
 };
 #endif
 
-#if defined(FATTACH_VIA_MOUNT)
 /*
  * fattach instance data
  *
@@ -340,8 +337,6 @@ static lis_fattach_t *lis_fattach_new(struct file *file, struct filename *path);
 static void lis_fattach_delete(lis_fattach_t *data);
 static void lis_fattach_insert(lis_fattach_t *data);
 static void lis_fattach_remove(lis_fattach_t *data);
-
-#endif  /* FATTACH_VIA_MOUNT */
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
 lis_spin_lock_t lis_inode_lock; 
@@ -489,11 +484,7 @@ struct file_system_type
 lis_file_system_ops =
 {
     name:	LIS_FS_NAME,
-#if defined(FATTACH_VIA_MOUNT)
     fs_flags:   0,
-#else
-    fs_flags:   (FS_NOMOUNT | FS_SINGLE),
-#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
     get_sb:	lis_fs_get_sb,
@@ -587,19 +578,15 @@ void lis_drop_inode(struct inode *) ;
 #else
 int lis_drop_inode(struct inode *) ;
 #endif
-#if defined(FATTACH_VIA_MOUNT)
 void lis_super_umount_begin(struct super_block *) ;
 void lis_super_put_super(struct super_block *) ;
-#endif
 
 struct super_operations lis_super_ops =
 {
     statfs:		lis_super_statfs,
     drop_inode:		lis_drop_inode,
-#if defined(FATTACH_VIA_MOUNT)
     umount_begin:       lis_super_umount_begin,
     put_super:          lis_super_put_super,
-#endif
 } ;
 
 #define S_FS_INFO(s)    ((s)->s_fs_info)
@@ -979,7 +966,6 @@ void lis_set_inode_str(struct inode *i, struct stdata *s)
 
 struct dentry *lis_d_alloc_root(struct inode *i, int mode)
 {
-#if defined(FATTACH_VIA_MOUNT)
     struct dentry *d = NULL;
     struct qstr dname;
 
@@ -1055,9 +1041,6 @@ struct dentry *lis_d_alloc_root(struct inode *i, int mode)
 #endif
     }
     return d;
-#else
-    return(d_alloc_root(i)) ;
-#endif
 }
 
 
@@ -1313,7 +1296,6 @@ int lis_super_statfs(struct dentry *de, struct kstatfs *stat)
 static
 int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
 {
-#if defined(FATTACH_VIA_MOUNT)
     lis_fattach_t *data = (ptr ? *((lis_fattach_t **) ptr) : NULL);
     struct file *file   = (data ? data->file : NULL);
     stdata_t *head      = (data ? data->head : NULL);
@@ -1433,9 +1415,6 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
       return(0);
   } else
       return(-EINVAL);  /* this must be a stream */
-#else			/* FATTACH_VIA_MOUNT */
-  return(-ENOSYS) ;	/* not implemented */
-#endif			/* FATTACH_VIA_MOUNT */
 }
 
 static
@@ -1535,7 +1514,6 @@ struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
    *
    * 2002/11/18 - nodev is the right one for fattach... - JB
    */
-#if defined(FATTACH_VIA_MOUNT) && 1
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,17)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 39)
     return(get_sb_nodev(fs_type, flags, ptr, lis_fs_setup_sb, mnt)); /*? ?*/
@@ -1545,9 +1523,6 @@ struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
 #endif
 #else
     return(get_sb_nodev(fs_type, flags, ptr, lis_fs_setup_sb));
-#endif
-#else
-    return(get_sb_single(fs_type, flags, ptr, lis_fs_setup_sb));
 #endif
 }
 
@@ -1591,7 +1566,6 @@ void lis_dentry_iput( struct dentry *d, struct inode *i )
 	lis_put_inode(i);
 }
 
-#if defined(FATTACH_VIA_MOUNT)
 /*
  *  lis_super_ops hooks for supporting fdetach() via sys_umount[2]() -
  *
@@ -1779,7 +1753,6 @@ void lis_super_put_super( struct super_block *sb )
 
     MNTSYNC();
 }
-#endif /* FATTACH_VIA_MOUNT */
 
 /************************************************************************
 *                         lis_new_file_name                             *
@@ -2945,7 +2918,6 @@ int lis_fattach( struct file *f, const char *path )
 int lis_fattach( struct file *f, struct filename *path)
 #endif
 {
-#if defined(FATTACH_VIA_MOUNT)
     stdata_t *head = FILE_STR(f);
     int result;
 
@@ -3012,14 +2984,6 @@ int lis_fattach( struct file *f, struct filename *path)
     MNTSYNC();
 
     return(result);
-#else
-    static int	twice ;
-
-    if (++twice <= 2)
-	printk("\nfattach is no longer implemented in kernels older "
-	    "than 2.4.7\n\n") ;
-    return(-ENOSYS) ;
-#endif			/* FATTACH_VIA_MOUNT */
 }
 
 /*
@@ -3065,7 +3029,6 @@ int lis_fdetach( struct filename *path )
 #else
         printk("lis_fdetach(\"%s\")\n", path->name );
 #endif
-#if defined(FATTACH_VIA_MOUNT)
     /*
      *  We now use the sys_umount syscall to do all the work, with the
      *  help of callback entry points in the LiS superblock structure.
@@ -3090,9 +3053,6 @@ int lis_fdetach( struct filename *path )
     return lis_umount2( (char *)path->name, MNT_FORCE);
 #endif
 #endif
-# else
-    return(-ENOSYS) ;
-# endif			/* FATTACH_VIA_MOUNT */
 }
 
 /*
@@ -3108,7 +3068,6 @@ int lis_fdetach( struct filename *path )
  */
 void lis_fdetach_stream( stdata_t *head )
 {
-#if defined(FATTACH_VIA_MOUNT)
     int n = num_fattaches_listed;  /* just to make sure we terminate */
     int error;
 
@@ -3155,7 +3114,6 @@ void lis_fdetach_stream( stdata_t *head )
 	}
     }
     lis_spin_unlock(&lis_fattaches_lock);
-#endif 	/* FATTACH_VIA_MOUNT */
 }
 
 /*
@@ -3168,7 +3126,6 @@ void lis_fdetach_stream( stdata_t *head )
  */
 void lis_fdetach_all(void)
 {
-#if defined(FATTACH_VIA_MOUNT)
     int n = num_fattaches_listed;  /* just to make sure we terminate */
     int error;
 
@@ -3198,7 +3155,6 @@ void lis_fdetach_all(void)
     }
     lis_spin_unlock(&lis_fattaches_lock);
 
-#endif  /* FATTACH_VIA_MOUNT */
 }
 
 /*
@@ -3235,7 +3191,6 @@ int lis_ioc_fdetach( struct filename *path )
     return error;
 }
 
-#if defined(FATTACH_VIA_MOUNT)
 /*
  *  fattach()/fdetach() instance data support routines
  */
@@ -3411,8 +3366,6 @@ static void lis_fattach_remove(lis_fattach_t *data)
 		   K_ATOMIC_READ(&num_fattaches_allocd) );
     }
 }
-
-#endif /* FATTACH_VIA_MOUNT */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
 /*
@@ -4143,9 +4096,7 @@ int lis_init_module( void )
     lis_spin_lock_init(&lis_setqsched_lock, "SetQsched-Lock") ;
     lis_spin_lock_init(&lis_task_lock, "Task-Lock") ;
     lis_spin_lock_init(&free_passfp.lock,"Free Passfp Lock");
-#if defined(FATTACH_VIA_MOUNT)
     lis_spin_lock_init(&lis_fattaches_lock, "fattach list lock");
-#endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
     lis_spin_lock_init(&lis_inode_lock, "LiS inode lock");
 #endif
@@ -4219,7 +4170,6 @@ static void __exit _lis_cleanup_module( void )
    extern void	lis_mem_terminate(void) ;
    extern void  lis_terminate_final(void) ;
 
-#if defined(FATTACH_VIA_MOUNT)
    /*
     *  It never made sense to do this here before, but it does now,
     *  as of 2.4.x (using mount() for fattach()), because the fdetach()
@@ -4234,7 +4184,6 @@ static void __exit _lis_cleanup_module( void )
     *  undone fattaches...
     */
    lis_fdetach_all();
-#endif
 
    /*
     * Make sure no streams modules are running,
@@ -5085,7 +5034,6 @@ int _RP lis_unlink(char *pathname_not_const)
 
 #endif
 
-#if defined(FATTACH_VIA_MOUNT)
 /*
  *  The following is an adaptation of 'permission(inode, mask)'; we
  *  need it because our argument is a path, not an inode.  Additionally,
@@ -5181,7 +5129,6 @@ int mount_permission(char * path)
 
     return error;
 }
-#endif
 
 /************************************************************************
 *                             lis_mount                                 *
@@ -5244,7 +5191,6 @@ int	lis_mount(char *dev_name,
 		  void *data)
 {
     int			ret;
-#if defined(FATTACH_VIA_MOUNT)
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
     kernel_cap_t        cap = current->cap_effective;
 #else
@@ -5278,10 +5224,6 @@ int	lis_mount(char *dev_name,
             commit_creds(loccred);
         }
     }
-#endif
-
-#else
-    ret = syscall_mount(dev_name, dir_name, fstype, rwflag, data) ;
 #endif
 
     return ret;
@@ -5373,16 +5315,13 @@ static int syscall_umount2(char *path, int flags)
 int	lis_umount2(char *path, int flags)
 {
     int			ret;
-#if defined(FATTACH_VIA_MOUNT)
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
     kernel_cap_t        cap = current->cap_effective;
 #else
     kernel_cap_t        cap = current_cap();
     int                 admin;
 #endif
-#endif
 
-#if defined(FATTACH_VIA_MOUNT)
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
    if (!(ret = mount_permission(path))) {
 
@@ -5409,10 +5348,6 @@ int	lis_umount2(char *path, int flags)
             commit_creds(loccred);
         }
     }
-#endif
-
-#else
-    ret = syscall_umount2(path, flags) ;
 #endif
 
     return ret;
