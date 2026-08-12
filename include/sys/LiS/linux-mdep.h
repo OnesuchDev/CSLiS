@@ -588,20 +588,6 @@ extern dev_t		lis_kern_to_lis_dev(dev_t dev) ;
 extern dev_t			lis_i_rdev(struct inode *) ;
 #define	GET_I_RDEV(inode)	lis_i_rdev(inode)
 
-/*
- * 2.4 used kdev_t for inode->i_rdev.  2.6 uses dev_t for that field.
- * These conversion routines are used to handle the i_rdev field.  Since
- * the i_rdev field is in LiS format all these do is apply casts to
- * silence the compiler.
- *
- * MKDEV is defined by the kernel and makes a kernel device "structure"
- * out of a major and minor device number.
- */
-#define	DEV_TO_RDEV(dev)	(dev)
-#define	RDEV_TO_DEV(rdev)	(rdev)
-#define	RDEV_TO_INT(rdev)	((int)(rdev))
-
-
 #define	LIS_FIFO  FIFO__CMAJOR_0
 #define LIS_CLONE CLONE__CMAJOR_0
 
