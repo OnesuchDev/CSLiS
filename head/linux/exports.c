@@ -70,7 +70,6 @@
 
 
 extern int		lis_major;
-extern char		lis_kernel_version[];
 extern char		lis_version[] ;
 extern char		lis_date[] ;
 extern char		*lis_stropts_file ;
@@ -173,7 +172,6 @@ EXPORT_SYMBOL_NOVERS(lis_irqreturn_not_handled);
 EXPORT_SYMBOL_NOVERS(lis_jiffies);
 EXPORT_SYMBOL_NOVERS(lis_kernel_down);
 EXPORT_SYMBOL_NOVERS(lis_kernel_up);
-EXPORT_SYMBOL_NOVERS(lis_kernel_version);
 EXPORT_SYMBOL_NOVERS(lis_kfree);
 EXPORT_SYMBOL_NOVERS(lis_kmalloc);
 EXPORT_SYMBOL_NOVERS(lis_linkb);
