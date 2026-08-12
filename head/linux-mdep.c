@@ -767,7 +767,7 @@ dev_t lis_kern_to_lis_dev(dev_t dev)
 dev_t lis_i_rdev(struct inode *i)
 {
     if (I_IS_LIS(i))
-	return(RDEV_TO_DEV(i->i_rdev)) ;
+	return i->i_rdev;
 
     return(lis_kern_to_lis_dev(i->i_rdev)) ;
 }
@@ -2353,7 +2353,7 @@ static struct inode *lis_get_inode( mode_t mode, dev_t dev )
 	 *  field, reflecting that this is a LiS-only inode which has
 	 *  no file system hosting it (other than LiS itself)
 	 */
-	i->i_rdev  = DEV_TO_RDEV(dev);	/* set desired dev */
+	i->i_rdev  = dev;	/* set desired dev */
 
 	if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
 	    printk("lis_get_inode(m0x%x,dv0x%x) >> i@0x%p/%d"
