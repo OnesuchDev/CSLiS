@@ -154,7 +154,7 @@ typedef unsigned long long	__kernel_uoff_t;
 #include <linux/sched/signal.h> /* task_pgrp, used in head.c */
 #endif
 #include <linux/wait.h>
-#include <linux/kernel.h>	/* suser,...*/
+#include <linux/kernel.h>
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))
 #include <linux/interrupt.h>
 #endif
