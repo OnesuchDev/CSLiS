@@ -307,10 +307,3 @@ extern int lis_init_stream_subsystem(int memlimit);
 #endif
 
 #endif /*!_STREAM_H*/
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/
-

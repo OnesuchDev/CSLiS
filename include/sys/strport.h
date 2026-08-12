@@ -123,10 +123,3 @@ extern void	 lis_free(void *ptr, char *file_name,int line_nr)_RP;
 #endif				/* __KERNEL__ */
 
 #endif /* _STRPORT_H */
-
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

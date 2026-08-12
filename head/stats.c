@@ -101,10 +101,3 @@ void LisSetCounter(int item, int val)
 	AS(&lis_strstats[item][MAXIMUM], c) ;
 
 } /* LisSetCounter */
-
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

@@ -57,9 +57,3 @@
 extern struct streamtab lis_fifo_strtab; /* streamtab for streams fifo's */
 
 #endif /*!_FIFO_H*/
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

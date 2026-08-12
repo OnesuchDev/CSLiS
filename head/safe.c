@@ -269,11 +269,3 @@ void  _RP lis_safe_qreply(queue_t *q, mblk_t *mp, char *f, int l)
 
     lis_safe_putnext(q, mp, f, l);
 }
-
-
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

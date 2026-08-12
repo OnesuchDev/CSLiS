@@ -51,9 +51,3 @@ extern       lis_print_trace_t      lis_print_trace;
 #endif				/* __KERNEL__ */
 
 #endif /*!_CMD_ERR_H*/
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

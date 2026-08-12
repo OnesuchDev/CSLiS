@@ -130,9 +130,3 @@ extern int lis_strmsgsz;		/* maximum stream message size */
 
 
 #endif /*!_LIS_CONFIG_H*/
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

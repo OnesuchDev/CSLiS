@@ -2290,9 +2290,3 @@ void	_RP lis_qprocsoff(queue_t *rdq)
 {
     lis_set_q_flags(QPROCSOFF, 1, rdq, NULL);
 }
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

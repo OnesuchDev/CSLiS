@@ -305,12 +305,3 @@ lis_sleep_on_wiocing(struct stdata * sd)
     return(ret) ;
 
 }/*lis_sleep_on_wiocing*/
-
-
-
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/
