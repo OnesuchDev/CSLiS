@@ -2308,10 +2308,10 @@ static struct inode *lis_get_inode( mode_t mode, dev_t dev )
 	 *  the dev and rdev fields
 	 */
 	i->i_op    = &lis_streams_iops;
-/*
- *  FIXME - generalize to use an fops per major, so modules can own
- *  their open files.
- */
+	/*
+	 *  FIXME - generalize to use an fops per major, so modules can own
+	 *  their open files.
+	 */
 	i->i_fop   = &lis_streams_fops;
 	/*
 	 *  char devs are identified by the rdev field; dev identifies
