@@ -4687,16 +4687,16 @@ retry_from_start:			/* retry point for open/close races */
      * opens on this {maj,min} until we are finished.
      */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    creds.cr_uid  = (uid_t) EUID(f);
-    creds.cr_gid  = (gid_t) EGID(f);
-    creds.cr_ruid = (uid_t) UID(f);
-    creds.cr_rgid = (gid_t) GID(f);
+    creds.cr_uid  = (uid_t) current_euid();
+    creds.cr_gid  = (gid_t) current_egid();
+    creds.cr_ruid = (uid_t) current_uid();
+    creds.cr_rgid = (gid_t) current_gid();
 
 #else
-    creds.cr_uid  = (kuid_t) EUID(f);
-    creds.cr_gid  = (kgid_t) EGID(f);
-    creds.cr_ruid = (kuid_t) UID(f);
-    creds.cr_rgid = (kgid_t) GID(f);
+    creds.cr_uid  = (kuid_t) current_euid();
+    creds.cr_gid  = (kgid_t) current_egid();
+    creds.cr_ruid = (kuid_t) current_uid();
+    creds.cr_rgid = (kgid_t) current_gid();
 #endif
 
     SET_FILE_STR(f, head);		/* point file to strm hd */
@@ -6564,16 +6564,16 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
     lis_head_get(hd) ;
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    creds.cr_uid  = (uid_t) EUID(f);
-    creds.cr_gid  = (gid_t) EGID(f);
-    creds.cr_ruid = (uid_t) UID(f);
-    creds.cr_rgid = (gid_t) GID(f);
+    creds.cr_uid  = (uid_t) current_euid();
+    creds.cr_gid  = (gid_t) current_egid();
+    creds.cr_ruid = (uid_t) current_uid();
+    creds.cr_rgid = (gid_t) current_gid();
 
 #else
-    creds.cr_uid  = (kuid_t) EUID(f);
-    creds.cr_gid  = (kgid_t) EGID(f);
-    creds.cr_ruid = (kuid_t) UID(f);
-    creds.cr_rgid = (kgid_t) GID(f);
+    creds.cr_uid  = (kuid_t) current_euid();
+    creds.cr_gid  = (kgid_t) current_egid();
+    creds.cr_ruid = (kuid_t) current_uid();
+    creds.cr_rgid = (kgid_t) current_gid();
 #endif
 
     if (F_ISSET(hd->sd_flag,STPLEX))
@@ -8468,16 +8468,16 @@ lis_strclose(struct inode *i, struct file *f)
     }    
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    creds.cr_uid  = (uid_t) EUID(f);
-    creds.cr_gid  = (gid_t) EGID(f);
-    creds.cr_ruid = (uid_t) UID(f);
-    creds.cr_rgid = (gid_t) GID(f);
+    creds.cr_uid  = (uid_t) current_euid();
+    creds.cr_gid  = (gid_t) current_egid();
+    creds.cr_ruid = (uid_t) current_uid();
+    creds.cr_rgid = (gid_t) current_gid();
 
 #else
-    creds.cr_uid  = (kuid_t) EUID(f);
-    creds.cr_gid  = (kgid_t) EGID(f);
-    creds.cr_ruid = (kuid_t) UID(f);
-    creds.cr_rgid = (kgid_t) GID(f);
+    creds.cr_uid  = (kuid_t) current_euid();
+    creds.cr_gid  = (kgid_t) current_egid();
+    creds.cr_ruid = (kuid_t) current_uid();
+    creds.cr_rgid = (kgid_t) current_gid();
 #endif
 
     CP(head,0) ;
