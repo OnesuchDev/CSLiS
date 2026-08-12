@@ -256,7 +256,7 @@ lis_copyb(mblk_t *mp)
 	return NULL;
     bp->b_rptr += (mp->b_rptr - mp->b_datap->db_base);
     bp->b_wptr = bp->b_rptr;
-    MEMCPY(bp->b_wptr, mp->b_rptr, msglen);
+    memcpy(bp->b_wptr, mp->b_rptr, msglen);
     bp->b_wptr += msglen;
     bp->b_datap->db_type = mp->b_datap->db_type;
     bp->b_band = mp->b_band ;
@@ -428,7 +428,7 @@ lis_pullupmsg(mblk_t *mp, int length)
 	if (n > 0)
 	{				/* same type as result msg */
 	    nbytes = lis_min(n, length);
-	    MEMCPY(newbp->b_wptr, tmpbp->b_rptr, nbytes);
+	    memcpy(newbp->b_wptr, tmpbp->b_rptr, nbytes);
 	    tmpbp->b_rptr += nbytes;
 	    newbp->b_wptr += nbytes;
 	    length -= nbytes;
