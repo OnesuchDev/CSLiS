@@ -1462,17 +1462,10 @@ int	lis_new_file_name_dev(struct file *f, const char *name, dev_t dev)
     }
     else
     {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-    if ((oldi = lis_get_inode(S_IFCHR|S_IRUSR|S_IWUSR, dev)) == NULL)
-	return(-ENOMEM) ;
-    else
-	oldi->i_mode &= ~current->fs->umask ;	/* umask considerations */
-#else
     if ((oldi = lis_get_inode(S_IFCHR|S_IRUSR|S_IWUSR, dev)) == NULL)
 	return(-ENOMEM) ;
     else
 	oldi->i_mode &= ~current_umask() ;	/* umask considerations */
-#endif
     }
 
     dname.name = (unsigned char *)(name) ;	/* set up for d_alloc */
