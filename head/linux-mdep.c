@@ -1288,12 +1288,9 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
 		 (file&&FILE_MNT(file)==lis_mnt?" <lis_mnt>":""));
       }
 
-      LOCK_INO(i_mount);
-      
       sb->s_root = d_mount = lis_d_alloc_root(igrab(i_mount),
 					      LIS_D_ALLOC_ROOT_MOUNT);
       if (sb->s_root == NULL) {
-	  ULOCK_INO(i_mount);
 	  lis_head_put(head);
 	  return(-ENOMEM) ;
       }
@@ -1327,8 +1324,6 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
        */
       allow_write_access(file);
 
-      ULOCK_INO(i_mount);
-      
       if ((LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) &&
 	  path) {
 	  dev_t dev = GET_I_RDEV(i_mount);
@@ -1577,8 +1572,6 @@ void lis_super_umount_begin( struct super_block *sb )
     if (data && head && d_umount && i_umount) {
 	cred_t creds;
 
-	LOCK_INO(i_umount);
-
 	/*
 	 *  give back the write access we established at fattach time
 	 */
@@ -1622,8 +1615,6 @@ void lis_super_umount_begin( struct super_block *sb )
 	if (K_ATOMIC_READ(&head->sd_fattachcnt) <= 0)
 	    CLR_SD_FLAG(head,STRATTACH);
 	lis_spin_unlock(&lis_fattaches_lock);
-
-	ULOCK_INO(i_umount);
 
 	lis_doclose( i_umount, NULL, head, &creds );
 
@@ -3361,14 +3352,12 @@ int lis_sendfd( stdata_t *sendhd, unsigned int fd, struct file *fp )
 	struct file *dfp = lis_get_filp(&lis_streams_fops);
 	struct inode *i = FILE_INODE(fp);
 
-	LOCK_INO(i);
 	dfp->f_pos   = fp->f_pos;
 	dfp->f_flags = fp->f_flags;
 	dfp->f_mode  = fp->f_mode;
 	error = -ENOMEM;
 	if (!(dfp->f_dentry = lis_d_alloc_root(igrab(i),
 					       LIS_D_ALLOC_ROOT_NORMAL))) {
-	    ULOCK_INO(i);
 	    fops_put(dfp->f_op);
 	    /*? dfp->f_op->owner = NULL ; ?*/
 	    fput(dfp);
@@ -3380,8 +3369,6 @@ int lis_sendfd( stdata_t *sendhd, unsigned int fd, struct file *fp )
 	if (F_ISSET(recvhd->sd_flag,STFIFO))
 	    lis_fifo_sendfd_sync( i, dfp );
 	SET_FILE_STR(dfp, FILE_STR(fp));
-
-	ULOCK_INO(i);
 	
 	fput(fp);
 	fp = dfp;

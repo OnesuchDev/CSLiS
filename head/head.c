@@ -5846,11 +5846,9 @@ lis_strputpmsg(struct inode *i, struct file *fp,
     }
 
     if (F_ISSET(hd->sd_flag,STFIFO)) {
-	ULOCK_INO(i);
 	if ((err = lis_fifo_write_sync( i, 0 )) < 0) {
 	    RTN(err);
 	}
-	LOCK_INO(i);
     }
 
     if (band >= 0)				/* putpmsg */

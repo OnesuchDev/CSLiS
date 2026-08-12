@@ -364,14 +364,6 @@ int lis_kernel_down(struct rw_semaphore *i_rwsem)_RP;
 void lis_kernel_up(struct rw_semaphore *i_rwsem)_RP;
 #endif
 
-#if 0			/* don't need to hold inode semaphore for I/O oprns */
-#define	LOCK_INO(i)	lis_kernel_down(&((i)->i_sem))
-#define	ULOCK_INO(i)	lis_kernel_up(&((i)->i_sem))
-#else
-#define	LOCK_INO(i)	do {;} while (0)
-#define	ULOCK_INO(i)	do {;} while (0)
-#endif
-
 /*
  *  inode/stdata access
  */
