@@ -848,40 +848,6 @@ lis_untmout( struct timer_list *tl)
 }
 
 /************************************************************************
-*                             lis_time_till                             *
-*************************************************************************
-*									*
-* Given a target time in terms of elapsed milli-seconds, in other words,*
-* the same units as jiffies if jiffies were in milli-seconds, return	*
-* the number of milli-seconds that it will take to reach to target time.*
-*									*
-* The return is negative if the target time is in the past, zero	*
-* if it is the same as the current target time, and positive if		*
-* target time is in the future.						*
-*									*
-************************************************************************/
-long	_RP lis_time_till(long target_time)
-{
-    return( target_time - jiffies*(1000/HZ) ) ;
-
-} /* lis_time_till */
-
-/************************************************************************
-*                           lis_target_time                             *
-*************************************************************************
-*									*
-* Convert the milli_sec interval to an absolute target time expressed	*
-* in milli-seconds.  We compute this relative to the Linux software	*
-* clock, jiffies, converted to milliseconds.				*
-*									*
-************************************************************************/
-long	_RP lis_target_time(long milli_sec)
-{
-    return( jiffies*(1000/HZ) + milli_sec ) ;
-
-} /* lis_target_time */
-
-/************************************************************************
 *                           lis_milli_to_ticks                          *
 *************************************************************************
 *									*

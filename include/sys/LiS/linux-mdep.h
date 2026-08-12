@@ -219,8 +219,6 @@ typedef unsigned long long	__kernel_uoff_t;
 			/* seconds to system tmout time units */
 #define SECS_TO(t)	lis_milli_to_ticks(1000*(t))
 
-extern long lis_time_till(long target_time) _RP;
-extern long lis_target_time(long milli_sec) _RP;
 extern long lis_milli_to_ticks(long milli_sec)  _RP;
 #endif				/* __KERNEL__ */
 
