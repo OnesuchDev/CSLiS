@@ -195,10 +195,6 @@ char	*lis_stropts_file =
 /************************************************************************
  *                      Prototypes                                      *
  ************************************************************************/
-char *lis_alloc_file_path(void);
-char *lis_format_file_path(struct file *f, char *page);
-void lis_free_file_path(char *page);
-void lis_print_file_path(struct file *f);
 int lis_fs_setup_sb(struct super_block *sb, void *ptr, int silent);
 void lis_fdetach_all(void);
 mblk_t *lis_get_passfp(void);
@@ -1066,48 +1062,6 @@ struct dentry *lis_dget(struct dentry *d)
     d = dget(d);
 
     return(d) ;
-}
-
-/*
- *  kernel assistance to show a file's full path (using kernel's
- *  __d_path() routine)
- */
-char *lis_alloc_file_path(void)
-{
-    return (char *) __get_free_page(GFP_USER);
-}
-
-char *lis_format_file_path(struct file *f, char *page)
-{
-    if (page) {
-        char *path =   d_path(
-                               &f->f_path,
-                               page,
-                               PAGE_SIZE);
-	return path;
-    } else
-	return page;  /* which is NULL... */
-}
-
-void lis_free_file_path(char *page)
-{
-    if (page)
-    	free_page((unsigned long)page);
-}
-
-void lis_print_file_path(struct file *f)
-{
-    char *page = lis_alloc_file_path();
-
-    if (page) {
-// Commented out for Kernel 3.10 problem    char *path = lis_format_file_path(f, page);
-        char *path = "--lis_close_filepath--";
-
-	if (path)
-	    printk("%s", path);
-
-	lis_free_file_path(page);
-    }
 }
 
 /************************************************************************
