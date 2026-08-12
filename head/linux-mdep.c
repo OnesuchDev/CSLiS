@@ -170,8 +170,6 @@ void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
 /*  -------------------------------------------------------------------  */
 
 int lis_major;
-char lis_kernel_version[]= UTS_RELEASE;
-
 
 extern char	lis_version[] ;
 extern char	lis_date[] ;
@@ -4058,11 +4056,11 @@ int lis_init_module( void )
 	"Communications Server Linux STREAMS Subsystem ready \n"
 	"Copyright (c) 1997-2006 GCOM, et al, http://github.com/IBM/CSLiS\n"
 	"Major device number %d.\n"
-	"Version %s %s. Compiled for kernel version %s.\n"
+	"Version %s %s.\n"
 	"Using %s %s\n"
 	"Kernel register args %d, CSLiS register args %d\n"
 	"==================================================================\n",
-	lis_major, lis_version, lis_date, lis_kernel_version,
+	lis_major, lis_version, lis_date,
 	lis_poll_file, lis_stropts_file,
 	CCREGPARM, STREAMS_REGPARM);
 
