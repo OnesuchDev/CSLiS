@@ -353,11 +353,7 @@ extern void lis_cache_destroy(struct kmem_cache *p, lis_atomic_t *c, char *label
 /* This should be entry points from the kernel into LiS
  * kernel should be fixed to call them when appropriate.
  */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-int lis_strflush(struct file *f);
-#else
 int lis_strflush(struct file *f, fl_owner_t id);
-#endif
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
 long lis_compat_ioctl(struct file *fp, unsigned int cmd, unsigned long arg);
 #endif
@@ -447,14 +443,10 @@ struct inode_operations lis_streams_iops = {
 /*
  * File system operations
  */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-struct super_block *lis_fs_get_sb(struct file_system_type *fs_type,
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 int lis_fs_get_sb(struct file_system_type *fs_type,
 #else
 struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
-#endif
 #endif
 				  int flags,
 				  const char *dev_name,
@@ -556,11 +548,7 @@ void lis_mntput_fcn(struct vfsmount *m,
 /*
  * Super block operations
  */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-int lis_super_statfs(struct super_block *sb, struct kstatfs *stat) ;
-#else 
 int lis_super_statfs(struct dentry *, struct kstatfs *) ;
-#endif
 
 void lis_super_umount_begin(struct super_block *) ;
 void lis_super_put_super(struct super_block *) ;
@@ -1067,11 +1055,7 @@ struct dentry *lis_dget(struct dentry *d)
 * Return file system stats.						*
 *									*
 ************************************************************************/
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-int lis_super_statfs(struct super_block *sb, struct kstatfs *stat)
-#else
 int lis_super_statfs(struct dentry *de, struct kstatfs *stat)
-#endif
 {
     stat->f_type = LIS_SB_MAGIC ;
     stat->f_bsize = 1024 ;
@@ -1208,15 +1192,11 @@ int lis_fs_setup_sb(struct super_block *sb, void *ptr, int silent)
         return lis_fs_kern_mount_sb( sb, ptr, silent );
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-struct super_block *lis_fs_get_sb(struct file_system_type *fs_type,
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 int lis_fs_get_sb(struct file_system_type *fs_type,
 #else
 struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
 #endif
-#endif 
 				  int flags,
 				  const char *dev_name,
 				  void *ptr
@@ -1325,17 +1305,10 @@ void lis_super_umount_begin( struct super_block *sb )
 	if (mount)
 	    MNTPUT(mount);
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-	creds.cr_uid  = current->euid;
-	creds.cr_gid  = current->egid;
-	creds.cr_ruid = current->uid;
-	creds.cr_rgid = current->gid;
-#else
 	creds.cr_uid  = current_euid();
 	creds.cr_gid  = current_egid();
 	creds.cr_ruid = current_uid();
 	creds.cr_rgid = current_gid();
-#endif
 	/*
 	 *  clear the STRATTACH flag if no other fattaches for this stream
 	 */
@@ -1605,13 +1578,8 @@ lis_new_inode( struct file *f, dev_t dev )
 	 * Set the user/group ids to the opener, set modification times
 	 * to the current time.
 	 */
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-	new->i_uid   = current->fsuid;
-	new->i_gid   = current->fsgid;
-#else
 	new->i_uid   = current_fsuid();
 	new->i_gid   = current_fsgid();
-#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
         new->i_atime = new->i_mtime = new->i_ctime = CURRENT_TIME;
 #else
@@ -1775,11 +1743,7 @@ void lis_cleanup_file_closing(struct file *f, stdata_t *head)
 /*
  * lis_strflush - see file_operations
  */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,27)
-int lis_strflush( struct file *f )
-#else
 int lis_strflush( struct file *f, fl_owner_t id)
-#endif
 {
     MODSYNC();
 
@@ -1840,13 +1804,8 @@ struct inode *lis_set_up_inode(struct file *f, struct inode *inode)
      * Set the user/group ids to the opener, set modification times
      * to the current time.
      */
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-    new->i_uid   = current->fsuid;
-    new->i_gid   = current->fsgid;
-#else
     new->i_uid   = current_fsuid();
     new->i_gid   = current_fsgid();
-#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
     new->i_atime = new->i_mtime = new->i_ctime = CURRENT_TIME;
 #else
@@ -2834,17 +2793,12 @@ int lis_sendfd( stdata_t *sendhd, unsigned int fd, struct file *fp )
     mp->b_datap->db_type = M_PASSFP;
     sendfd = (strrecvfd_t *) mp->b_rptr;
     sendfd->f.fp  = fp;
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-    sendfd->uid   = current->euid;
-    sendfd->gid   = current->egid;
-#else
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
     sendfd->uid   = current_euid();
     sendfd->gid   = current_egid();
 #else
       sendfd->uid  = __kuid_val(current_euid());
       sendfd->gid  = __kgid_val(current_egid());
-#endif
 #endif
     sendfd->r.fp  = (FILE_INODE(fp) == recvhd->sd_inode ? oldfp : NULL);
     sendfd->r.hd  = recvhd;
@@ -3707,18 +3661,12 @@ int	lis_thread_func(void *argp)
     arg_t		*arg = (arg_t *) argp ;
     int		       (*func)(void *) ;
     void		*func_arg ;
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31))
     struct cred         *loccred = prepare_creds();
-#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     daemonize("%s", arg->name) ;	/* make me a daemon */
 #endif
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-    current->uid = 0 ;			/* become root */
-    current->euid = 0 ;			/* become root */
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     loccred->uid = 0 ;                  /* become root */
     loccred->euid = 0 ;                 /* become root */
@@ -3727,7 +3675,6 @@ int	lis_thread_func(void *argp)
     loccred->euid = GLOBAL_ROOT_UID;    /* become root */
 #endif
     commit_creds(loccred);
-#endif
 
     func = arg->func ;
     func_arg = arg->func_arg ;
@@ -4385,17 +4332,12 @@ int mount_permission(char * path)
 	struct inode *inode   = (dentry ? dentry->d_inode : NULL);
 
 	/* check process euid == inode uid */
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-	if (!error && (current->euid != inode->i_uid))
-	    error = -EPERM;  /* Solaris uses this for 'Not owner' */
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
         if (!error && (current_euid()!= inode->i_uid))
 	    error = -EPERM;  /* Solaris uses this for 'Not owner' */
 #else
         if (!error && !(uid_eq(current_euid(),inode->i_uid)))
             error = -EPERM;  /* Solaris uses this for 'Not owner' */
-#endif
 #endif	
 	/* check permission(s) */
 	if (!error)
@@ -4486,24 +4428,9 @@ int	lis_mount(char *dev_name,
 		  void *data)
 {
     int			ret;
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-    kernel_cap_t        cap = current->cap_effective;
-#else
     kernel_cap_t        cap = current_cap();
     int                 admin;
-#endif
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-    if (!(ret = mount_permission(dir_name))) {
-
-	if (!cap_raise(current->cap_effective, CAP_SYS_ADMIN))
-	    ret = -EPERM;
-	else
-	    ret = syscall_mount(dev_name, dir_name, fstype, rwflag, data) ;
-
-	current->cap_effective = cap;
-    }
-#else
     if (!(ret = mount_permission(dir_name))) {
         struct cred * loccred;
         admin = cap_raised(cap, CAP_SYS_ADMIN);
@@ -4519,7 +4446,6 @@ int	lis_mount(char *dev_name,
             commit_creds(loccred);
         }
     }
-#endif
 
     return ret;
 }
@@ -4610,24 +4536,9 @@ static int syscall_umount2(char *path, int flags)
 int	lis_umount2(char *path, int flags)
 {
     int			ret;
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-    kernel_cap_t        cap = current->cap_effective;
-#else
     kernel_cap_t        cap = current_cap();
     int                 admin;
-#endif
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-   if (!(ret = mount_permission(path))) {
-
-	if (!cap_raise(current->cap_effective, CAP_SYS_ADMIN))
-	    ret = -EPERM;
-	else
-	    ret = syscall_umount2(path, flags) ;
-
-	current->cap_effective = cap;
-    }
-#else
     if (!(ret = mount_permission(path))) {
         struct cred * loccred;
         admin = cap_raised(cap, CAP_SYS_ADMIN);
@@ -4643,7 +4554,6 @@ int	lis_umount2(char *path, int flags)
             commit_creds(loccred);
         }
     }
-#endif
 
     return ret;
 }

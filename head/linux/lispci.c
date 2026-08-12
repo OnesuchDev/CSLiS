@@ -188,14 +188,10 @@ lis_pci_dev_t   * _RP lis_pci_find_slot(unsigned bus, unsigned dev_fcn)
 	if (p->bus == bus && p->dev_fcn == dev_fcn) return(p) ;
     }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31)
-    kp = pci_find_slot(bus, dev_fcn) ;
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
     kp = pci_get_slot((struct pci_bus *)bus,dev_fcn);
 #else
     kp = NULL;
-#endif
 #endif
     if (kp == NULL) return(NULL) ;
 
