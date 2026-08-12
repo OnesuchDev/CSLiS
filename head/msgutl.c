@@ -613,10 +613,3 @@ lis_rmvb(mblk_t *mp, mblk_t *bp)
     bp->b_cont = NULL;
     return rtn;
 }/*lis_rmvb*/
-
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

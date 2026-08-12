@@ -459,9 +459,3 @@ void lis_terminate_bufcall(void)
     }
     lis_spin_unlock_irqrestore(&lis_bc_lock, &psw) ;
 }
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

@@ -487,9 +487,3 @@ typedef struct putpmsg_args
 #endif
 
 #endif /*!_SYS_STROPTS_H*/
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

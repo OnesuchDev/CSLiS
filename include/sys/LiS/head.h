@@ -450,9 +450,3 @@ extern unsigned long lis_secs(void)_RP;    /* sec res; ulong cycle */
 /*  -------------------------------------------------------------------  */
 #endif /* __KERNEL__ */
 #endif /*!_HEAD_H*/
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

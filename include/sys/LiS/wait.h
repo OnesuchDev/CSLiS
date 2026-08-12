@@ -142,9 +142,3 @@ lis_untmout( struct timer_list *tl) ;
 #endif /* __KERNEL__ */
 
 #endif /*!_WAIT_H*/
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

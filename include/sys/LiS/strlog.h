@@ -73,9 +73,3 @@ lis_strlog(short mid, short sid, char level, unsigned short flags,
 
 /*  -------------------------------------------------------------------  */
 #endif /*!_STRLOG_H*/
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

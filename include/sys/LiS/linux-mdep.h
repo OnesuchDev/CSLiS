@@ -914,10 +914,3 @@ extern void lis_terminate_locks(void);
 #endif				/* __KERNEL__ */
 
 #endif /*!__LIS_M_DEP_H*/
-
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

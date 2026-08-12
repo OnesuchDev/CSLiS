@@ -8572,10 +8572,3 @@ void lis_terminate_final(void)
     lis_free_all_pages() ;		/* from lis page allocator */
     lis_terminate_locks();
 }
-
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/

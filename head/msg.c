@@ -579,10 +579,3 @@ void _RP lis_putbyte(unsigned char **p, unsigned char byte)
     **p = byte;
     ++*p;
 }
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/
-

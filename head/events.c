@@ -203,9 +203,3 @@ lis_free_elist( strevent_t **list )
     *list = NULL ;
 
 }/*lis_free_elist*/
-
-/*----------------------------------------------------------------------
-# Local Variables:      ***
-# change-log-default-name: "~/src/prj/streams/src/NOTES" ***
-# End: ***
-  ----------------------------------------------------------------------*/
