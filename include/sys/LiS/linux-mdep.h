@@ -230,29 +230,20 @@ typedef int     o_uid_t;
 typedef int     o_gid_t;
 typedef unsigned   char uchar;
 #ifdef __KERNEL__
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31)
-typedef struct cred {
-	uid_t	cr_uid;			/* effective user id */
-	gid_t	cr_gid;			/* effective group id */
-	uid_t	cr_ruid;		/* real user id */
-	gid_t	cr_rgid;		/* real group id */
-} cred_t;
-#else
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-typedef struct {
+typedef struct /* cred - FIXME - collides with Linux */ {
         uid_t   cr_uid;                 /* effective user id */
         gid_t   cr_gid;                 /* effective group id */
         uid_t   cr_ruid;                /* real user id */
         gid_t   cr_rgid;                /* real group id */
 } cred_t;
 #else
-typedef struct {
+typedef struct /* cred - FIXME - collides with Linux */ {
         kuid_t   cr_uid;                 /* effective user id */
         kgid_t   cr_gid;                 /* effective group id */
         kuid_t   cr_ruid;                /* real user id */
         kgid_t   cr_rgid;                /* real group id */
 } cred_t;
-#endif
 #endif
 #endif
 

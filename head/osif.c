@@ -180,28 +180,20 @@ struct pci_dev  * _RP lis_osif_pci_find_device(unsigned int vendor,
 				 unsigned int device,
                                  struct pci_dev *from)
 {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-    return(pci_find_device(vendor, device, from)) ;
-#else
 struct pci_dev * temp_dev;
     temp_dev = pci_get_device(vendor, device, from);
     if (temp_dev)
        pci_dev_put(temp_dev);
     return(temp_dev) ;
-#endif
 }
 
 struct pci_dev  * _RP lis_osif_pci_find_slot(unsigned int bus, 
 					unsigned int devfn)
 {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
-    return(pci_find_slot(bus, devfn)) ;
-#else
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
     return(pci_get_slot((struct pci_bus *)bus, devfn)) ;
 #else
     return(NULL);
-#endif
 #endif
 }
 
