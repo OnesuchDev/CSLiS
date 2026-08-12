@@ -258,10 +258,6 @@ typedef struct {
 #endif
 #endif
 
-#ifdef __KERNEL__
-#define lis_suser(fp)	capable(CAP_SYS_ADMIN)
-#endif				/* __KERNEL__ */
-
 /*  -------------------------------------------------------------------  */
 
 
