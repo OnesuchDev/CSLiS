@@ -796,13 +796,6 @@ static struct inode *lis_get_new_inode(struct super_block *sb)
      */
     i->i_sb = sb;          /* ASSERT: sb is or will be lis_mnt->mnt_sb */
 
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	printk("lis_get_new_inode(s@0x%p)%s%s >> i@0x%p/%d%s\n",
-	       sb,
-	       (S_IS_LIS(sb)?" <LiS>":""),
-	       (lis_mnt && sb == lis_mnt->mnt_sb?" <lis_mnt>":""),
-	       i, (i?I_COUNT(i):0),
-	       (i&&I_IS_LIS(i)?" <LiS>":""));
     return(i);
 }
 
@@ -984,9 +977,6 @@ struct dentry *lis_d_alloc_root(struct inode *i, int mode)
         /* already set via set_default_d_op on 6.17+ */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,17,0)
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0) 
-    if ( LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS){
-      printk("lis_d_alloc_root() - d_set_d_op: 0x%p\n",&lis_dentry_ops) ;
-    }    
         d_set_d_op(d, &lis_dentry_ops); 
 #else      
 	      d->d_op = &lis_dentry_ops;
@@ -1034,21 +1024,6 @@ static void lis_cdev_put(struct dentry *d)
     struct cdev		*cp ;
     static DEFINE_SPINLOCK(lock);
 
-
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-    {
-	printk("lis_cdev_put: d@0x%p/%d/\"%s\" i@0x%p/%d\n",
-		d, D_COUNT(d), d->d_name.name,
-		inode, inode ? I_COUNT(inode) : 0) ;
-	if (inode && inode->i_cdev)
-	    printk(">> i->i_cdev: c@0x%p/%d/%x \"%s\"\n",
-		inode->i_cdev,
-		K_ATOMIC_READ(&inode->i_cdev->kobj.kref.refcount),
-		DEV_TO_INT(inode->i_cdev->dev),
-		(inode->i_cdev->owner ?
-		 inode->i_cdev->owner->name : "No-Owner")) ;
-    }
-
     if (!inode || !(cp = inode->i_cdev))
 	return ;
 
@@ -1075,9 +1050,6 @@ void lis_dput(struct dentry *d)
 {
     struct super_block	*sb = NULL ;
 
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	lis_print_dentry(d, "lis_dput") ;
-
     if (d->d_inode)
     {
 	sb = d->d_inode->i_sb ;		/* save before dput */
@@ -1101,9 +1073,6 @@ struct dentry *lis_dget(struct dentry *d)
 	(void) MNTGET(lis_mnt) ;
     
     d = dget(d);
-
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	lis_print_dentry(d, "lis_dget") ;
 
     return(d) ;
 }
@@ -1255,11 +1224,6 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
     lis_fattach_t *data = (ptr ? *((lis_fattach_t **) ptr) : NULL);
     struct file *file   = (data ? data->file : NULL);
     stdata_t *head      = (data ? data->head : NULL);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    const char *path    = (data ? data->path : NULL);
-#else
-    struct filename *path = (data ? data->path : NULL);
-#endif
   
   if (file && head &&
       head == FILE_STR(file) &&
@@ -1273,18 +1237,6 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
 
       lis_head_get(head);                  /* bumps refcnt */
       MNTSYNC();
-
-      if (LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) {
-	  printk("lis_fs_fattach_sb(s@0x%p,@0x%p,...) << [%d]"
-		 " f@0x%p/%ld f_vfsmnt 0x%p/%d%s%s\n",
-		 sb, data,
-		 K_ATOMIC_READ(&lis_mnt_cnt),
-		 file, (file?F_COUNT(file):0),
-		 FILE_MNT(file),
-		 (FILE_MNT(file)?MNT_COUNT(FILE_MNT(file)):0),
-		 (S_IS_LIS(sb)?" <LiS>":""),
-		 (file&&FILE_MNT(file)==lis_mnt?" <lis_mnt>":""));
-      }
 
       sb->s_root = d_mount = lis_d_alloc_root(igrab(i_mount),
 					      LIS_D_ALLOC_ROOT_MOUNT);
@@ -1321,45 +1273,6 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
        *  set as well - the kernel makes it read-only otherwise
        */
       allow_write_access(file);
-
-      if ((LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) &&
-	  path) {
-	  dev_t dev = GET_I_RDEV(i_mount);
-          printk("lis_fs_fattach_sb(s@0x%p,@0x%p,%d) "
-		 ">> d@0x%p/%d i@0x%p/%d rdev (%d,%d)\n",
-		 sb, data, silent,
-		 d_mount, D_COUNT(d_mount),
-		 i_mount, I_COUNT(i_mount),
-		 getmajor(dev), getminor(dev) );
-	  printk("lis_fs_fattach_sb(s@0x%p,@0x%p,...)\n"
-		 "    >> f@0x%p/%ld h@0x%p/%d/%d \"%s\""
-		 " sb@0x%p d@0x%p/%d (i@0x%p/%d)\n",
-		 sb, data,
-		 file, F_COUNT(file),
-		 head, LIS_SD_REFCNT(head), LIS_SD_OPENCNT(head),
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-		 path,
-#else
-                 path->name,
-#endif
-		 data->sb,
-		 d_mount, D_COUNT(d_mount),
-		 i_mount, I_COUNT(i_mount));
-	  lis_show_inode_aliases(i_mount);
-      }
-
-      if ((LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) &&
-	  file) {
-	  printk("lis_fs_fattach_sb(s@0x%p,@0x%p,...) >> [%d]"
-		 " f@0x%p/%ld f_vfsmnt 0x%p/%d%s%s\n",
-		 sb, data,
-		 K_ATOMIC_READ(&lis_mnt_cnt),
-		 file, F_COUNT(file),
-		 FILE_MNT(file),
-		 (FILE_MNT(file)?MNT_COUNT(FILE_MNT(file)):0),
-		 (S_IS_LIS(sb)?" <LiS>":""),
-		 (FILE_MNT(file)==lis_mnt?" <lis_mnt>":""));
-      }
 
       MNTSYNC();
 
@@ -1413,15 +1326,6 @@ int lis_fs_kern_mount_sb( struct super_block *sb, void *ptr, int silent )
     sb->s_root = lis_d_alloc_root(isb,LIS_D_ALLOC_ROOT_MOUNT);
     if (sb->s_root == NULL)
         return(-ENOMEM) ;
-
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	printk("lis_fs_kern_mount_sb(s@x%p,...)"
-	       " >> root d@0x%p/%d i@0x%p/%d rdev (%d,%d)\n",
-	       sb,
-	       sb->s_root, D_COUNT(sb->s_root),
-	       isb, I_COUNT(isb),
-	       getmajor(GET_I_RDEV(isb)),
-	       getminor(GET_I_RDEV(isb)) );
     
     return(0);
 }
@@ -1496,19 +1400,11 @@ static int lis_dentry_delete(const struct dentry *d)
 static int lis_dentry_delete(struct dentry *d)
 #endif
 {
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	printk("lis_dentry_delete(d@0x%p/%d) [%d]%s\n",
-	       d, D_COUNT(d),
-	       K_ATOMIC_READ(&lis_mnt_cnt),
-	       (D_IS_LIS(d)?" d<LiS>":""));
     return(1);
 }
 
 void lis_dentry_iput( struct dentry *d, struct inode *i )
 {
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	lis_print_dentry(d, "lis_dentry_iput") ;
-    
     if (i && I_COUNT(i) > 0)
 	lis_put_inode(i);
 }
@@ -1535,7 +1431,6 @@ void lis_dentry_iput( struct dentry *d, struct inode *i )
 void lis_super_umount_begin( struct super_block *sb )
 {
     lis_fattach_t *data     = (lis_fattach_t *) S_FS_INFO(sb);
-    struct file *file       = (data ? data->file : NULL);
     struct vfsmount *mount  = (data ? data->mount : NULL);
     stdata_t *head          = (data ? data->head : NULL);
     struct dentry *d_umount = (data ? data->dentry : NULL);
@@ -1550,18 +1445,6 @@ void lis_super_umount_begin( struct super_block *sb )
      */
     if (data && head && d_umount && !i_umount && head->sd_inode)
 	i_umount = head->sd_inode;
-
-    if (LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	printk("lis_super_umount_begin(s@0x%p) << data@0x%p:\n"
-	       "    f@0x%p m@0x%p/%d h@0x%p/%d/%d"
-	       " d@0x%p/%d (i@0x%p/%d)\n",
-	       sb, data, file,
-	       mount, (mount?MNT_COUNT(mount):0),
-	       head,
-	       (head?LIS_SD_REFCNT(head):0),
-	       (head?LIS_SD_OPENCNT(head):0),
-	       d_umount, (d_umount?D_COUNT(d_umount):0),
-	       i_umount, (i_umount?I_COUNT(i_umount):0));
 
     /*
      *  make sure we have what we need - if we don't, it's not an
@@ -1579,20 +1462,6 @@ void lis_super_umount_begin( struct super_block *sb )
 	 */
 	if (mount)
 	    MNTPUT(mount);
-
-	if (LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) {
-	    printk("lis_super_umount_begin(%p) [fdetach] "
-		   "i@0x%p/%d d@0x%p/%d \"%s\"\n",
-		   sb,
-		   i_umount, I_COUNT(i_umount),
-		   d_umount, D_COUNT(d_umount),
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
-		   data->path );
-#else
-                   data->path->name);
-#endif
-	    lis_show_inode_aliases(i_umount);
-	}
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31))
 	creds.cr_uid  = current->euid;
@@ -1630,13 +1499,6 @@ void lis_super_umount_begin( struct super_block *sb )
 	data->mount = NULL;
 	data->file  = NULL;
 	data->head  = NULL;
-
-	if (LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	    printk("lis_super_umount_begin(s@0x%p) [fdetach] "
-		   "d@0x%p/%d (i@0x%p/%d) after doclose\n",
-		   sb,
-		   d_umount, (d_umount?D_COUNT(d_umount):0),
-		   i_umount, (i_umount?I_COUNT(i_umount):0));
     }
 
     MNTSYNC();
@@ -1668,13 +1530,6 @@ void lis_super_put_super( struct super_block *sb )
 	i_umount = (data && data->head ? data->head->sd_inode : NULL);
     }
     if (d_umount && i_umount) {
-	if (LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	    printk("lis_super_put_super(s@0x%p) [fdetach] "
-		   "d@0x%p/%d (i@0x%p/%d)\n",
-		   sb,
-		   d_umount, D_COUNT(d_umount),
-		   i_umount, (i_umount ? I_COUNT(i_umount) : 0) );
-
 	lis_dput(d_umount);
     }
     if (data) {
@@ -1683,13 +1538,9 @@ void lis_super_put_super( struct super_block *sb )
 	 */
 	lis_fattach_remove(data);
 	lis_fattach_delete(data);
-
-	if (LIS_DEBUG_FATTACH)
-	    printk("lis_super_put_super(s@0x%p) [fdetach] done\n", sb);
     }
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
-     printk("lis_super_put_super: call drop_super s@0x%p\n", sb);
     drop_super(sb);
 #endif
     S_FS_INFO(sb) = NULL;
@@ -1722,10 +1573,6 @@ int	lis_new_file_name(struct file *f, const char *name)
      */
     if (D_IS_LIS(f->f_dentry) &&
 	strcmp(name, (char *)(f->f_dentry->d_name.name)) == 0) {
-	if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	    printk("lis_new_file_name(f@0x%p/%ld,\"%s\")"
-		   " - same name, already <LiS> - ignoring call\n",
-		   f, F_COUNT(f), name);
 	return(0);
     } else
 	return(lis_new_file_name_dev(f, name, 0)) ;
@@ -1739,17 +1586,6 @@ int	lis_new_file_name_dev(struct file *f, const char *name, dev_t dev)
     struct dentry  *lis_parent ;
     struct inode   *oldi = NULL;
     struct vfsmount *oldmnt = FILE_MNT(f);
-
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) {
-	struct dentry *d = (f ? f->f_dentry : NULL);
-	printk("lis_new_file_name_dev(f@0x%p/%ld,\"%s\",0x%x)%s",
-	       f, (f?F_COUNT(f):0), (name?name:""), dev,
-	       (FILE_MNT(f)==lis_mnt?" <lis_mnt>":""));
-	printk(" \"");
-	if (FILE_MNT(f))  lis_print_file_path(f);
-	printk("\"\n");
-	lis_print_dentry(d, ">> dentry") ;
-    }
     
     if (dev == 0)			/* must use old inode */
     {
@@ -1819,17 +1655,6 @@ int	lis_new_file_name_dev(struct file *f, const char *name, dev_t dev)
 
     f->f_dentry = new ;			/* d_alloc set count */
 
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) {
-	struct dentry *d = (f ? f->f_dentry : NULL);
-	printk("lis_new_file_name_dev(f@0x%p/%ld,\"%s\",0x%x)%s",
-	       f, (f?F_COUNT(f):0), (name?name:""), dev,
-	       (FILE_MNT(f)==lis_mnt?" <lis_mnt>":""));
-	printk(" \"");
-	if (FILE_MNT(f))  lis_print_file_path(f);
-	printk("\"\n");
-	lis_print_dentry(d, ">> dentry") ;
-    }
-
     return(0) ;
 }
 
@@ -1840,27 +1665,11 @@ int	lis_new_file_name_dev(struct file *f, const char *name, dev_t dev)
  */
 void lis_new_stream_name(struct stdata *head, struct file *f)
 {
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-    {
-	printk("lis_new_stream_name(h@0x%p/%d/%d,f@0x%p/%ld)\n",
-	       head, LIS_SD_REFCNT(head), LIS_SD_OPENCNT(head),
-	       f, F_COUNT(f)) ;
-	lis_print_dentry(f->f_dentry, ">> dentry") ;
-    }
-
     sprintf(head->sd_name, "%s%s",
 	    lis_strm_name(head), lis_maj_min_name(head));
 
     lis_mark_mem(head, head->sd_name, MEM_STRMHD) ;
     lis_new_file_name(f, head->sd_name) ;
-
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-    {
-	printk("lis_new_stream_name(h@0x%p/%d/%d,f@0x%p/%ld)\n",
-	       head, LIS_SD_REFCNT(head), LIS_SD_OPENCNT(head),
-	       f, F_COUNT(f)) ;
-	lis_print_dentry(f->f_dentry, ">> dentry") ;
-    }
 }
 
 /************************************************************************
@@ -1910,19 +1719,6 @@ lis_new_inode( struct file *f, dev_t dev )
 	       "LiS has been unmounted\n",
 	       f, F_COUNT(f), DEV_TO_INT(dev));
 	return(NULL) ;				/* bad return */
-    }
-
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-    {
-	printk("lis_new_inode(f@0x%p/%ld,dv0x%x) %s%s",
-	       f, F_COUNT(f), DEV_TO_INT(dev),
-	       (D_IS_LIS(f->f_dentry)?" <LiS>":""),
-	       (FILE_MNT(f)==lis_mnt?" <lis_mnt>":"")
-	      ) ;
-	printk(" \"");
-	if (FILE_MNT(f))  lis_print_file_path(f);
-	printk("\"\n");
-	lis_print_dentry(oldd, ">> oldd") ;
     }
 
     if (hd == NULL)
@@ -2038,19 +1834,6 @@ lis_new_inode( struct file *f, dev_t dev )
 	f->f_dentry = newd ;
     }
 
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-    {
-	printk("lis_new_inode(f@0x%p/%ld,d0x%x)%s%s",
-	       f, F_COUNT(f), DEV_TO_INT(dev),
-	       (D_IS_LIS(f->f_dentry)?" <LiS>":""),
-	       (f&&FILE_MNT(f)==lis_mnt?" <lis_mnt>":"")
-	      ) ;
-	printk(" \"");
-	if (f && FILE_MNT(f))  lis_print_file_path(f);
-	printk("\"\n");
-	lis_print_dentry(newd, ">> newd") ;
-    }
-
     return(new) ;				/* use new inode */
     						/* possibly NULL return */
 } /* lis_new_inode */
@@ -2068,23 +1851,6 @@ void lis_cleanup_file_opening(struct file *f, stdata_t *head,
 			       struct dentry *oldd, int oldd_cnt,
 			       struct vfsmount *oldmnt, int oldmnt_cnt)
 {
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-    {
-        printk("lis_cleanup_file_opening(f@0x%p/%ld,h@0x%p/%d/%d,%d) %s\n",
-	       f, (f?F_COUNT(f):0),
-	       head,
-	       (head?LIS_SD_REFCNT(head):0),
-	       (head?LIS_SD_OPENCNT(head):0),
-	       open_fail,
-	       (FILE_MNT(f)==lis_mnt?" <lis_mnt>":"")) ;
-
-	printk(" \"");
-	if (FILE_MNT(f))  lis_print_file_path(f);
-	printk("\"\n");
-	lis_print_dentry(oldd, ">> dentry") ;
-	printk("\n");
-    }
-
     if (open_fail) {
 	/*
 	 *  open_fail: sys_open has the old dentry and mnt, and will put
@@ -2149,24 +1915,6 @@ void lis_cleanup_file_closing(struct file *f, stdata_t *head)
        lis_cdev_put(d);
     }
 #endif
-
-    if (LIS_DEBUG_VCLOSE || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-    {
-        printk("lis_cleanup_file_closing(f@0x%p/%ld,h@0x%p/%d/%d)"
-	       " [%d]%s%s",
-	       f, (f?F_COUNT(f):0),
-	       head,
-	       (head?LIS_SD_REFCNT(head):0),
-	       (head?LIS_SD_OPENCNT(head):0),
-	       K_ATOMIC_READ(&lis_mnt_cnt),
-	       (D_IS_LIS(f->f_dentry)?" <LiS>":""),
-	       (FILE_MNT(f)==lis_mnt?" <lis_mnt>":"")
-	      ) ;
-	printk(" \"");
-	if (FILE_MNT(f))  lis_print_file_path(f);
-	printk("\"\n");
-	lis_print_dentry(d, ">> dentry") ;
-    }
 }
 
 /*
@@ -2178,14 +1926,9 @@ int lis_strflush( struct file *f )
 int lis_strflush( struct file *f, fl_owner_t id)
 #endif
 {
-    int err = 0;
-
-    if (LIS_DEBUG_VCLOSE || LIS_DEBUG_REFCNTS)
-	printk("lis_strflush(f@0x%p)\n", f);
-
     MODSYNC();
 
-    return err;
+    return 0;
 }
 
 /*
@@ -2309,13 +2052,6 @@ static struct inode *lis_get_inode( mode_t mode, dev_t dev )
 	 *  no file system hosting it (other than LiS itself)
 	 */
 	i->i_rdev  = dev;	/* set desired dev */
-
-	if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	    printk("lis_get_inode(m0x%x,dv0x%x) >> i@0x%p/%d"
-		   " <%d LiS mount(s)>\n",
-		   mode, dev,
-		   i, I_COUNT(i),
-		   K_ATOMIC_READ(&lis_mnt_cnt));
     }
 
     return i;
@@ -2330,17 +2066,6 @@ struct inode *lis_old_inode( struct file *f, struct inode *i )
     struct dentry *oldd = f->f_dentry;
     struct dentry *newd ;
     struct vfsmount *oldmnt = FILE_MNT(f);
-
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	printk("lis_old_inode(f@0x%p/%ld,i@0x%p/%d)%s << "
-	       "i@0x%p/%d%s (dev 0x%x -> 0x%x)\n",
-	       f, F_COUNT(f),
-	       i, I_COUNT(i),
-	       (I_IS_LIS(FILE_INODE(f))?" <LiS>":""),
-	       FILE_INODE(f), I_COUNT(FILE_INODE(f)),
-	       (I_IS_LIS(i)?" <LiS>":""),
-	       GET_I_RDEV(FILE_INODE(f)),
-	       GET_I_RDEV(i));
 
     newd = lis_d_alloc_root(igrab(i), LIS_D_ALLOC_ROOT_NORMAL);
     if (IS_ERR(newd))
@@ -2359,15 +2084,6 @@ struct inode *lis_old_inode( struct file *f, struct inode *i )
     lis_dput(oldd);
     if (oldmnt && oldmnt != lis_mnt)  /* lis_dput() does mntput() on lis_mnt */
 	MNTPUT(oldmnt);
-
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-    {
-	printk("lis_old_inode(f@0x%p/%ld,i@0x%p/%d)%s\n",
-	       f, F_COUNT(f),
-	       i, I_COUNT(i),
-	       (I_IS_LIS(FILE_INODE(f))?" <LiS>":""));
-	lis_print_dentry(newd, ">> dentry") ;
-    }
 
     return (FILE_INODE(f));
 }
@@ -2604,14 +2320,6 @@ int lis_fifo_open_sync( struct inode *i, struct file *f )
 	return(-EINVAL);
     }
 
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	printk("lis_fifo_open_sync(i@0x%p/%d,f@0x%p/%ld)#%ld"
-	       " \"%s\" << mode 0%o flags 0%o\n",
-	       i, I_COUNT(i), f, F_COUNT(f),
-	       this_open, head ? head->sd_name : "No-Strm",
-	       (int)f->f_mode, (int)f->f_flags );
-
-
     ret = -ERESTARTSYS;
 #ifdef PIPE_SEM
     if (lis_kernel_down(PIPE_SEM(*i)))
@@ -2702,13 +2410,6 @@ int lis_fifo_open_sync( struct inode *i, struct file *f )
     mutex_unlock(PIPE_MUTEX(*i));
 #endif
 
-    if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	printk("lis_fifo_open_sync(i@0x%p/%d,f@0x%p/%ld)#%ld"
-	       " \"%s\" >> %d reader(s) %d writer(s)\n",
-	       i, I_COUNT(i), f, F_COUNT(f),
-	       this_open, head ? head->sd_name : "No-Strm",
-	       PIPE_READERS(*i), PIPE_WRITERS(*i));
-
     return 0;
     
 err_rd:
@@ -2751,9 +2452,6 @@ err_nolock_nocleanup:
 
 void lis_fifo_close_sync( struct inode *i, struct file *f )
 {
-    stdata_t *head = INODE_STR(i);
-    long this_close = K_ATOMIC_READ(&lis_close_cnt);
-
 #ifdef PIPE_SEM
     lis_kernel_down(PIPE_SEM(*i));
 #else
@@ -2762,14 +2460,6 @@ void lis_fifo_close_sync( struct inode *i, struct file *f )
 
     PIPE_READERS(*i) -= (f && f->f_mode & FMODE_READ ? 1 : 0);
     PIPE_WRITERS(*i) -= (f && f->f_mode & FMODE_WRITE ? 1 : 0);
-
-    if (LIS_DEBUG_VCLOSE || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	printk("lis_fifo_close_sync(i@0x%p/%d,f@0x%p/%ld)#%ld"
-	       " \"%s\" >> %d reader(s) %d writer(s)\n",
-	       i, I_COUNT(i), f, (f?F_COUNT(f):0),
-	       this_close,
-	       (head&&head->sd_name?head->sd_name:""),
-	       PIPE_READERS(*i), PIPE_WRITERS(*i));
 
     if (!PIPE_READERS(*i) && !PIPE_WRITERS(*i)) {
 	kfree(i->i_pipe);
@@ -2848,14 +2538,6 @@ int lis_fattach( struct file *f, struct filename *path)
 	
 	if (!data)
 	    return(-ENOMEM);
-
-	if (LIS_DEBUG_FATTACH)
-	    printk("lis_fattach(f@0x%p/%ld,\"%s\") << data@0x%p\n",
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-		   f, F_COUNT(f), path, data );
-#else
-                    f, F_COUNT(f), path->name, data );
-#endif       
 	
 	/*
 	 *  We use the sys_mount() syscall now to do an fattach, with
@@ -2882,21 +2564,6 @@ int lis_fattach( struct file *f, struct filename *path)
 	    FREE(data);
 	} else {
 	    lis_fattach_insert(data);  /* OK! - add to fattaches list */
-
-	    if (LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	    {
-		printk("lis_fattach(...) data @ 0x%p:\n"
-		       "    >> f@0x%p/%ld h@0x%p \"%s\" s@0x%p\n",
-		       data,
-		       data->file, F_COUNT(data->file),
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-		       data->head, data->path,
-#else
-                        data->head, data->path->name,
-#endif
-		       data->sb) ;
-		lis_print_dentry(data->dentry, ">> dentry") ;
-	    }
 	}
     } else
 	result = -EINVAL;  /* f must be a STREAM */
@@ -2943,12 +2610,6 @@ int lis_fdetach( const char *path )
 int lis_fdetach( struct filename *path )
 #endif
 {
-    if (LIS_DEBUG_FATTACH)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-	printk("lis_fdetach(\"%s\")\n", path );
-#else
-        printk("lis_fdetach(\"%s\")\n", path->name );
-#endif
     /*
      *  We now use the sys_umount syscall to do all the work, with the
      *  help of callback entry points in the LiS superblock structure.
@@ -2994,13 +2655,6 @@ void lis_fdetach_stream( stdata_t *head )
     if (!K_ATOMIC_READ(&head->sd_fattachcnt))
 	return;
 
-    if (LIS_DEBUG_FATTACH || LIS_DEBUG_REFCNTS)
-	printk("lis_fdetach_stream(h@0x%p/%d/%d): %d fattaches active...\n",
-	       head,
-	       (head?LIS_SD_REFCNT(head):0),
-	       (head?LIS_SD_OPENCNT(head):0),
-	       K_ATOMIC_READ(&head->sd_fattachcnt));
-
     lis_spin_lock(&lis_fattaches_lock);
     while (n-- && !list_empty(&lis_fattaches)) {
 	lis_fattach_t *data =
@@ -3008,18 +2662,6 @@ void lis_fdetach_stream( stdata_t *head )
 	
 	if (data->head == head) {
 	    lis_spin_unlock(&lis_fattaches_lock);
-
-	    if (LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS)
-	    {
-		printk("    fdetaching: "
-		       "data 0x%p head@0x%p \"%s\" sb 0x%p\n",
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-                       data, data->head, data->path, data->sb);
-#else
-		       data, data->head, data->path->name, data->sb);
-#endif
-		lis_print_dentry(data->dentry, ">> dentry") ;
-	    }
 
 	    if ((error = lis_fdetach(data->path)) < 0) {
 		if (LIS_DEBUG_FATTACH)
@@ -3049,10 +2691,6 @@ void lis_fdetach_all(void)
     int n = num_fattaches_listed;  /* just to make sure we terminate */
     int error;
 
-    if (LIS_DEBUG_FATTACH)
-	printk("lis_fdetach_all() << %d fattach(s) active\n",
-	       K_ATOMIC_READ(&num_fattaches_listed));
-
     lis_spin_lock(&lis_fattaches_lock);
     while (n-- && !list_empty(&lis_fattaches)) {
 	lis_fattach_t *data =
@@ -3060,16 +2698,11 @@ void lis_fdetach_all(void)
 	lis_spin_unlock(&lis_fattaches_lock);
 
 	if (LIS_DEBUG_FATTACH || LIS_DEBUG_ADDRS)
-	    printk("    >> fdetaching data 0x%p head 0x%p sb 0x%p d 0x%p...\n",
-		   data, data->head, data->sb, data->dentry);
-
 	if ((error = lis_fdetach(data->path)) < 0) {
 	    if (LIS_DEBUG_FATTACH)
 		printk("    >> fdetach data 0x%p failed (%d)\n",
 		       data, error);
-	} else
-	    if (LIS_DEBUG_FATTACH)
-		printk("    fdetached 0x%p OK\n", data);
+	}
 
 	lis_spin_lock(&lis_fattaches_lock);
     }
@@ -3215,18 +2848,6 @@ static lis_fattach_t *lis_fattach_new(struct file *f, struct filename *path)
 	FREE(data);  data = NULL;
     }
 
-    if (LIS_DEBUG_FATTACH || LIS_DEBUG_REFCNTS) {
-	    printk("lis_fattach_new(f@0x%p/%ld,\"%s\")"
-		   " => data@0x%p (%d/%d)\n",
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-		   f, F_COUNT(f), path, data,
-#else
-                    f, F_COUNT(f), path->name, data,
-#endif
-		   K_ATOMIC_READ(&num_fattaches_listed),
-		   K_ATOMIC_READ(&num_fattaches_allocd) );
-    }
-
     return data;
 }
 
@@ -3234,13 +2855,6 @@ static lis_fattach_t *lis_fattach_new(struct file *f, struct filename *path)
 static void lis_fattach_delete(lis_fattach_t *data)
 {
     K_ATOMIC_DEC(&num_fattaches_allocd);
-
-    if (LIS_DEBUG_FATTACH || LIS_DEBUG_REFCNTS) {
-	    printk("lis_fattach_delete(%p) (%d/%d)\n",
-		   data,
-		   K_ATOMIC_READ(&num_fattaches_listed),
-		   K_ATOMIC_READ(&num_fattaches_allocd) );
-    }
 
     if (data && data->path)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
@@ -3261,13 +2875,6 @@ static void lis_fattach_insert(lis_fattach_t *data)
     lis_spin_unlock(&lis_fattaches_lock);
 
     K_ATOMIC_INC(&num_fattaches_listed);
-
-    if (LIS_DEBUG_FATTACH || LIS_DEBUG_REFCNTS) {
-	    printk("lis_fattach_insert(%p) (%d/%d)\n",
-		   data,
-		   K_ATOMIC_READ(&num_fattaches_listed),
-		   K_ATOMIC_READ(&num_fattaches_allocd) );
-    }
 }
 
 /* remove an fattach instance from the list */
@@ -3278,13 +2885,6 @@ static void lis_fattach_remove(lis_fattach_t *data)
     lis_spin_unlock(&lis_fattaches_lock);
 
     K_ATOMIC_DEC(&num_fattaches_listed);
-
-    if (LIS_DEBUG_FATTACH || LIS_DEBUG_REFCNTS) {
-	    printk("lis_fattach_remove(%p) (%d/%d)\n",
-		   data,
-		   K_ATOMIC_READ(&num_fattaches_listed),
-		   K_ATOMIC_READ(&num_fattaches_allocd) );
-    }
 }
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
@@ -3604,13 +3204,6 @@ int lis_recvfd( stdata_t *recvhd, strrecvfd_t *recv, struct file *fp )
     recv->gid = sent->gid;
 
     if (sent->r.fp && (sent->r.fp == fp)) {
-	if (LIS_DEBUG_SNDFD | LIS_DEBUG_IOCTL || LIS_DEBUG_REFCNTS)
-	    printk("lis_recvfd(...,f@0x%p/%ld) "
-		   "S==R, using fp@0x%p/%ld, freeing f@0x%p\n",
-		   sent->f.fp, (sent->f.fp?F_COUNT(sent->f.fp):0),
-		   fp, (fp?F_COUNT(fp):0),
-		   sent->f.fp );
-
 	fd_install( recv->f.fd, fp );
 	(void) fget(recv->f.fd);
 	fops_put(sent->f.fp->f_op);
@@ -3624,12 +3217,6 @@ int lis_recvfd( stdata_t *recvhd, strrecvfd_t *recv, struct file *fp )
 	    sent->f.fp = fp;
     } else {
 	fd_install( recv->f.fd, sent->f.fp );
-    }
-
-    if (LIS_DEBUG_SNDFD || LIS_DEBUG_IOCTL || LIS_DEBUG_REFCNTS) {
-	printk("lis_recvfd(...,f@0x%p/%ld) as fd %d at \"%s\"\n",
-	       sent->f.fp, (sent->f.fp?F_COUNT(sent->f.fp):0),
-	       recv->f.fd, recvhd->sd_name);
     }
 
     freemsg(mp);  /* we can release the sent message now */
