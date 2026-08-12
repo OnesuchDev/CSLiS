@@ -708,12 +708,6 @@ lis_copyin_str(struct file *f, const char *ustr, char **kstr, int maxb)
 	    return(error) ;
 	}
 
-	if (error >= maxb)
-	{
-	    FREE(mem);
-	    return(-ENAMETOOLONG) ;
-	}
-
 	return(0) ;
 }/*lis_copyin_str*/
 
