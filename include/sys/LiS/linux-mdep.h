@@ -699,7 +699,6 @@ typedef	volatile long		lis_atomic_t ;
 #define MALLOC(n)		lis_malloc(n,GFP_ATOMIC,0,__FILE__,__LINE__)
 #define LISALLOC(n,f,l)		lis_malloc(n,GFP_ATOMIC,0,f,l)
 #define FREE(p)			lis_free(p,__FILE__,__LINE__)
-#define MEMCPY(dest, src, len)	memcpy(dest, src, len)
 #define PANIC(msg)		panic("%s", msg)
 
 #if (defined(USE_KMEM_CACHE))
