@@ -274,15 +274,12 @@ typedef struct lis_free_passfp_tg
 
 static lis_free_passfp_t free_passfp;
 
-#if defined(USE_KMEM_CACHE)
 struct kmem_cache *lis_msgb_cachep = NULL;
 struct kmem_cache *lis_queue_cachep = NULL;
 struct kmem_cache *lis_qsync_cachep = NULL;
 struct kmem_cache *lis_qband_cachep = NULL;
 struct kmem_cache *lis_head_cachep = NULL;
-#endif
 
-#if defined(USE_KMEM_TIMER) 
 struct kmem_cache *lis_timer_cachep = NULL;
 struct lis_timer {
       struct timer_list    lt;
@@ -290,7 +287,6 @@ struct lis_timer {
       caddr_t		   arg;
       volatile toid_t	   handle;
 };
-#endif
 
 /*
  * fattach instance data
@@ -4680,7 +4676,6 @@ MODULE_INFO(vermagic, VERMAGIC_STRING);
 *             as a LiS performance improvement under Linux              *
 ************************************************************************/
 
-#if defined(USE_KMEM_CACHE) 
 void lis_init_msg(void)
 {
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0) 
@@ -4823,7 +4818,6 @@ void lis_terminate_queues(void)
       lis_cache_destroy(lis_queue_cachep, &lis_queue_cnt, "LiS-queue");
       lis_cache_destroy(lis_qsync_cachep, &lis_qsync_cnt, "LiS-qsync");
 }
-#endif
 
 /************************************************************************
 *            LINUX kernel cache based SVR4 Compatible timeout           *
@@ -4838,7 +4832,6 @@ int lis_timer_size ;
 
 void lis_init_timers(int size)
 {
-#if defined(USE_KMEM_TIMER) 
 #if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0)  
     lis_timer_cachep = kmem_cache_create("lis_timer_cachep",
                                          size,
@@ -4852,15 +4845,12 @@ void lis_init_timers(int size)
     if (!lis_timer_cachep) 
 	printk("lis_init_timers: lis_timer_cachep is NULL. "
 			"kmem_cache_create failed\n");
-#endif
     lis_timer_size = size ;
 }
 
 void lis_terminate_timers(void)
 {
-#if defined(USE_KMEM_TIMER) 
     kmem_cache_destroy(lis_timer_cachep) ;
-#endif
 }
 
 void *lis_alloc_timer(char *file, int line)

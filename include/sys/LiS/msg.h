@@ -223,13 +223,6 @@ lis_strgiveback(unsigned long arg);
 
 extern void lis_init_msg(void);
 
-/*  lis_terminate_msg - do the final shutdown of the msg memory subsystem
- */
-#if !defined(USE_KMEM_CACHE)
-extern void
-lis_terminate_msg(void);
-#endif
-
 /* allocb: allocate an M_DATA message block of the specified
  *	size. The priority is for compatibility only.
  *

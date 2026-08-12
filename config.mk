@@ -310,24 +310,6 @@ CCUSEROPT += -DCONFIG_DEV
 endif
 
 #
-# Use Linux Kernel memory caches for performance
-#
-ifeq ($(USE_KMEM_CACHE),y)
-XOPTS += -DUSE_KMEM_CACHE
-CCSTRCONF += -DUSE_KMEM_CACHE
-CCUSEROPT += -DUSE_KMEM_CACHE
-endif
-
-#
-# Use Linux Kernel memory cache and native timer management routines
-#
-ifeq ($(USE_KMEM_TIMER),y)
-XOPTS += -DUSE_KMEM_TIMER
-CCSTRCONF += -DUSE_KMEM_TIMER
-CCUSEROPT += -DUSE_KMEM_TIMER
-endif
-
-#
 # Options for linking user-level programs
 # Refer directly to the library for static linking.  Using -lLiSuser
 # seems to cause "can't find -lc" from C compiler (mystery message).

@@ -677,8 +677,6 @@ typedef	volatile long		lis_atomic_t ;
 #define FREE(p)			lis_free(p,__FILE__,__LINE__)
 #define PANIC(msg)		panic("%s", msg)
 
-#if (defined(USE_KMEM_CACHE))
-
 extern lis_atomic_t             lis_qsync_cnt;
 extern lis_atomic_t             lis_locks_cnt;
 extern lis_atomic_t             lis_head_cnt;
@@ -712,20 +710,6 @@ static inline void *lis_cache_alloc(struct kmem_cache *cp, lis_atomic_t *cntr)
 #define LIS_LOCK_ALLOC(nb,s)	LIS_CA(lis_locks_cachep,lis_locks_cnt)
 #define LIS_QSYNC_ALLOC(nb,s)	LIS_CA(lis_qsync_cachep,lis_qsync_cnt)
 
-#else
-
-#define	LIS_QSYNC_FREE		FREE
-#define	LIS_LOCK_FREE		FREE
-#define	LIS_HEAD_FREE		FREE
-#define	LIS_QBAND_FREE		FREE
-#define	LIS_QUEUE_FREE		FREE
-#define	LIS_QUEUE_ALLOC(nb,s)	ALLOCF_CACHE(nb,s)
-#define LIS_QBAND_ALLOC(nb,s)	ALLOCF(nb,s)
-#define LIS_HEAD_ALLOC(nb,s)	ALLOCF(nb,s)
-#define LIS_LOCK_ALLOC(nb,s)	ALLOCF(nb,s)
-#define LIS_QSYNC_ALLOC(nb,s)	ALLOCF(nb,s)
-
-#endif
 /*
  * These are used only internally
  */
@@ -906,8 +890,6 @@ lis_mntput_fcn(struct vfsmount *m,
 #define MNTPUT(m)      lis_mntput((m))
 #endif  /* CONFIG_DEV  */
 
-#if defined(USE_KMEM_CACHE)
-
 #if defined(CONFIG_DEV)
 #define allochdr(a,b,c) lis_kmem_cache_allochdr(a)
 #else
@@ -928,8 +910,6 @@ extern void lis_init_queues(void);
 extern void lis_terminate_queues(void);
 extern void lis_init_locks(void);
 extern void lis_terminate_locks(void);
-#endif				/* USE_KMEM_CACHE */
-
 
 #endif				/* __KERNEL__ */
 
