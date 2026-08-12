@@ -672,20 +672,6 @@ typedef	volatile long		lis_atomic_t ;
 #define VOID	void
 #endif
 
-#ifdef __KERNEL__
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,31)
-#define UID(fp)	  current->uid
-#define GID(fp)	  current->gid
-#define EUID(fp)  current->euid
-#define EGID(fp)  current->egid
-#else
-#define UID(fp)   current_uid()
-#define GID(fp)   current_gid()
-#define EUID(fp)  current_euid()
-#define EGID(fp)  current_egid()
-#endif
-#endif
-
 #define PID(fp)	  current->pid
 
 #define OPENFILES()     current->files->count
