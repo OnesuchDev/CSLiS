@@ -235,7 +235,6 @@ extern void do_gettimeofday(struct timeval *tv) _RP;	/* kernel fcn */
 extern void lis_spl_init(void);			/* lislocks.c */
 extern int  lis_new_file_name_dev(struct file *f, const char *name, dev_t dev);
 static struct inode * lis_get_inode( mode_t mode, dev_t dev );
-void lis_print_dentry(struct dentry *d, char *comment) ;
 
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
 extern long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
@@ -339,8 +338,6 @@ static void lis_fattach_remove(lis_fattach_t *data);
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
 lis_spin_lock_t lis_inode_lock; 
 #endif
-
-void lis_show_inode_aliases(struct inode *);
 
 /*
  * Declared in head.c
@@ -1078,39 +1075,6 @@ struct dentry *lis_dget(struct dentry *d)
 }
 
 /*
- *  a debugging routine to show the aliases for an inode
- */
-
-void lis_show_inode_aliases( struct inode *i )
-{
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)  /* skip for new kernel */
-    struct list_head *ent;
-#endif
-
-    if (!(LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) ||
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)  /* skip for new kernel */ 
-	list_empty(&(i->i_dentry)))
-#else
-        hlist_empty(&(i->i_dentry)))
-#endif
-	return;
-
-    printk("lis_show_inode_aliases(i@0x%p/%d.%d#%lu)%s:\n",
-	   i, I_COUNT(i), i->i_nlink, i->i_ino, (I_IS_LIS(i)?" <LiS>":""));
-
-    /*
-     *  show aliases in oldest-to-newest order
-     */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)  /* skip for new kernel */
-    for (ent = i->i_dentry.prev;  ent != &(i->i_dentry);  ent = ent->prev) {
-	struct dentry *d = list_entry( ent, struct dentry, d_alias );
-
-	lis_print_dentry(d, ">> dentry") ;
-    }
-#endif
-}
-
-/*
  *  kernel assistance to show a file's full path (using kernel's
  *  __d_path() routine)
  */
@@ -1150,52 +1114,6 @@ void lis_print_file_path(struct file *f)
 
 	lis_free_file_path(page);
     }
-}
-
-
-/*
- * lis_print_dentry
- */
-void lis_print_dentry(struct dentry *d, char *comment)
-{
-    char	dname[100] ;
-    int		len = sizeof(dname)-1 ;
-    struct inode *i = (d ? d->d_inode : NULL) ;
-
-    if (d == NULL)
-    {
-	printk("%s  NULL dentry pointer\n", comment) ;
-	return ;
-    }
-
-    if (comment == NULL)
-	comment = "" ;
-
-    if (d->d_name.len < len)  len = d->d_name.len;
-    strncpy(dname, (char *)(d->d_name.name), len) ;
-    dname[len] = 0 ;
-
-    printk("%s: d@0x%p/%d%s m:%d", comment,
-	   d, D_COUNT(d), (D_IS_LIS(d)?" <LiS>":""),
-	       K_ATOMIC_READ(&lis_mnt_cnt));
-
-    /* workaround crash using this debug output for now */
-    return;
-
-    if (i)
-    {
-	printk(" i@0x%p/%d%s",
-	       i, I_COUNT(i), (I_IS_LIS(i)?" <LiS>":""));
-	if (i->i_cdev)
-	    printk(" c@0x%p/%x\"%s\"", i->i_cdev, DEV_TO_INT(i->i_cdev->dev),
-		(i->i_cdev->owner ? i->i_cdev->owner->name : "No-Owner")) ;
-    }
-    if (*dname)
-	printk(" \"%s\"", dname );
-    printk("\n");
-
-    if (d && d->d_parent != NULL && d->d_parent != d)
-	lis_print_dentry(d->d_parent, ">> parent") ;
 }
 
 /************************************************************************

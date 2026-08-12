@@ -627,7 +627,6 @@ static void release_sd_opening_sem(stdata_t *head) ;
 extern int  lis_assign_inode_to_file(struct file *f, struct inode *i) ;
 extern void lis_start_qsched(void) ;
 
-extern void lis_show_inode_aliases(struct inode *);
 extern int  lis_sleep_on_close_wt(void *q_str) ;	/* wait.c */
 extern void lis_wakeup_close_wt(void *q_str) ;
 
@@ -4517,7 +4516,6 @@ lis_stropen( struct inode *i, struct file *f )
 	if (LIS_DEBUG_REFCNTS) {
 	    printk("    << d@0x%p/%d m@0x%p/%d\n",
 		   oldd, oldd_cnt, oldmnt, oldmnt_cnt);
-	    lis_show_inode_aliases(i);
 	}
     }
 
@@ -5081,7 +5079,6 @@ successful_rtn:					/* returning success */
                    f->f_dentry, D_COUNT(f->f_dentry),
                    f->f_path.mnt, MNT_COUNT(f->f_vfsmnt));
 #endif
-	    lis_show_inode_aliases(i);
 	}
 	lis_print_stream(head) ;
 	printk("lis_stropen(i@0x%p/%d,f@0x%p/%d)#%ld done OK...\n"
