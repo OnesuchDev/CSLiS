@@ -7696,7 +7696,7 @@ i_flush:
 	break;
 
     case I_LIS_SET_MAXMSGMEM:		/* LiS only - set max msg mem */
-	if (!lis_suser(f))
+	if (!capable(CAP_SYS_ADMIN))
 	    RTN(-EINVAL) ;
 
 	lis_max_msg_mem = arg ;
@@ -7712,7 +7712,7 @@ i_flush:
 	break;
 
     case I_LIS_SET_MAXMEM:		/* LiS only - set max mem */
-	if (!lis_suser(f))
+	if (!capable(CAP_SYS_ADMIN))
 	    RTN(-EINVAL) ;
 
 	lis_max_mem = arg ;
