@@ -296,10 +296,8 @@ struct qband {
  * The pointer given by allocq is actually a pointer to RD(q).
  */
 
-#if (defined(USE_KMEM_CACHE))
 extern void lis_init_queues(void);
 extern void lis_terminate_queues(void);
-#endif
 
 /* Allocate a new queue pair
  * return NULL on failure 

@@ -42,9 +42,7 @@
 #define	SAVE_FLAGS(x)
 #endif
 
-#if defined(USE_KMEM_CACHE)
 struct kmem_cache *lis_locks_cachep;
-#endif
 
 #define FL	char *file, int line
 
@@ -1514,7 +1512,6 @@ lis_semaphore_t * _RP lis_sem_alloc(int count)
 * This is code for the case of allocating locks in kernel cache.	*
 *									*
 ************************************************************************/
-#if defined(USE_KMEM_CACHE)
 void lis_init_locks(void)
 {
     lis_semaphore_t *lsem ;
@@ -1542,4 +1539,3 @@ void lis_terminate_locks(void)
 {
       lis_cache_destroy(lis_locks_cachep, &lis_locks_cnt, "lis_locks_cache");
 }
-#endif

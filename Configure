@@ -1500,8 +1500,6 @@ else
     STREAMS_REGPARM=${STREAMS_REGPARM:-0}
 fi
 unset CONFIG_DEV
-USE_KMEM_CACHE=y
-USE_KMEM_TIMER=y
 
 if [ "$MACHINE" = "s390x" ]; then
   INT_PSW=n
@@ -2023,9 +2021,6 @@ INT_PSW=$RESULT
 #		   We ask the user the question with the opposite sense
 #                  and then invert the answer for our internal flag.
 #
-# USE_KMEM_CACHE - Use level 2 cache memory for LiS queue and mblk structs
-#                  for performance.
-#
 if [ "$CONFIG_DEV..." = "..." ]; then
     unset CONFIG_DEV
 fi
@@ -2050,12 +2045,8 @@ ARGVVALUE="${OPT_PRODUCTIONCODE}"
 do_read_choice
 if [ "$RESULT..." = "y..." ]; then
     unset CONFIG_DEV
-    USE_KMEM_CACHE=y
-    USE_KMEM_TIMER=y
 else
     CONFIG_DEV=y
-    unset USE_KMEM_CACHE
-    unset USE_KMEM_TIMER
 fi
 
 #
@@ -2425,8 +2416,6 @@ cfg_out SET_CPUS_ALLOWED $SET_CPUS_ALLOWED
 #cfg_out REGISTER_SYSCALLS $REGISTER_SYSCALLS
 cfg_out INT_PSW $INT_PSW
 cfg_out CONFIG_DEV $CONFIG_DEV
-cfg_out USE_KMEM_CACHE $USE_KMEM_CACHE
-cfg_out USE_KMEM_TIMER $USE_KMEM_TIMER
 cfg_out LIS_MAJOR_BASE ${OPT_DEVICEBASE:-231}
 cfg_out CONFIG_INET $OPT_INET
 cfg_out PKGCOMPILE $OPT_PKGCOMPILE

@@ -8511,9 +8511,7 @@ static void lis_tear_down_stream(stdata_t *head)
  */
 void lis_init_head( void )
 {
-#if (defined(USE_KMEM_CACHE))
     lis_init_locks();
-#endif
 #if defined(USE_CODE_PATH)
     lis_spin_lock_init(&lis_code_path_lock, "LiS_code_path_lock") ;
 #endif
@@ -8543,10 +8541,8 @@ void lis_init_head( void )
     lis_initialize_dki();
 
     lis_init_bufcall() ;
-#if (defined(USE_KMEM_CACHE))
     lis_init_queues();
     lis_init_msg();
-#endif
     lis_init_mod() ;
 }/*lis_init_head*/
 
@@ -8558,9 +8554,7 @@ void lis_terminate_head(void)
 {
     lis_terminate_mod() ;
     lis_terminate_msg() ;
-#if (defined(USE_KMEM_CACHE))
     lis_terminate_queues();
-#endif
     lis_terminate_bufcall() ;
     lis_terminate_dki() ;
     SEM_DESTROY(&lis_stdata_sem);
@@ -8576,9 +8570,7 @@ void lis_terminate_final(void)
 {
     lis_terminate_mem() ;
     lis_free_all_pages() ;		/* from lis page allocator */
-#if (defined(USE_KMEM_CACHE))
     lis_terminate_locks();
-#endif
 }
 
 
