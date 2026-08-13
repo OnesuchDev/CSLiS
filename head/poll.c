@@ -51,22 +51,6 @@ typedef struct file		file_t ;
 
 long		lis_poll_sleeping ;	/* # times slept > twice on same poll */
 
-#ifdef POLL_TRACE
-
-typedef struct
-{
-    int		time_out ;
-    long	target_time ;
-    long	jiffies ;
-    long	time_interval ;
-    long	ticks ;
-
-} poll_trace_t ;
-
-poll_trace_t		lis_poll_trace[5] ;
-
-#endif
-
 /*
  * Routines elsewhere in STREAMS
  */
