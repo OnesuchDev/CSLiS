@@ -251,9 +251,6 @@ typedef struct /* cred - FIXME - collides with Linux */ {
 
 
 #ifdef __KERNEL__
-#define lis_free_page(cp) free_page((unsigned long)(cp))
-
-#define PRINTK		printk
 
 /*
  *  The ASSERT macro.
@@ -643,8 +640,6 @@ typedef	volatile long		lis_atomic_t ;
 #define	lis_atomic_dec(atomic_addr) 	 ((*(atomic_addr))--)
 #define	lis_atomic_dec_and_test(atomic_addr) ((*(atomic_addr))--)
 
-
-
 #endif				/* __KERNEL__ */
 
 #ifdef __KERNEL__
@@ -654,9 +649,6 @@ typedef	volatile long		lis_atomic_t ;
 #endif
 
 #define PID(fp)	  current->pid
-
-#define OPENFILES()     current->files->count
-#define SESSION()       current->session
 
 #define DBLK_ALLOC(n,f,l,g)	lis_malloc(n,GFP_ATOMIC | (g),1,f,l)
 #define ALLOC(n)		lis_malloc(n,GFP_ATOMIC,0,__FILE__,__LINE__)
@@ -727,10 +719,7 @@ int     lis_copyin(struct file *fp, void *kbuf, const void *ubuf, int len);
 int     lis_copyout(struct file *fp, const void *kbuf, void *ubuf, int len);
 int	lis_check_umem(struct file *fp, int rd_wr_fcn,
 	                   const void *usr_addr, int lgth) ;
-
-
 #endif				/* __KERNEL__ */
-
 
 /*  -------------------------------------------------------------------  */
 
@@ -749,7 +738,6 @@ extern lis_atomic_t	lis_runq_req_cnt ;
     				     if (K_ATOMIC_READ(&lis_runq_req_cnt))  \
 					lis_setqsched(1);		      \
 				   } while(0)
-
 
 #endif				/* __KERNEL__ */
 
@@ -816,10 +804,8 @@ extern unsigned	lis_poll_2_1(struct file *fp, poll_table * wait);
 #define FILE_MNTGET(f)  MNTGET(FILE_MNT((f)))
 #define FILE_MNTPUT(f)  MNTPUT(FILE_MNT((f)))
 
-
 extern struct vfsmount *lis_mnt;
 extern lis_atomic_t     lis_mnt_cnt;
-
 
 static inline
 void lis_mnt_cnt_sync(void)
@@ -835,9 +821,7 @@ struct vfsmount *lis_mntget(struct vfsmount *m)
 {
     struct vfsmount *mm = (m ? mntget(m) : NULL) ;
 
-
     lis_mnt_cnt_sync();
-
 
     return(mm) ;
 }
