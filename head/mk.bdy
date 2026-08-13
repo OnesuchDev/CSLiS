@@ -41,7 +41,7 @@ CC += -DLiS -D__KERNEL__ -DVERSION_2 $(CCREGPARM) $(XOPTS) $(OPT)
 #
 # The object files that need to be made for all targets
 #
-OBJS = head.o dki.o msg.o mod.o buffcall.o mdep.o events.o \
+OBJS = head.o dki.o msg.o mod.o buffcall.o linux-mdep.o events.o \
 	msgutl.o queue.o safe.o stats.o stream.o strmdbg.o wait.o \
 	cmn_err.o version.o osif.o
 
