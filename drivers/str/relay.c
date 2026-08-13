@@ -291,15 +291,10 @@ relay_close (queue_t *q, int dummy, cred_t *credp)
 
 static int __init relay3_init_module(void)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
-    printk("relay3.init_module: Attempt to register.\n");
-    int ret = lis_register_strmod(&relay3_info, "relay3");
-#else
     int ret;
 
     printk("relay3.init_module: Attempt to register.\n");
     ret = lis_register_strmod(&relay3_info, "relay3");
-#endif
     if (ret < 0)
     {
 	printk("relay3.init_module: Unable to register module.\n");
