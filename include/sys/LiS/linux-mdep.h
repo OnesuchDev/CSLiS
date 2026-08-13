@@ -753,11 +753,6 @@ extern lis_atomic_t	lis_runq_req_cnt ;
 
 /*  -------------------------------------------------------------------  */
 
-/*
- * The routine 'lis_select' handles select calls from the Linux kernel.
- * The structure 'lis_select_t' is embedded in the stdata structure
- * and contains the wait queue head.
- */
 #ifdef __KERNEL__
 
 extern unsigned	lis_poll_2_1(struct file *fp, poll_table * wait);
