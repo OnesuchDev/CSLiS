@@ -3380,7 +3380,6 @@ ioctl32_end:
 
 int lis_init_module( void )
 {
-    extern char	*lis_poll_file ;
     extern void  lis_mem_init(void) ;
 
     printk(
@@ -3449,11 +3448,11 @@ int lis_init_module( void )
 	"Copyright (c) 1997-2006 GCOM, et al, http://github.com/IBM/CSLiS\n"
 	"Major device number %d.\n"
 	"Version %s %s.\n"
-	"Using %s %s\n"
+	"Using %s\n"
 	"Kernel register args %d, CSLiS register args %d\n"
 	"==================================================================\n",
 	lis_major, lis_version, lis_date,
-	lis_poll_file, lis_stropts_file,
+	lis_stropts_file,
 	CCREGPARM, STREAMS_REGPARM);
 
     return(0);

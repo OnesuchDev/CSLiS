@@ -37,7 +37,6 @@
 #ident "@(#) CSLiS poll.c 7.111 2024-05-07 15:30:00 "
 
 #include <sys/stream.h>
-#define	USE_LINUX_POLL_H	1
 #include <linux/poll.h>
 #include <sys/lislocks.h>
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
@@ -46,16 +45,6 @@
 #define __iovec_defined 1
 #endif
 #include <sys/osif.h>
-
-char	*lis_poll_file =
-#if defined(USED_LINUX_POLL_H)
-		    "<linux/poll.h>"
-#elif defined(USED_LIS_POLL_H)
-		    "<LiS/include/sys/poll.h>"
-#else
-		    "<unknown/poll.h>"
-#endif
-;
 
 /* typedef struct semaphore	semaphore_t ; */
 typedef struct file		file_t ;

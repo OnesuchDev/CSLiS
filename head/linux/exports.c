@@ -68,7 +68,6 @@ extern int		lis_major;
 extern char		lis_version[] ;
 extern char		lis_date[] ;
 extern char		*lis_stropts_file ;
-extern char		*lis_poll_file;
 extern int              lis_num_cpus ;
 extern lis_atomic_t     lis_in_syscall ;
 extern lis_atomic_t     lis_queues_running ; 

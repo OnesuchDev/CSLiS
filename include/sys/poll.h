@@ -57,7 +57,6 @@
 # endif				/* _LIS_M_DEP_H */
 #endif				/* __linux__ */
 
-#define USED_LINUX_POLL_H	1
 /*    For Kernel 3.10.0 and later, only use linux poll includes of sys/types.h not already defined. */
 # if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 // #  ifndef _SYS_TYPES_H
