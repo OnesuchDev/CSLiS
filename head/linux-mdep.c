@@ -84,6 +84,7 @@
 #include <sys/LiS/buffcall.h>	/* bufcalls */
 #include <sys/LiS/head.h>	/* stream head */
 #include <sys/stream.h>         /* LiS entry points */
+#include <linux/poll.h>
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0)
 #include <sys/osif.h>
 #else   /* On later kernels, osif.h declarations collide with sockets */
@@ -368,6 +369,49 @@ static struct inode lis_tmpinode;
 static struct address_space lis_tmpmapping; /* create a temp mapping that will have no pages */
 #endif
 #endif
+
+/*
+ * Routines elsewhere in STREAMS
+ */
+extern unsigned	 lis_poll_bits(stdata_t *hd) ;
+
+/************************************************************************
+*                           lis_poll_2_1                                *
+*************************************************************************
+*									*
+* This is the kernel version 2.1 poll routine.  It is pointed to by	*
+* the fops structure for STREAMS.  It handles polling for one stream.	*
+* It builds a list of processes waiting on the stream in the task list	*
+* owned in the stdata structure.					*
+*									*
+* If we have to wait then lis_wake_up_poll in head.c does the wakeup.	*
+*									*
+************************************************************************/
+static unsigned lis_poll_2_1(struct file *fp, poll_table *wait)
+{
+    stdata_t	*head ;
+
+    if (fp == NULL)
+	return(POLLNVAL) ;
+
+    head = FILE_STR(fp) ;
+    if (head->magic != STDATA_MAGIC)
+    {
+	printk("lis_poll_2_1: fp=%p wait=%p head=%p magic=%lx should be %lx\n",
+		fp, wait, head, head->magic, STDATA_MAGIC) ;
+	return(POLLNVAL) ;
+    }
+
+    /*
+     * Put us into the wait queue first.  If any files have returned
+     * non-zero then Linux stops the wait queue insertion.  Linux poll
+     * system call cleans up the wait queues after all the poll operations
+     * are done.
+     */
+    poll_wait(fp, &head->sd_task_list, wait) ;
+    return(lis_poll_bits(head)) ;
+
+} /* lis_poll_2_1 */
 
 /*
  * File operations

@@ -371,7 +371,6 @@ extern int lis_strputpmsg(struct inode *, struct file *,
 			void *, void *, int, int);
 extern int lis_strgetpmsg(struct inode *, struct file *,
 			void *, void *, int *,int *,int);
-extern int lis_strpoll(struct inode *i, struct file *f, void *ptr) ;
 extern int lis_strclose(struct inode *i, struct file *f);
 extern ssize_t lis_strwrite(struct file *, const char *,  size_t, loff_t *);
 extern ssize_t lis_strread(struct file *, char *,  size_t, loff_t *);
