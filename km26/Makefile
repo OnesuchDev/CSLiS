@@ -49,7 +49,7 @@ endif
 
 obj-m := streams.o streams-mtdrv.o streams-pipemod.o streams-relay3.o 
 
-streams-objs := head.o dki.o msg.o buffcall.o linux-mdep.o events.o msgutl.o queue.o safe.o stats.o stream.o strmdbg.o wait.o cmn_err.o version.o osif.o poll.o lispci.o lismem.o lislocks.o exports.o mod.o clone.o fifo.o loop.o minimux.o printk.o connld.o relay.o sad.o
+streams-objs := head.o dki.o msg.o buffcall.o linux-mdep.o events.o msgutl.o queue.o safe.o stats.o stream.o strmdbg.o wait.o cmn_err.o version.o osif.o lispci.o lismem.o lislocks.o exports.o mod.o clone.o fifo.o loop.o minimux.o printk.o connld.o relay.o sad.o
 streams-mtdrv-objs := mtdrv.o
 streams-relay3-objs := relay3.o
 streams-pipemod-objs := pipemod.o

@@ -7744,8 +7744,8 @@ return_no_unlock:
 /*  -------------------------------------------------------------------  */
 /* lis_poll_bits - evaluate poll bits for a stream			 */
 /*
- * Used by lis_strpoll and by lis_poll_2_1 to evaluate a stream and
- * return poll events appropriate to the stream.
+ * Used by lis_poll_2_1 to evaluate a stream and return poll events appropriate
+ * to the stream.
  */
 unsigned lis_poll_bits(stdata_t *hd)
 {

@@ -755,8 +755,6 @@ extern lis_atomic_t	lis_runq_req_cnt ;
 
 #ifdef __KERNEL__
 
-extern unsigned	lis_poll_2_1(struct file *fp, poll_table * wait);
-
 /*
  * bzero and bcopy
  */

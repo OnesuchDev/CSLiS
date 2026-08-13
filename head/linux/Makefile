@@ -50,7 +50,7 @@ endif
 #  OPT += -DDEBUG
 #endif
 
-XOBJS = poll.o
+XOBJS =
 
 #
 # For any kernel later than 2.0.x we can include our own PCI interface
@@ -88,4 +88,3 @@ modules: streamshead.o
 
 dep: common-dep
 	$(Q_ECHO) $(qtag_DEP)$(relpwd)
-	$(Q)$(CC) -M -DDEP $(HEADDIR)/poll.c >>.depend
