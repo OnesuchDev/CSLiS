@@ -33,10 +33,13 @@ onward (through 6.x).
 The LiS software resides outside the kernel source tree.  It runs
 as a loadable module.
 
-Latest update, CSLiS-7.1.1.3-4.tgz, superseeds the May 21, 2026 release. Include APAR fix LI83323, SNA STOP HANGS. 
+Latest update, CSLiS-7.1.1.3-5.tgz, superseeds the May 21, 2026 release package, 
+CSLiS-7.1.1.3-4.tgz for Issue #42. This latest package only includes changes for lines to
+match the repository in a few files. No effective change in code between CSLiS-7.1.1.3-4.tgz and the 
+CSLiS-5.1.1.3-5.tgz. This update includes the fix APAR fix LI83323, SNA STOP HANGS. 
 Includes the previous update that supports RHEL 10.2, RHEL 9.8 with changes to handle changed macro calls in Linux 
 kernel applied in May, 2026. Check date by "grep -1 lis_date /usr/src/CSLiS-711/head/version.c"
-and check date is at least July 6, 2026. The version will show a "LiS-CS71134" for this new update.
+and check date is at least August 13, 2026. The version will show a "CS71135" for this new update.
 
 Jeff L Smith
 <jefsmith@us.ibm.com>
