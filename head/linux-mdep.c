@@ -3266,9 +3266,6 @@ int lis_ioctl32_str (struct file * fp, unsigned int cmd, unsigned long arg)
   par64.ic_cmd    = par32.ic_cmd;
   par64.ic_timout = par32.ic_timout;
   par64.ic_len    = par32.ic_len;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
-  data32p = (char*)par32.ic_dp;
-#else
 #if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(6, 1)) || LINUX_VERSION_CODE > KERNEL_VERSION(3,0,32))
 
 #if (defined(_X86_64_LIS_))
@@ -3284,7 +3281,6 @@ int lis_ioctl32_str (struct file * fp, unsigned int cmd, unsigned long arg)
 
 #else
   data32p = (char*)par32.ic_dp;
-#endif
 #endif
 
   if (par64.ic_len > 0)

@@ -4052,11 +4052,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 	       )
 	    {
 		if (err < 0)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
-                {
-		    cr->cp_rval=(caddr_t)(-err);
-                }
-#else
     /* The following RHEL_RELEASE_CODE check required since
        RHEL6.1 is same kernel level as RHEL6, but the
        invalidate_inodes() interface changed in the kernel...
@@ -4080,7 +4075,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
                 {
 		    cr->cp_rval=(caddr_t)(-err);
                 }
-#endif
 #endif
 		else
 		    cr->cp_rval=(caddr_t)ENOMEM;
@@ -4109,11 +4103,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 	    if ((err=lis_check_umem(f,VERIFY_WRITE,ubuf,len)) >= 0){
 		dat=lis_unlinkb(mioc);
 		if ((err = copyout_blks(f,ubuf,len,dat)) < 0)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
-                {
-		    cr->cp_rval=(caddr_t)(-err);
-                }
-#else
     /* The following RHEL_RELEASE_CODE check required since
        RHEL6.1 is same kernel level as RHEL6, but the
        invalidate_inodes() interface changed in the kernel...
@@ -4137,7 +4126,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
                 {
 		    cr->cp_rval=(caddr_t)(-err);
                 }
-#endif
 #endif
 		else
 		    cr->cp_rval=0;
