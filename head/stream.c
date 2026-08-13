@@ -78,15 +78,6 @@ extern void		lis_cpfl(void *p, long a,
 #define CP(p,a)		do {} while (0)
 #endif
 
-
-/*  -------------------------------------------------------------------  */
-/*			   Local functions & macros                      */
-#if !defined(__GNUC__) && !defined(HAS__FUNCTION__)
-#define	__FUNCTION__	""
-#endif
-
-/*  -------------------------------------------------------------------  */
-
 /*  -------------------------------------------------------------------  */
 /* service scheduler
  *

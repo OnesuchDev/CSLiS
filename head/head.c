@@ -470,10 +470,6 @@ static char		*lis_cp_fmt =		/* for printk */
 		      		(func),(f),(l),(void *)(p),(a));	\
        } while (0)
 
-#if !defined(__GNUC__) && !defined(HAS__FUNCTION__)
-#define	__FUNCTION__	""
-#endif
-
 #define CP(p,a)		CPFL((p),(a),__FUNCTION__,__LIS_FILE__,__LINE__)
 
 #else
