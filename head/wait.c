@@ -123,11 +123,7 @@ lis_sleep_on_wioc(struct stdata * sd, char *f,int l)
     int		rslt ;
 
     K_ATOMIC_DEC(&lis_in_syscall) ;		/* "done" with a system call */
-    if ( LIS_DEBUG_IOCTL )
-       printk("lis_sleep_in_wioc: call lis_runqueues\n");
     lis_runqueues();
-    if ( LIS_DEBUG_IOCTL )
-       printk("lis_sleep_in_wioc: return from lis_runqueues\n");
     rslt = lis_down_fcn(&sd->sd_wioc,f,l);
     K_ATOMIC_INC(&lis_in_syscall) ;		/* processing a system call */
     return(rslt) ;
