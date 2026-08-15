@@ -596,6 +596,8 @@ mblk_t * _RP
 lis_rmvb(mblk_t *mp, mblk_t *bp)
 {
     mblk_t *rtn = mp;
+    if (mp == NULL && bp == NULL)
+	    return (mblk_t *)-1;
     if(mp == NULL || bp == NULL) return NULL;
     if(mp == bp) 
     	rtn = mp->b_cont;
