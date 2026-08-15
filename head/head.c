@@ -242,7 +242,6 @@ C) Open vs Close
 #define IFNAMSIZ        16
 #endif
 #include <sys/poll.h>
-#include <sys/LiS/errmsg.h>
 #if !defined(ERANGE)
 #undef _ERRNO_H
 #define __need_Emath 1
@@ -2678,8 +2677,7 @@ kill_procs( struct strevent *elist, int sig, short e)
                            ev->se_pid, 
                            SIGURG);
 		if ((res=lis_kill_proc(ev->se_pid,SIGURG,1))<0)
-		    lis_error(LIS_ERROR,
-			      "kill_procs","kill_proc: errno %d",res);
+		    printk(KERN_ERR "LiS: kill_proc: errno %d",res);
 
 		if (ev->se_evs& e& ~S_RDBAND) /* other events -> sigpoll too */
 		{
@@ -2688,8 +2686,7 @@ kill_procs( struct strevent *elist, int sig, short e)
                                 ev->se_pid,
                                 SIGPOLL);
 		    if ((res=lis_kill_proc(ev->se_pid,SIGPOLL,1))<0)
-			lis_error(LIS_ERROR,
-				  "kill_procs","kill_proc: errno %d",res);
+			printk(KERN_ERR "LiS: kill_proc: errno %d",res);
 		}
 	    }
 	    else
@@ -2699,7 +2696,7 @@ kill_procs( struct strevent *elist, int sig, short e)
                             ev->se_pid,
                             SIGPOLL);
 		if ((res=lis_kill_proc(ev->se_pid,SIGPOLL,1))<0)
-		    lis_error(LIS_ERROR,"kill_procs","kill_proc: errno %d",res);
+		    printk(KERN_ERR "LiS: kill_proc: errno %d",res);
 	    }
 	}
     
@@ -3552,7 +3549,7 @@ lis_do_tmout(struct timer_list *tmout_tl)
 #endif
 
     if (hd->magic != STDATA_MAGIC){
-	lis_error(LIS_ERROR,"lis_do_tmout","timeout with bad stream 0x%p",hd);
+	printk(KERN_ERR "LiS: lis_do_tmout: timeout with bad stream 0x%p",hd);
 	return;
     }
     if (F_ISSET(hd->sd_flag,STIOCTMR)){     /* ioctl timer: awake sleeper*/
@@ -3586,8 +3583,7 @@ lis_do_rd_tmout(struct timer_list *tmout_tl)
 #endif
 
     if (hd->magic != STDATA_MAGIC){
-	lis_error(LIS_ERROR,"lis_do_rd_tmout",
-			    "timeout with bad stream 0x%p",hd);
+	printk(KERN_ERR "LiS: lis_do_rd_tmout: timeout with bad stream 0x%p",hd);
 	return;
     }
 
