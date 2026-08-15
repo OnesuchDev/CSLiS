@@ -50,27 +50,10 @@ endif
 #  OPT += -DDEBUG
 #endif
 
-XOBJS =
-
-#
-# For any kernel later than 2.0.x we can include our own PCI interface
-# code.
-#
-ifeq ($(KVER_MAJOR),2)
-ifeq ($(KVER_MINOR),0)
-else
-  ifneq ($(ARCH),s390)
-  ifneq ($(ARCH),s390x)
-  XOBJS += lispci.o
-  endif
-  endif
-endif
-endif
-
 #
 # include LiS's memory allocator interface.
 #
-XOBJS += lismem.o
+XOBJS = lismem.o
 
 #
 # include LiS's locking code
