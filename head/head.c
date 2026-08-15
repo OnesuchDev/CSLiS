@@ -6417,41 +6417,22 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 
     case I_PUSH:		/* tested */
 	if (F_ISSET(hd->sd_flag,STRHUP|STRCLOSE))
-        {
-            if ( LIS_DEBUG_IOCTL )
-                printk("lis_strioctl(...,I_PUSH, ENXIO, %s\n", hd->sd_name) ;
-
 	    RTN(-ENXIO);
-        }
 
 	if ((err=lis_check_umem(f,VERIFY_READ,(char*)arg,FMNAMESZ+1))<0)
         {
-            if ( LIS_DEBUG_IOCTL )
-                printk("lis_strioctl(...,I_PUSH, err=%i, %s\n", err, hd->sd_name) ;
-
 	    RTN(err);
         }
 	else {
 	    char *mname;
 	    if((err=lis_copyin_str(f,(char*)arg,&mname,FMNAMESZ+1))<0)
             {
-                if ( LIS_DEBUG_IOCTL )
-                   printk("lis_strioctl(...,I_PUSH, err=%i, %s\n", err, hd->sd_name) ;
-
 		RTN(err);
             }
-	    if ( LIS_DEBUG_IOCTL )
-		printk("lis_strioctl(...,I_PUSH,\"%s\") %s <<\n",
-			mname, hd->sd_name) ;
-
 	    id = lis_loadmod(mname) ;
 	    if (id == LIS_NULL_MID || (st = lis_modstr(id)) == NULL)
 	    {
 		err=-EINVAL;
-		if ( LIS_DEBUG_IOCTL )
-		    printk("lis_strioctl(...,I_PUSH,\"%s\")"
-			   " >> module not found\n", mname) ;
-
 		FREE((caddr_t)mname);
 	    }
 	    else
@@ -6460,13 +6441,6 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 
 		FREE((caddr_t)mname);
 		err = push_mod( hd, st, id, &ddev, f->f_flags, &creds );
-		if ( LIS_DEBUG_IOCTL )
-		{
-		    printk("lis_strioctl(...,I_PUSH,\"%s\") >> ", mname) ;
-		    if (err)	printk("error %d\n", err) ;
-		    else	printk("OK\n") ;
-		    lis_print_stream(hd) ;
-		}
 
 		if (F_ISSET(hd->sd_flag,STRISTTY)){
 		    /* 
@@ -6481,25 +6455,10 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 	break;
     case I_POP:		/* tested */
       {
-	const char	*qname = "";
-
 	if (F_ISSET(hd->sd_flag,STRHUP|STRCLOSE))
 	    RTN(-ENXIO);
 
-	if ( LIS_DEBUG_IOCTL )
-	    qname = lis_queue_name(hd->sd_wq->q_next) ;
-
 	err=pop_mod(hd,f->f_flags, &creds); 
-
-	if ( LIS_DEBUG_IOCTL )
-	{
-	    printk("lis_strioctl(...,I_POP,\"%s\") \"%s\" >> ",
-		    qname, hd->sd_name) ;
-
-	    if (err)	printk("error %d\n", err) ;
-	    else	printk("OK\n") ;
-	    lis_print_stream(hd) ;
-	}
       }
       break;
     case I_LOOK:		/* tested */
@@ -6508,25 +6467,12 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 	char   *name ;
 	if ((err=lis_check_umem(f,VERIFY_WRITE,(char*)arg,FMNAMESZ+1))<0)
 	{
-	    if ( LIS_DEBUG_IOCTL )
-		printk("lis_strioctl(...,I_LOOK,...)"
-		       " >> lis_check_umem failed with err=%d\n",
-			err);
 	    RTN(err);
 	}
 	if (!hd->sd_pushcnt)
 	{
-	    if ( LIS_DEBUG_IOCTL )
-		printk("lis_strioctl(...,I_LOOK,...)"
-		       " >> failed - no modules on stream %d\n",
-		-EINVAL);
 	    RTN(-EINVAL);
 	}
-	if ( LIS_DEBUG_IOCTL )
-	  printk("lis_strioctl(...,I_LOOK,...)"
-		 " >> top driver/module of stream %s is \"%s\"\n",
-		 hd->sd_name, lis_queue_name(hd->sd_wq->q_next)) ;
-
 	name = (char *) lis_queue_name(hd->sd_wq->q_next) ;
 	namelen = strlen(name) ;
 	if (namelen > FMNAMESZ)
@@ -6551,8 +6497,6 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 i_flush:
 	if (F_ISSET(hd->sd_flag,STRHUP|STRCLOSE))
 	    RTN(-ENXIO);
-	if ( LIS_DEBUG_IOCTL )
-	    printk("lis_strioctl(...,I_FLUSH,0x%lx)\n", arg) ;
 
 	switch(arg & FLUSHRW){
 	case FLUSHR:
@@ -6608,34 +6552,16 @@ i_flush:
 	else
 	    F_SET(hd->sd_sigflags,arg);
 
-	if ( LIS_DEBUG_IOCTL || LIS_DEBUG_SIG )
-	{
-	    printk("lis_strioctl(...,I_SETSIG,%ld) \"%s\" >> ",
-		   arg, hd->sd_name) ;
-	    if (err)	printk("error %d\n", err) ;
-	    else	printk("OK\n") ;
-	}
-
 	break;
     case I_GETSIG:
 	{
 	    int evs;
-
-	    if ( LIS_DEBUG_IOCTL )
-		printk("lis_strioctl(...,I_GETSIG,...) \"%s\" >> ",
-		       hd->sd_name) ;
 
 	    err=lis_check_umem(f,VERIFY_WRITE,(char*)arg,sizeof(int)) ;
 	    if (   err == 0
 		&& (evs=(int)lis_get_elist_ent(hd->sd_siglist,pid)) == 0
 	       )
 		err = -EINVAL;
-
-	    if ( LIS_DEBUG_IOCTL )
-	    {
-		if (err)	printk("error %d\n", err) ;
-		else		printk("signal %d\n", evs) ;
-	    }
 
 	    if (err == 0)
 		err = lis_copyout(f,&evs,(char*)arg,sizeof(int));
@@ -6656,10 +6582,6 @@ i_flush:
 		FREE(mname);
 		RTN(-EINVAL);
 	    }
-
-	    if ( LIS_DEBUG_IOCTL )
-		printk("lis_strioctl(...,I_FIND,\"%s\") \"%s\" %d module(s)\n",
-		       mname, hd->sd_name, nmods);
 
 	    for (q=(hd->sd_wq ? hd->sd_wq->q_next : NULL);
 		 q && nmods; q=q->q_next, nmods--)
@@ -6683,9 +6605,6 @@ i_flush:
     case I_SRDOPT:
       {
 	int res = set_readopt(&hd->sd_rdopt,arg);
-	if ( LIS_DEBUG_IOCTL )
-	    printk("lis_strioctl(...,I_SRDOPT,%ld) \"%s\" >> rslt=%d\n",
-		   arg, hd->sd_name, res) ;
 	RTN(res);
       }
     case I_GRDOPT:
@@ -6694,9 +6613,6 @@ i_flush:
 	    if ((err=lis_check_umem(f,VERIFY_WRITE,(char*)arg,sizeof(int)))<0)
 		RTN(err);
 	    rmode=hd->sd_rdopt;
-	    if ( LIS_DEBUG_IOCTL )
-		printk("lis_strioctl(...,I_GRDOPT,...) \"%s\" << mode=0x%x\n",
-		       hd->sd_name, rmode);
 	    err = lis_copyout(f,&rmode,(char*)arg,sizeof(int));
 	}	
 	break;
@@ -6872,18 +6788,11 @@ i_flush:
       break;
 
     case I_SWROPT:
-	if ( LIS_DEBUG_IOCTL )
-	    printk("lis_strioctl(...,I_SWROPT,0x%lx) \"%s\"\n",
-		   arg, hd->sd_name) ;
 	hd->sd_wropt = arg ;
 	RTN(0) ;
     case I_GWROPT:
 	if ((err=lis_check_umem(f,VERIFY_WRITE,(char*)arg,sizeof(int)))<0)
 	    RTN(err);
-
-	if ( LIS_DEBUG_IOCTL )
-	    printk("lis_strioctl(...,I_GWROPT,...) \"%s\" >> mode=0x%x\n",
-		   hd->sd_name, hd->sd_wropt);
 
 	err = lis_copyout(f,&hd->sd_wropt,(char*)arg,sizeof(int));
 	RTN(err);
@@ -6985,9 +6894,6 @@ i_flush:
 	    /* Add 1 to nmods (for driver) if not pipe/FIFO */
 	    if (!F_ISSET(hd->sd_flag,STFIFO)) nmods++;
 
-	    if ( LIS_DEBUG_IOCTL )
-		printk("lis_strioctl(...,I_LIST,NULL) \"%s\" >> return %d\n",
-		       hd->sd_name, nmods) ;
 	    RTN(nmods);
 	}
 	else {
@@ -7035,10 +6941,6 @@ i_flush:
 			    &((str_list_t *)arg)->sl_nmods, sizeof(int))) < 0)
 		RTN(err) ;
 
-	    if ( LIS_DEBUG_IOCTL )
-		printk("lis_strioctl(...,I_LIST,<non-NULL>)"
-		       " \"%s\" >> %d modules, return 0\n",
-		       hd->sd_name, nmods) ;
 	    RTN(0);
 	}
 	break;
@@ -7136,9 +7038,6 @@ i_flush:
 	    else 
 	    {
 		res = lis_bcanputnext(hd->sd_wq, (unsigned char) arg);
-		if ( LIS_DEBUG_IOCTL )
-		    printk("lis_strioctl(...,I_CANPUT,...)"
-			   " \"%s\" >> rslt=%d\n", hd->sd_name, res) ;
 		RTN(res) ;
 	    }
         }
@@ -7147,9 +7046,6 @@ i_flush:
 	if (arg >LIS_MAX_CLTIME)
 	    RTN(-EINVAL);
 	hd->sd_closetime=arg;
-	if ( LIS_DEBUG_IOCTL )
-	    printk("lis_strioctl(...,I_SETCLTIME,%ld) \"%s\"\n",
-		   arg, hd->sd_name) ;
 	RTN(0);
 	break;
     case I_GETCLTIME:
@@ -7158,9 +7054,6 @@ i_flush:
 	    if ((err=lis_check_umem(f,VERIFY_WRITE,(char*)arg,sizeof(int)))<0)
 		RTN(err);
 	    res=hd->sd_closetime;
-	    if ( LIS_DEBUG_IOCTL )
-		printk("lis_strioctl(...,I_GETCLTIME,...) \"%s\" >> rslt=%d\n",
-		       hd->sd_name, res) ;
 	    err = lis_copyout(f,&res,(char*)arg,sizeof(int));
 	    RTN(err);
 	}
@@ -7411,11 +7304,6 @@ i_flush:
 	    ioc.ic_len=TRANSPARENT;
 	    ioc.ic_dp=(char*)arg;
 	    res=lis_strdoioctl(f,hd,&ioc,&creds,0);	/* no copyin */
-	    if ( LIS_DEBUG_IOCTL )
-		printk("lis_strioctl(...) \"%s\""
-		       "<< ic_cmd=0x%x ic_timout=%d ic_len=0 >> rslt=%d\n",
-		       hd->sd_name,
-		       ioc.ic_cmd, ioc.ic_timout, res) ;
 	    RTN(res);
 	}
     }/*sw cmd*/
@@ -7457,12 +7345,7 @@ unsigned lis_poll_bits(stdata_t *hd)
 	RTN(POLLHUP) ;
 
     if (F_ISSET(hd->sd_flag,STPLEX))
-    {
-	if (LIS_DEBUG_POLL)
-	  printk("strpoll: stream %s: stream has been I_LINKed\n", hd->sd_name);
-
 	RTN(POLLNVAL) ;
-    }
 
     LIS_RDQISRLOCK(hd->sd_rq, &psw) ;
     if ((mp = hd->sd_rq->q_first) != NULL)	/* mp is 1st msg */
@@ -7501,11 +7384,6 @@ unsigned lis_poll_bits(stdata_t *hd)
 	revents |= POLLWRBAND ;			/* can write band > 0 */
 
 rtn_point:
-    if ( LIS_DEBUG_POLL )
-	printk("lis_poll_bits: stream %s: revents:%s\n",
-		hd->sd_name,
-	        lis_poll_events((short)revents)) ;
-
     return(revents) ;				/* return events */
 
 #undef RTN
