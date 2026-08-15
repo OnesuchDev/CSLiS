@@ -27,7 +27,6 @@
  *  Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  *  MA 02139, USA.
  */
-#define PIPE_DEBUG 1
 #ident "@(#) CSLiS pipemod.c 7.111 2024-05-07 15:30:00 "
 
 #ifdef LIS_OBJNAME  /* This must be defined before including module.h on Linux 6.8 */
@@ -123,30 +122,12 @@ cred_t *credp;
 {
     queue_t	*rq = RD(q);
     char	*cp = rq->q_ptr ;
-#ifdef PIPE_DEBUG
-    cmn_err( CE_CONT,
-	     "%s_open_1( 0x%p, 0x%x, 0x%x, 0x%x, 0x%p, 0x%p... )\n",
-	     MOD_NAME, q, *devp, flag, sflag, rq, rq->q_ptr );
-#endif
 
     if (rq->q_ptr == NULL) MODGET() ;
     rq->q_ptr = (void *) ++cp ;
     WR(q)->q_ptr = rq->q_ptr;
 
-#ifdef PIPE_DEBUG
-    cmn_err( CE_CONT,
-             "%s_open_2( 0x%p, 0x%x, 0x%x, 0x%x, ... )\n",
-             MOD_NAME, q, *devp, flag, sflag );
-#endif
-
     qprocson(q);
-
-#ifdef PIPE_DEBUG
-    cmn_err( CE_CONT,
-             "%s_open_3( 0x%p, 0x%x, 0x%x, 0x%x, ... )\n",
-             MOD_NAME, q, *devp, flag, sflag );
-#endif
-
 
     return 0;	/* success */
 }
@@ -159,11 +140,6 @@ queue_t *q;
 int flag;
 cred_t *credp;
 {
-#ifdef PIPE_DEBUG
-    cmn_err( CE_CONT,
-	     "%s_close( 0x%p, 0x%x, ... )\n", MOD_NAME, q, flag );
-#endif
-    
     RD(q)->q_ptr = WR(q)->q_ptr = NULL;
     MODPUT();
     qprocsoff(q);
@@ -212,11 +188,6 @@ static int _RP pipemod_put( q, mp )
 queue_t *q;
 mblk_t *mp;
 {
-#ifdef PIPE_DEBUG
-    cmn_err( CE_CONT,
-	     "%s_wput( 0x%08x, 0x%08x )\n", MOD_NAME, q, mp );
-#endif
-
     switch (mp->b_datap->db_type) {
     case M_FLUSH:
 	flush_module( q, mp );
