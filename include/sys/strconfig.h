@@ -38,28 +38,7 @@
 
 #ident "@(#) CSLiS strconfig.h 7.11 10/20/22 15:30:00 "
 /*  -------------------------------------------------------------------  */
-/*				 Dependencies                            */
-
-#include <linux/major.h>		/* for MAX_CHRDEV */
-
-
-/*  -------------------------------------------------------------------  */
 /*				   Symbols                               */
-
-
-
-/* this is to use safe version of streams api, to get nice warnings and so
- * on...
- */
-#ifdef LIS_CONFIG_SAFE
-#define SAFE 1
-#endif
-
-/* This is to use a test version
- */
-#if defined(LIS_TESTING) || defined(LIS_DEBUG)
-#define TEST 1
-#endif
 
 /*
  * The dimension of LiS structures that exist for each CPU.
@@ -77,12 +56,6 @@
 /*  -------------------------------------------------------------------  */
 /*		       Global tunable vars. and symbols                  */
 
-/*
- * Maximum number of mblk headers to keep on hand for fast allocation
- */
-#define	MAX_MBLKS	10
-
-
 /* From mod.h:
  * (we've been using a char for the module id, so if the # of modules
  * get's over 255 we should define  mid_t and use this.
@@ -96,16 +69,6 @@
 
 #define MAX_STRDEV	1024	/*Max # of stream devices */
 #define MAX_STRMOD	256	 /* Max # of stream modules */
-#define MAX_STRAMOD	8	/* max # of autopushed mods per str */
-#define MAX_APUSH       8	/* max # of autopushed mods */
-#ifdef __KERNEL__
-extern int lis_reuse_modsw;	/* we reuse modsw entries if this is true */
-#endif				/* __KERNEL__ */
-
-
-/* From queue.h:
- */
-#define NBAND   256		/* Max # of bands. Keep below 256 */
 
 /* From stream.c: 
  */
@@ -114,19 +77,8 @@ extern int lis_reuse_modsw;	/* we reuse modsw entries if this is true */
 #define LIS_MAXPSZ   4096	/* max. packet size (must be non-zero) */
 #define LIS_MINPSZ   0		/* min. packet size */
 
-#define LIS_MEMLIMIT	(1*1024*1024) /*  STREAMS memory limit */
-
 #ifdef __KERNEL__
-extern unsigned long lis_strthresh;	/* configurable STREAMS memory limit */
-extern int lis_nstrpush;	/* maximum # of pushed modules */
 extern int lis_strhold;		/* if not zero str hold feature's activated*/
 #endif				/* __KERNEL__ */
-
-/* From msg.h:
- */
-#ifdef __KERNEL__
-extern int lis_strmsgsz;		/* maximum stream message size */
-#endif				/* __KERNEL__ */
-
 
 #endif /*!_LIS_CONFIG_H*/

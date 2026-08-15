@@ -512,9 +512,7 @@ lis_atomic_t	 lis_runq_active_flags[LIS_NR_CPUS] ;
 pid_t		 lis_runq_pids[LIS_NR_CPUS] ;
 volatile unsigned long	 lis_runq_wakeups[LIS_NR_CPUS] ;
 
-int		 lis_nstrpush;	/* maximum # of pushed modules */
 int		 lis_strhold;	/* if not zero str hold feature's activated*/
-unsigned long    lis_strthresh;	/* configurable STREAMS memory limit */
 int     	 lis_iocseq;	/* ioctl id */
 stdata_t	*lis_stdata_head ;	/* list of stdata structures */
 lis_atomic_t	 lis_stdata_cnt ;	/* counts stdata structs in use */
@@ -8500,9 +8498,7 @@ void lis_init_head( void )
     lis_qhead = lis_qtail =  lis_scanqhead= lis_scanqtail = NULL;
     K_ATOMIC_SET(&lis_queues_running, 0);
     K_ATOMIC_SET(&lis_runq_req_cnt, 0) ;
-    lis_nstrpush = 0;
     lis_strhold = 0;
-    lis_strthresh = 0;
     /*lis_iocseq=whichever get's in the air -- so we have some kind of random
      *number for this seq # <-should be fixed*/
 
