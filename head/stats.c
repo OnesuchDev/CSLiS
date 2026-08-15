@@ -86,18 +86,3 @@ LisUpCounter(int item, int n)
 	AS(&lis_strstats[item][MAXIMUM], c);
 
 }/*LisUpCounter*/
-
-/*
- * Set a counter to a particular value and keep track of the max.
- */
-void LisSetCounter(int item, int val)
-{
-    int		c ;
-
-    AA(&lis_strstats[item][TOTAL], val) ;
-    AS(&lis_strstats[item][CURRENT], val);
-    if ((c = AR(&lis_strstats[item][CURRENT])) >
-	     AR(&lis_strstats[item][MAXIMUM]))
-	AS(&lis_strstats[item][MAXIMUM], c) ;
-
-} /* LisSetCounter */

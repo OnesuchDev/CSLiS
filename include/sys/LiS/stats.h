@@ -155,8 +155,6 @@ extern void LisUpCounter(int item, int n);
 /*
  * set item to a value
  */
-extern void LisSetCounter(int item, int val);
-
 extern void    lis_stat_neg(void) ;
 
 #define	LisUpCount(item)	LisUpCounter(item,1)
