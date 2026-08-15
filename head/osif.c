@@ -813,14 +813,6 @@ lis_del_timer(struct timer_list * timer)
 #endif
 }
 
-/*
- * Prototype in dki.h (with other timer stuff), not osif.h
- */
-unsigned _RP lis_usectohz(unsigned usec)
-{
-    return( usec / (1000000/HZ) ) ;
-}
-
 /************************************************************************
 *                        Wrapped Functions                              *
 ************************************************************************/
