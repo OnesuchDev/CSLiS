@@ -3542,13 +3542,6 @@ static void __exit _lis_cleanup_module( void )
 
     lis_kill_qsched() ;			/* drivers/str/runq.c */
     lis_terminate_head();
- 
-#if (!defined(_S390_LIS_) && !defined(_S390X_LIS_) && !defined(_PPC64_LIS_) && !defined(_X86_64_LIS_)) 
-    {
-        extern void	lis_pci_cleanup(void) ;
-        lis_pci_cleanup() ;
-    } 
-#endif          /* S390 or S390X or PPC64 or X86_64 */
 
     __unregister_chrdev(lis_major,0,1024,"streams");
     MNTSYNC();

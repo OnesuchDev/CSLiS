@@ -52,7 +52,6 @@
 #include <sys/poll.h>
 #include <sys/lislocks.h>
 #include <sys/lismem.h>
-#include <sys/lispci.h>
 #include <sys/cmn_err.h>
 #include <sys/osif.h>
 /************************************************************************
@@ -169,9 +168,6 @@ EXPORT_SYMBOL(lis_makedevice);
 EXPORT_SYMBOL(lis_major);
 EXPORT_SYMBOL(lis_malloc);
 EXPORT_SYMBOL(lis_mark_mem_fcn);
-#if (!defined(_S390_LIS_) && !defined(_S390X_LIS_) && !defined(_PPC64_LIS_) && !defined(_X86_64_LIS_))
-EXPORT_SYMBOL(lis_membar);
-#endif          /* S390 or S390X or PPC64 or X86_64 */
 EXPORT_SYMBOL(lis_milli_to_ticks);
 EXPORT_SYMBOL(lis_mknod);
 #if 0 && defined(CONFIG_DEV)
@@ -186,64 +182,8 @@ EXPORT_SYMBOL(lis_osif_cli);
 EXPORT_SYMBOL(lis_osif_do_gettimeofday);
 EXPORT_SYMBOL(lis_osif_do_settimeofday);
 
-#ifdef CONFIG_PCI
-EXPORT_SYMBOL(lis_osif_pci_find_device);
-EXPORT_SYMBOL(lis_osif_pci_find_slot);
-EXPORT_SYMBOL(lis_osif_pci_read_config_byte);
-EXPORT_SYMBOL(lis_osif_pci_read_config_dword);
-EXPORT_SYMBOL(lis_osif_pci_read_config_word);
-EXPORT_SYMBOL(lis_osif_pci_write_config_byte);
-EXPORT_SYMBOL(lis_osif_pci_write_config_dword);
-EXPORT_SYMBOL(lis_osif_pci_write_config_word);
-EXPORT_SYMBOL(lis_osif_pci_set_master);
-EXPORT_SYMBOL(lis_osif_pci_enable_device);
-EXPORT_SYMBOL(lis_osif_pci_disable_device);
-EXPORT_SYMBOL(lis_osif_pci_module_init);
-EXPORT_SYMBOL(lis_osif_pci_unregister_driver);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
-EXPORT_SYMBOL(lis_osif_pci_alloc_consistent);
-EXPORT_SYMBOL(lis_osif_pci_free_consistent);
-EXPORT_SYMBOL(lis_osif_pci_map_single);
-EXPORT_SYMBOL(lis_osif_pci_unmap_single);
-EXPORT_SYMBOL(lis_osif_pci_map_sg);
-EXPORT_SYMBOL(lis_osif_pci_unmap_sg);
-EXPORT_SYMBOL(lis_osif_pci_dma_sync_single);
-EXPORT_SYMBOL(lis_osif_pci_dma_sync_sg);
-EXPORT_SYMBOL(lis_osif_pci_dma_supported);
-EXPORT_SYMBOL(lis_osif_pci_set_dma_mask);
-#endif
-EXPORT_SYMBOL(lis_osif_sg_dma_address);
-EXPORT_SYMBOL(lis_osif_sg_dma_len);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
-EXPORT_SYMBOL(lis_osif_pci_map_page);
-EXPORT_SYMBOL(lis_osif_pci_unmap_page);
-#endif
-#endif /* CONFIG_PCI */
-
 EXPORT_SYMBOL(lis_osif_sti);
 EXPORT_SYMBOL(lis_own_spl);
-#if (!defined(_S390_LIS_) && !defined(_S390X_LIS_) && !defined(_PPC64_LIS_) && !defined(_X86_64_LIS_))
-EXPORT_SYMBOL(lis_pcibios_present);
-
-EXPORT_SYMBOL(lis_pcibios_strerror);
-EXPORT_SYMBOL(lis_pci_disable_device);
-EXPORT_SYMBOL(lis_pci_dma_handle_to_32);
-EXPORT_SYMBOL(lis_pci_dma_handle_to_64);
-EXPORT_SYMBOL(lis_pci_dma_supported);
-EXPORT_SYMBOL(lis_pci_dma_sync_single);
-EXPORT_SYMBOL(lis_pci_enable_device);
-EXPORT_SYMBOL(lis_pci_find_device);
-EXPORT_SYMBOL(lis_pci_find_slot);
-EXPORT_SYMBOL(lis_pci_map_single);
-EXPORT_SYMBOL(lis_pci_read_config_byte);
-EXPORT_SYMBOL(lis_pci_read_config_dword);
-EXPORT_SYMBOL(lis_pci_read_config_word);
-EXPORT_SYMBOL(lis_pci_set_master);
-EXPORT_SYMBOL(lis_pci_unmap_single);
-EXPORT_SYMBOL(lis_pci_write_config_byte);
-EXPORT_SYMBOL(lis_pci_write_config_dword);
-EXPORT_SYMBOL(lis_pci_write_config_word);
-#endif          /* S390 or S390X or PPC64 or X86_64 */
 EXPORT_SYMBOL(lis_phys_to_virt);
 EXPORT_SYMBOL(lis_print_block);
 EXPORT_SYMBOL(lis_print_data);
