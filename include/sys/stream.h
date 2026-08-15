@@ -46,14 +46,6 @@ extern "C" {
 #endif
 
 #ident "@(#) CSLiS stream.h 7.11 10/20/22 15:30:00 "
-/*
- * Always use the safe routines.  A driver writer can make
- * a simple mistake and easily panic the kernel anyway, so why
- * make it even easier?  -- DMG
- */
-#ifndef SAFE
-#define	SAFE		1
-#endif
 
 /*
  * I heartily recommend using this feature.  It allows you to know

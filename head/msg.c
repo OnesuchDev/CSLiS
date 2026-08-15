@@ -95,7 +95,6 @@
 
 lis_spin_lock_t	  lis_msg_lock ;	  /* protects msg list */
 volatile struct mdbblock  *lis_mdbfreelist = NULL; /* msg block free list */
-int 	     lis_strmsgsz;		  /* maximum stream message size */
 lis_atomic_t lis_strcount ;		  /* # bytes allocated to msgs   */
 long	     lis_max_msg_mem ;		  /* maximum to allocate */
 

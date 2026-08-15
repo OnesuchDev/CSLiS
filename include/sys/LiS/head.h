@@ -348,9 +348,7 @@ extern char lis_queueflag;	/*the function queuerun is running    	*/
 
 /* cfg. opts.
  */
-extern int lis_nstrpush;	/* maximum # of pushed modules */
 extern int lis_strhold;		/* if not zero str hold feature's activated*/
-extern unsigned long lis_strthresh;	/* configurable STREAMS memory limit */
 extern int lis_iocseq; 		/* ioctl id */
 
 
