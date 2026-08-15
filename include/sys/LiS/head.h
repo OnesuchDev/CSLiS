@@ -438,9 +438,6 @@ void	lis_stream_error(stdata_t *shead, int rderr, int wrerr) ;
 /*
  *  timing functions - these are available outside the kernel also
  */
-extern unsigned long lis_usecs(void)_RP;   /* usec res; ulong cycle */
-extern unsigned long lis_msecs(void)_RP;   /* msec res; ulong cycle */
-extern unsigned long lis_dsecs(void)_RP;   /* 1/10sec res; ulong cycle */
 extern unsigned long lis_secs(void)_RP;    /* sec res; ulong cycle */
 
 /*  -------------------------------------------------------------------  */

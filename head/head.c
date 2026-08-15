@@ -294,49 +294,9 @@ void lis_terminate_final(void);
  */
 
 /*
- *  lis_usecs()
- */
-unsigned long _RP lis_usecs(void)
-{
-    struct timeval tv;
-
-    lis_gettimeofday(&tv);
-    return( (tv.tv_sec * 1000000L) + tv.tv_usec );
-}
-
-/*
- *  lis_msecs() -
- *
- *  millisecond-resolution clock similar otherwise to lis_usecs().
- */
-unsigned long _RP lis_msecs(void)
-{
-    struct timeval tv;
-
-    lis_gettimeofday(&tv);
-    return( (tv.tv_sec * 1000L) + (tv.tv_usec / 1000L) );
-}
-
-/*
- *  lis_dsecs() -
- *
- *  decisecond(1/10th)-resolution clock similar otherwise to lis_usecs().
- *
- *  this is included because some protocols (which might be implemented as
- *  STREAMS modules) specify timer events at this resolution...
- */
-unsigned long _RP lis_dsecs(void)
-{
-    struct timeval tv;
-
-    lis_gettimeofday(&tv);
-    return( (tv.tv_sec * 10L) + (tv.tv_usec / 100000L) );
-}
-
-/*
  *  lis_secs() -
  *
- *  seconds-resolution clock similar otherwise to lis_usecs().
+ *  seconds-resolution clock
  */
 unsigned long _RP lis_secs(void)
 {
