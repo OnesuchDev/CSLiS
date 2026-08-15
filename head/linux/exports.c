@@ -305,9 +305,7 @@ EXPORT_SYMBOL(__wrap_strcat);
 EXPORT_SYMBOL(__wrap_strncat);
 EXPORT_SYMBOL(__wrap_strcmp);
 EXPORT_SYMBOL(__wrap_strncmp);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
 EXPORT_SYMBOL(__wrap_strnicmp);
-#endif
 EXPORT_SYMBOL(__wrap_strchr);
 EXPORT_SYMBOL(__wrap_strrchr);
 EXPORT_SYMBOL(__wrap_strstr);
