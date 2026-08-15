@@ -125,7 +125,6 @@ EXPORT_SYMBOL(lis_dec_mod_cnt_fcn);
 EXPORT_SYMBOL(lis_disable_irq);
 EXPORT_SYMBOL(lis_down_fcn);
 EXPORT_SYMBOL(lis_down_nosig_fcn);
-EXPORT_SYMBOL(lis_dsecs);
 EXPORT_SYMBOL(lis_dupb);
 EXPORT_SYMBOL(lis_dupmsg);
 EXPORT_SYMBOL(lis_enable_irq);
@@ -178,7 +177,6 @@ EXPORT_SYMBOL(lis_mknod);
 #if 0 && defined(CONFIG_DEV)
 EXPORT_SYMBOL(lis_mod_cnt_sync_fcn);
 #endif
-EXPORT_SYMBOL(lis_msecs);
 EXPORT_SYMBOL(lis_msgdsize);
 EXPORT_SYMBOL(lis_msgpullup);
 EXPORT_SYMBOL(lis_msgsize);
@@ -343,7 +341,6 @@ EXPORT_SYMBOL(lis_unregister_strdev);
 EXPORT_SYMBOL(lis_unregister_strmod);
 EXPORT_SYMBOL(lis_untimeout);
 EXPORT_SYMBOL(lis_up_fcn);
-EXPORT_SYMBOL(lis_usecs);
 EXPORT_SYMBOL(lis_usectohz);
 EXPORT_SYMBOL(lis_version);
 EXPORT_SYMBOL(lis_vfree);
