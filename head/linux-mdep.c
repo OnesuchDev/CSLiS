@@ -4598,18 +4598,10 @@ int	lis_umount2(char *path, int flags)
  * This is said to be equivalent to GPL for symbol exporting purposes and
  * is also supposed to span LGPL.
  */
-#if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");
-#endif
-#if defined(MODULE_AUTHOR)
 MODULE_AUTHOR("David Grothe <dave@gcom.com>");
-#endif
-#if defined(MODULE_DESCRIPTION)
 MODULE_DESCRIPTION("SVR4 STREAMS for Linux (LGPL Code)");
-#endif
-#if defined(MODULE_INFO) && defined(VERMAGIC_STRING)
 MODULE_INFO(vermagic, VERMAGIC_STRING);
-#endif
 
 /************************************************************************
 *                 Linux Kernel Cache Memory Routines                    *

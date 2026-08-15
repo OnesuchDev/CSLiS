@@ -405,14 +405,8 @@ static void mtdrv_cleanup_module(void)
 module_init(mtdrv_init_module) ;
 module_exit(mtdrv_cleanup_module) ;
 
-#if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");
-#endif
-#if defined(MODULE_AUTHOR)
 MODULE_AUTHOR("David Grothe");
-#endif
-#if defined(MODULE_DESCRIPTION)
 MODULE_DESCRIPTION("multi-threaded open test helper driver");
-#endif
 
 #endif

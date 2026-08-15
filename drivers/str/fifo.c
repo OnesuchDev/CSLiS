@@ -564,17 +564,9 @@ module_exit(fifo_mod_cleanup) ;
 
 #endif /* KM26 */
 
-#if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");
-#endif
-#if defined(MODULE_AUTHOR)
 MODULE_AUTHOR("John Boyd <jaboydjr@protologos.net>");
-#endif
-#if defined(MODULE_DESCRIPTION)
 MODULE_DESCRIPTION("STREAMS-based FIFO pseudo-driver");
-#endif
-#if defined(MODULE_INFO) && defined(VERMAGIC_STRING)
 MODULE_INFO(vermagic, VERMAGIC_STRING);
-#endif
 
 #endif				/* MODULE */

@@ -418,17 +418,9 @@ module_exit(connld_cleanup_module) ;
 #endif
 #define __attribute_used__
 
-#if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");
-#endif
-#if defined(MODULE_AUTHOR)
 MODULE_AUTHOR("John Boyd <jaboydjr@protologos.net>");
-#endif
-#if defined(MODULE_DESCRIPTION)
 MODULE_DESCRIPTION("STREAMS unique pipe generator pseudo-module");
-#endif
-#if defined(MODULE_INFO) && defined(VERMAGIC_STRING)
 MODULE_INFO(vermagic, VERMAGIC_STRING);
-#endif
 
 #endif					/* MODULE */

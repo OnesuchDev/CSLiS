@@ -969,11 +969,6 @@ module_exit(loop_cleanup_module) ;
 
 #endif /* KM26 */
 
-#if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");
-#endif
 
 #endif			/* MODULE */
-
-
-

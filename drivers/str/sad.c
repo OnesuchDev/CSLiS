@@ -459,13 +459,6 @@ module_exit(sad_cleanup_module) ;
 
 #endif					/* MODULE */
 
-#if defined(MODULE_LICENSE)
 MODULE_LICENSE("GPL and additional rights");
-#endif
-#if defined(MODULE_AUTHOR)
 MODULE_AUTHOR("Ole Husgaard (sparre@login.dknet.dk");
-#endif
-#if defined(MODULE_DESCRIPTION)
 MODULE_DESCRIPTION("STREAMS Administrative Driver");
-#endif
-
