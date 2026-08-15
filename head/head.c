@@ -6444,7 +6444,7 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 
 		if (F_ISSET(hd->sd_flag,STRISTTY)){
 		    /* 
-		       we should make this the controling terminal...
+		       FIXME: we should make this the controling terminal...
 		     */
 		    rcu_read_lock(); /* lock against concurrent setsid */
 		    hd->sd_pgrp = task_pgrp(current);
@@ -6788,6 +6788,7 @@ i_flush:
       break;
 
     case I_SWROPT:
+	/* FIXME: validate */
 	hd->sd_wropt = arg ;
 	RTN(0) ;
     case I_GWROPT:
