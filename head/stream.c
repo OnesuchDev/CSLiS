@@ -69,15 +69,6 @@ extern lis_spin_lock_t	lis_bc_lock ;		/* buffcall.c */
 extern int		lis_down_nintr(lis_semaphore_t *sem) ;
 extern void		lis_wakeup_close_wt(void *q_str) ; /* wait.c */
 
-#if defined(CONFIG_DEV)
-extern void		lis_cpfl(void *p, long a, 
-				 const char *fcn, const char *f, int l);
-#define CP(p,a)		lis_cpfl((p),(a),__FUNCTION__,__LIS_FILE__,__LINE__)
-#else
-#define lis_cpfl(a,b,c,d,e)
-#define CP(p,a)		do {} while (0)
-#endif
-
 /*  -------------------------------------------------------------------  */
 /* service scheduler
  *
@@ -239,8 +230,6 @@ scan_loop_bottom:
         )
     {
 #if 0			/* minimize time holding qhead_lock */
-	lis_cpfl((void *) lis_qhead, (long) lis_qtail,
-				__FUNCTION__, __FILE__, __LINE__) ;
 	if (   (lis_qhead != NULL && lis_qtail == NULL)
 	    || (lis_qhead == NULL && lis_qtail != NULL)
 	   )
@@ -256,8 +245,6 @@ scan_loop_bottom:
 	    lis_qtail = NULL ;
 
 #if 0			/* minimize time holding qhead_lock */
-	lis_cpfl((void *) lis_qhead, (long) lis_qtail,
-				__FUNCTION__, __FILE__, __LINE__) ;
 	if (   (lis_qhead != NULL && lis_qtail == NULL)
 	    || (lis_qhead == NULL && lis_qtail != NULL)
 	   )
@@ -281,7 +268,6 @@ scan_loop_bottom:
 	}
 
 	LIS_QISRLOCK(q, &pswq) ;
-	CP(q->q_str, q->q_flag) ;
 	q->q_flag &= ~QENAB;			/* allow qenable again */
 	procsoff = (q->q_flag & QPROCSOFF) ;	/* queue procs off */
 	strmhd = (stdata_t *) q->q_str ;
@@ -304,7 +290,6 @@ scan_loop_bottom:
 	    && q->q_qinfo->qi_srvp		/* has svc proc */
 	   )
 	{
-	    CP(strmhd, (long)q) ;
 	    (*q->q_qinfo->qi_srvp)(q);		/* enter svc proc w/q locked */
 
 	    if (lis_own_spl())			/* driver did not do splx */
@@ -321,24 +306,20 @@ scan_loop_bottom:
 	lis_unlockq(q) ;
 
 	LIS_QISRLOCK(q, &pswq) ;
-	CP(q->q_str, q->q_flag) ;
 	q->q_flag &= ~QRUNNING ;		/* see note at head of func */
 	if (F_ISSET(q->q_flag, QWAITING) && q->q_wakeup_sem != NULL)
 	{
-	    CP(strmhd, (long)q) ;
 	    LIS_QISRUNLOCK(q, &pswq) ;		/* release b4 wakeup */
 	    lis_up(q->q_wakeup_sem) ;	/* safe because qdetach is waiting */
 	}
 	else
 	if (F_ISSET(q->q_flag, QWANTENAB))	/* enabled while running */
 	{
-	    CP(strmhd, (long)q) ;
 	    LIS_QISRUNLOCK(q, &pswq) ;
 	    lis_retry_qenable(q) ;		/* reschedule the queue */
 	}
 	else
 	{
-	    CP(q->q_str, q->q_flag) ;
 	    LIS_QISRUNLOCK(q, &pswq) ;		/* last touch of q */
 	}
 

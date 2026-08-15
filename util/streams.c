@@ -237,7 +237,6 @@ void print_debug_bits(void)
     printf("DEBUG_ADDRS         0x80000000\n");
     printf("-D<debug-bits -- \n") ;
     printf("DEBUG_SNDFD         0x00000001\n");
-    printf("DEBUG_CP (code path)0x00000002\n");
     printf("DEBUG_CACHE         0x00000004\n");
     printf("DEBUG_LOCK_CONTENTION 0x00000008\n");
     printf("DEBUG_REFCNTS       0x00000010\n");

@@ -102,7 +102,6 @@ extern unsigned long	lis_debug_mask2 ;
  * Bits in lis_debug_mask2
  */
 #define LIS_DEBUG_SNDFD_BIT		0x00000001L
-#define LIS_DEBUG_CP_BIT		0x00000002L	/* print code path */
 #define LIS_DEBUG_CACHE_BIT		0x00000004L	/* cache allocs */
 #define LIS_DEBUG_LOCK_CONTENTION_BIT	0x00000008L	/* lock contention */
 #define LIS_DEBUG_REFCNTS_BIT		0x00000010L
@@ -154,7 +153,6 @@ extern unsigned long	lis_debug_mask2 ;
 
 
 #define LIS_DEBUG_SNDFD		(lis_debug_mask2 & LIS_DEBUG_SNDFD_BIT)
-#define LIS_DEBUG_CP		(lis_debug_mask2 & LIS_DEBUG_CP_BIT)
 #define LIS_DEBUG_CACHE		(lis_debug_mask2 & LIS_DEBUG_CACHE_BIT)
 #define LIS_DEBUG_LOCK_CONTENTION \
 			    (lis_debug_mask2 & LIS_DEBUG_LOCK_CONTENTION_BIT)
@@ -203,7 +201,6 @@ extern unsigned long	lis_debug_mask2 ;
 
 
 #define LIS_DEBUG_SNDFD		0
-#define LIS_DEBUG_CP		0
 #define LIS_DEBUG_CACHE		0
 #define LIS_DEBUG_LOCK_CONTENTION \
 			    (lis_debug_mask2 & LIS_DEBUG_LOCK_CONTENTION_BIT)

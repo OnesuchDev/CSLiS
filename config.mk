@@ -299,7 +299,7 @@ LIBBASE = LiS
 
 #
 # If the user wants LiS built for development purposes (lots of internal
-# LiS debugging mechanisms - code path tracing, lock and semaphore use
+# LiS debugging mechanisms - lock and semaphore use
 # tracing, carry __FILE__ and __LINE__ on stack throughout all function
 # calls.
 #
