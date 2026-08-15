@@ -530,6 +530,8 @@ lis_del_timer(struct timer_list * timer)
 #define __real_strncmp	strncmp
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
 #define __real_strnicmp	strnicmp
+#else
+#define __real_strnicmp	strncasecmp
 #endif
 #define __real_strchr	strchr
 #define __real_strrchr	strrchr
@@ -568,12 +570,10 @@ int _RP __wrap_strncmp(const char *a,const char *b,__kernel_size_t l)
 {
     return(__real_strncmp(a,b,l));
 }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
 int _RP __wrap_strnicmp(const char *a, const char *b, __kernel_size_t l)
 {
     return(__real_strnicmp(a,b,l));
 }
-#endif
 char * _RP __wrap_strchr(const char *s,int c)
 {
     return(__real_strchr(s,c));
