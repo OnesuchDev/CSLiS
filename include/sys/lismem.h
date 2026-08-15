@@ -74,4 +74,4 @@ void	 lis_free_all_pages(void) _RP;	/* internal cleanup routine */
 #define	lis_free_pages(p)	lis_free_pages_fcn((p), __FILE__, __LINE__)
 
 
-#endif				/* SYS_LISPCI_H from top of file */
+#endif				/* SYS_LISMEM_H from top of file */
