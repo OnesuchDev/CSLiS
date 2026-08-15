@@ -94,10 +94,6 @@ static int   _RP relay_open  (queue_t *,dev_t*,int,int, cred_t *);
 static int   _RP relay_close (queue_t *, int, cred_t *);
 static int   _RP relay_wput  (queue_t *, mblk_t *);
 static int   _RP relay_rput  (queue_t *, mblk_t *);
-#if 0
-static int   _RP relay_wsrv  (queue_t *);
-static int   _RP relay_rsrv  (queue_t *);
-#endif
 
 /* qinit structures (rd and wr side) 
  */
@@ -243,32 +239,6 @@ relay_rput (queue_t *q, mblk_t *mp)
     putnext(q, mp) ;			/* relay upstream */
     return(0) ;
 }
-
-#if 0
-/*  -------------------------------------------------------------------  */
-/*				relay_wsrv				 */
-/*  -------------------------------------------------------------------  */
-
-static int _RP
-relay_wsrv (queue_t *q)
-{
-    /* not used */
-    return(0) ;
-}
-#endif
-
-#if 0
-/*  -------------------------------------------------------------------  */
-/*				relay_rsrv				 */
-/*  -------------------------------------------------------------------  */
-
-static int _RP
-relay_rsrv (queue_t *q)
-{
-    /* not used */
-    return(0) ;
-}
-#endif
 
 /*  -------------------------------------------------------------------  */
 /*				relay_close				 */
