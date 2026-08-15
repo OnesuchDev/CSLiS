@@ -6985,11 +6985,26 @@ i_flush:
 	    }
         }
 	break;
-    case I_SETCLTIME:
+    case __LIS_OLD_WRONG_I_SETCLTIME:
 	if (arg >LIS_MAX_CLTIME)
 	    RTN(-EINVAL);
 	hd->sd_closetime=arg;
 	RTN(0);
+	break;
+    case I_SETCLTIME:
+	{
+	    int close_time;
+
+	    if ((err=lis_check_umem(f,VERIFY_READ,(char*)arg,sizeof(int)))<0)
+		RTN(err);
+	    err = lis_copyin(f,&close_time,(char*)arg,sizeof(int));
+	    if (err < 0)
+		RTN(err);
+	    if (close_time > LIS_MAX_CLTIME)
+		RTN(-EINVAL);
+	    hd->sd_closetime=close_time;
+	    RTN(0);
+	}
 	break;
     case I_GETCLTIME:
 	{

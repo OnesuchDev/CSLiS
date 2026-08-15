@@ -284,7 +284,8 @@ int	isastream(int fd) ;
 #define I_CKBAND        (__SID |28)
 #define I_GETBAND       (__SID |29)
 #define I_ATMARK        (__SID |30)
-#define I_SETCLTIME     (__SID |31)
+#define __LIS_OLD_WRONG_I_SETCLTIME     (__SID |31)
+#define I_SETCLTIME     (__SID |236) /* new value to avoid breaking old binaries */
 #define I_GETCLTIME     (__SID |32)
 #define I_CANPUT        (__SID |33)
 #else
@@ -308,13 +309,15 @@ int	isastream(int fd) ;
 #define I_CKBAND        (__SID |29)
 #define I_GETBAND       (__SID |30)
 #define I_ATMARK        (__SID |31)
-#define I_SETCLTIME     (__SID |32)
+#define __LIS_OLD_WRONG_I_SETCLTIME     (__SID |32) /* with arg as value, not pointer */
+#define I_SETCLTIME     (__SID |236) /* new value to avoid breaking old binaries */
 #define I_GETCLTIME     (__SID |33)
 #define I_CANPUT        (__SID |34)
 #endif
 /*
  * The following ioctls are specific to this STREAMS implementation.
  */
+/* 236 used above by new I_SETCLTIME */
 #define I_LIS_GETMSG 		(__SID |237)	/* getmsg() */
 #define I_LIS_PUTMSG 		(__SID |238)	/* putmsg() */
 #define I_LIS_SEMTIME 		(__SID |239)	/* sem wakeup histogram */
