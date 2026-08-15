@@ -80,7 +80,6 @@
 #include <asm/signal.h>
 #include <asm/io.h>
 #include <sys/strport.h>	/* interface */
-#include <sys/LiS/errmsg.h>	/* LiS err msg types */
 #include <sys/LiS/buffcall.h>	/* bufcalls */
 #include <sys/LiS/head.h>	/* stream head */
 #include <sys/stream.h>         /* LiS entry points */
