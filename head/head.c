@@ -6500,36 +6500,18 @@ i_flush:
 
 	switch(arg & FLUSHRW){
 	case FLUSHR:
-#ifdef FIFO_IMPL
-	    if (LIS_DEV_IS_FIFO(getmajor(GET_I_RDEV(i)))){
-	      /*flush rw/other-wr for fifo;*/
-	    }
-	    else
-#endif
 	    {
 	      int res = lis_snd_mflush(hd->sd_wq,arg,flush_pri);
 	      RTN(res);
 	    }
 	    break;
 	case FLUSHW:
-#ifdef FIFO_IMPL
-	    if (LIS_DEV_IS_FIFO(getmajor(GET_I_RDEV(i)))){
-		/*flush rw/other-wr for fifo;*/
-	    }
-	    else
-#endif
 	    {
 	      int res=lis_snd_mflush(hd->sd_wq,arg,flush_pri);
 	      RTN(res);
 	    }
 	    break ;
 	case FLUSHRW:
-#ifdef FIFO_IMPL
-	    if (LIS_DEV_IS_FIFO(getmajor(GET_I_RDEV(i)))){
-		/*flush rd/other-rd;*/
-	    }
-	    else
-#endif
 	    {
 		int res=lis_snd_mflush(hd->sd_wq,arg,flush_pri);
 		RTN(res);
