@@ -1190,11 +1190,25 @@ void	ioctl_test(void)
 	print("loop.2: I_CANPUT returned %d\n", rslt) ;
 
 		/********************************
+		* __LIS_OLD_WRONG_I_SETCLTIME   *
+		********************************/
+
+	print("\nTesting __LIS_OLD_WRONG_I_SETCLTIME\n") ;
+	rslt = user_ioctl(fd2, __LIS_OLD_WRONG_I_SETCLTIME, 50) ;
+	if (rslt < 0)
+	{
+	    print("loop.2: __LIS_OLD_WRONG_I_SETCLTIME: %s\n", strerror(ENO(rslt))) ;
+	    xit() ;
+	}
+
+		/********************************
 		*           I_SETCLTIME         * 
 		********************************/
 
+	arg = 50;
+
 	print("\nTesting I_SETCLTIME\n") ;
-	rslt = user_ioctl(fd2, I_SETCLTIME, 50) ;
+	rslt = user_ioctl(fd2, I_SETCLTIME, &arg) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: I_SETCLTIME: %s\n", strerror(ENO(rslt))) ;

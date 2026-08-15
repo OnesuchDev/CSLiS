@@ -77,9 +77,11 @@
 #define I_ATMARK    (__SID |31) /* See if the current message on the STREAM
 				   head read queue is "marked" by some module
 				   downstream.  */
-#define I_SETCLTIME (__SID |32) /* Set the time the STREAM head will delay when
+#define __LIS_OLD_WRONG_I_SETCLTIME     (__SID |32)
+                                  /* Set the time the STREAM head will delay when
 				   a STREAM is closing and there is data on
 				   the write queues.  */
+#define I_SETCLTIME     (__SID |236) /* new value to avoid breaking old binaries */
 #define I_GETCLTIME (__SID |33) /* Get current value for closing timeout.  */
 #define I_CANPUT    (__SID |34) /* Check if a certain band is writable.  */
 
