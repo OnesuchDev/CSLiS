@@ -81,14 +81,6 @@ extern lis_spin_lock_t	 lis_qhead_lock ;
 extern int lis_safe_do_putmsg(queue_t *q, mblk_t *mp, ulong qflg, int retry,
 		       char *f, int l);
 
-#if defined(CONFIG_DEV)
-extern void lis_cpfl(void *p, long a, const char *fcn, const char *f, int l);
-#define CP(p,a)		lis_cpfl((p),(a),__FUNCTION__,__LIS_FILE__,__LINE__)
-#else
-#define lis_cpfl(a,b,c,d,e)
-#define CP(p,a)		do {} while (0)
-#endif
-
 /*  -------------------------------------------------------------------  */
 /*
  * Queue lock contention
@@ -1282,7 +1274,6 @@ void lis_retry_qenable(queue_t *q)
 {
     lis_flags_t pswq;
 
-    CP(q, q->q_flag) ;
     LIS_QISRLOCK(q, &pswq) ;
 
     if ((q->q_flag & QWANTENAB) && !(q->q_flag & Q_INH_ENABLE))
@@ -1319,12 +1310,10 @@ lis_qenable(queue_t *q)
     {
 	if (q->q_flag & Q_DEFER_ENABLE)
 	    q->q_flag |= QWANTENAB ;		/* qenable called */
-	CP(q->q_str, q->q_flag) ;
 	LIS_QISRUNLOCK(q, &pswq) ;
 	return ;
     }
     q->q_flag |= QENAB;
-    CP(q->q_str, q->q_flag) ;
     LIS_QISRUNLOCK(q, &pswq) ;
 
     /*
@@ -1341,8 +1330,6 @@ lis_qenable(queue_t *q)
     /* link into tail of list of scheduled queues (qtail) */
     lis_spin_lock_irqsave(&lis_qhead_lock, &psw) ;
 #if 0			/* minimize time with qhead_lock held */
-    lis_cpfl((void *) lis_qhead, (long) lis_qtail,
-				__FUNCTION__, __FILE__, __LINE__) ;
     if (   (lis_qhead != NULL && lis_qtail == NULL)
 	|| (lis_qhead == NULL && lis_qtail != NULL)
        )
@@ -1364,8 +1351,6 @@ lis_qenable(queue_t *q)
 	       "lis_qhead=%lx lis_qtail=%lx\n",
 	       lis_qhead, lis_qtail) ;
 
-    lis_cpfl((void *) lis_qhead, (long) lis_qtail,
-				__FUNCTION__, __FILE__, __LINE__) ;
 #endif
     K_ATOMIC_INC(&lis_runq_req_cnt) ;
     lis_spin_unlock_irqrestore(&lis_qhead_lock, &psw) ;

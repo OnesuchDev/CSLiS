@@ -369,85 +369,11 @@ unsigned long _RP lis_secs(void)
 
 /*  -------------------------------------------------------------------  */
 /*
- * This counter is used in keeping the code path tables and also in the
+ * This counter is used in the
  * lock tracing.  It allows one to determine the relative order of 
  * traced events for forensic analysis.
  */
 int		 lis_seq_cntr ;		/* used to establish ordering */
-
-/*  -------------------------------------------------------------------  */
-/*
- * Code path tracing.
- *
- * This is a compile-time option that is used for debugging LiS.
- */
-typedef struct lis_code_path
-{
-    char	*fcn ;
-    char	*file ;
-    int		 line ;
-    int		 cpu ;
-    void	*ptr ;			/* arbitrary entry */
-    long	 arg ;			/* arbitrary entry */
-    int		 cntr ;			/* sequence counter */
-
-} lis_code_path_t ;
-
-#if defined(CONFIG_DEV)
-#define	USE_CODE_PATH	1
-#else
-#undef	USE_CODE_PATH
-#endif
-
-#if defined(USE_CODE_PATH)
-
-#define CP_SIZE		2048
-lis_code_path_t		lis_code_path_tbl[CP_SIZE] ;
-lis_code_path_t		*lis_code_path_ptr = lis_code_path_tbl ;
-lis_spin_lock_t		lis_code_path_lock ;
-static char		*lis_cp_fmt =		/* for printk */
-			    "%u:CPU%u in %s() %s #%d -- %p 0x%lx\n";
-
-#define CPCPU	smp_processor_id()
-
-#define CPFL(p,a,func,f,l)						\
-    do {								\
-	  lis_flags_t psw ;						\
-	  lis_code_path_t *pp ;						\
-	  lis_spin_lock_irqsave(&lis_code_path_lock,&psw) ;		\
-	  pp = lis_code_path_ptr++ ;					\
-	  if (lis_code_path_ptr == &lis_code_path_tbl[CP_SIZE])		\
-	    lis_code_path_ptr = lis_code_path_tbl ;			\
-	  lis_spin_unlock_irqrestore(&lis_code_path_lock,&psw) ;	\
-	  pp->fcn  = (char *)(func) ;					\
-	  pp->file = (char *)(f) ;					\
-	  pp->line = (l) ;						\
-	  pp->cpu  = CPCPU ;						\
-	  pp->ptr  = (void *)(p) ;					\
-	  pp->arg  = (long)(a) ;					\
-	  pp->cntr = ++lis_seq_cntr ;					\
-	  if (LIS_DEBUG_CP)						\
-	      printk(lis_cp_fmt, pp->cntr, CPCPU,			\
-		      		(func),(f),(l),(void *)(p),(a));	\
-       } while (0)
-
-#define CP(p,a)		CPFL((p),(a),__FUNCTION__,__LIS_FILE__,__LINE__)
-
-#else
-
-#define CPFL(p,a,fc,f,l)	do {;} while (0)
-#define CP(p,a)			do {;} while (0)
-
-#endif
-
-#if defined(CONFIG_DEV)
-void	lis_cpfl(void *p, long a, const char *fcn, const char *f, int l)
-{
-    CPFL(p,a,fcn,f,l) ;
-}
-#else
-#define	lis_cpfl(p,a,fcn,f,l)
-#endif
 
 /*  -------------------------------------------------------------------  */
 /*				  Glob. Vars                             */
@@ -908,7 +834,6 @@ lis_i_unlink(struct inode	*i,
 	lnk.l_index  = hp->sd_mux.mx_index ;
 
 			    /* note I_UNLINK vs I_PLINK eliminated above */
-	CP(hd,lnk.l_index) ;
 	if (hp->sd_mux.mx_cmd == I_LINK)
 	    ioc.ic_cmd = I_UNLINK ;		/* linked w/I_LINK */
 	else
@@ -918,18 +843,15 @@ lis_i_unlink(struct inode	*i,
 	ioc.ic_len   = sizeof(linkblk_t);
 	ioc.ic_dp    = (char*)&lnk;
 
-	CP(hp,hp->sd_rq) ;
 	err = lis_await_qsched(hp, hp->sd_rq) ;
 	if (err < 0)
 	    goto error_rtn ;
 
-	CP(hp,hp->sd_rq) ;
 	if (   (err = lis_strdoioctl(f,hd,&ioc,creds,0)) < 0
 	    && cmd == I_UNLINK			/* ignore errs for I_PUNLINK */
 	   )
 	{
 error_rtn:
-	    CP(hd,err) ;
 	    rtn = err ;				/* will return error */
 	    if (l_index < 0)			/* OK, skip this one */
 	    {					/* lose the memory?? */
@@ -949,7 +871,6 @@ error_rtn:
 
 	hp->sd_mux.mx_next = NULL ;		/* clobber link */
 
-	CP(hd,hp) ;
 	if ( LIS_DEBUG_IOCTL || LIS_DEBUG_LINK )
 	{
 	  printk(
@@ -1155,7 +1076,6 @@ int	lis_i_link(struct inode	*i,
     lnk.l_qbot = muxed->sd_wq;
     lnk.l_index= str_link_mux(hd, muxed, cmd);
 
-    CP(hd,muxed) ;
     if ( LIS_DEBUG_IOCTL || LIS_DEBUG_LINK )
     {
 	printk("strioctl: I_LINK: ctl stream %s l_index=%d\n",
@@ -1172,7 +1092,6 @@ int	lis_i_link(struct inode	*i,
     muxed->sd_rq->q_flag &= ~QNOENB ;		/* this was set for strm hd q */
     LIS_QISRUNLOCK(muxed->sd_rq, &psw) ;
 
-    CP(hd,muxed->sd_rq) ;
     err = lis_await_qsched(muxed, muxed->sd_rq) ;
     if (err < 0)
 	goto error_rtn ;
@@ -1190,13 +1109,11 @@ int	lis_i_link(struct inode	*i,
     K_ATOMIC_INC(&muxed->sd_opencnt);		/* so close won't deallocate */
 #endif
     muxed->sd_linkcnt++ ;			/* one more I_LINK */
-    CP(hd,muxed->sd_rq) ;
     if ((err = lis_strdoioctl(f,hd,&ioc,creds,0)) < 0)
     {
 	K_ATOMIC_DEC(&muxed->sd_opencnt);	/* undo refcnt bumps */
 	muxed->sd_linkcnt-- ;
 error_rtn:
-	CP(hd,err) ;
 	CLR_SD_FLAG(muxed,STPLEX);		/* not multiplexed */
 	lis_setq(muxed->sd_rq,			/* put back old queues */
 	     hd->sd_strtab->st_rdinit, hd->sd_strtab->st_wrinit);
@@ -1245,7 +1162,6 @@ error_rtn:
     /* perform any deferred puts/qenables from plumbing */
     lis_unfreezestr(muxed->sd_rq) ;
 
-    CP(hd,lnk.l_index) ;
     return(lnk.l_index);
 
 #undef RTN
@@ -1496,7 +1412,6 @@ lis_alloc_stdata(void)
 	printk("lis_alloc_stdata() >> h@0x%p/%d/%d\n",
 	       head, LIS_SD_REFCNT(head), LIS_SD_OPENCNT(head));
 
-    CP(head,0) ;
     return(head) ;
 
 }/*lis_alloc_stdata*/
@@ -1525,7 +1440,6 @@ lis_free_stdata( struct stdata *hd )
      */
     if (hd == NULL || hd->magic != STDATA_MAGIC) return ;
 
-    CP(hd,0) ;
     rem_stdata(hd) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
     lis_runqueues() ;
@@ -1921,7 +1835,6 @@ int lis_await_qsched(stdata_t *hd, queue_t *q)
 	   && rslt == 0
 	  )
     {
-	CP(hd,rq) ;
 	LIS_QISRUNLOCK(rq, &psw_rq) ;
 	LIS_QISRUNLOCK(wq, &psw_wq) ;
 
@@ -1941,7 +1854,6 @@ int lis_await_qsched(stdata_t *hd, queue_t *q)
 	LIS_QISRLOCK(wq, &psw_wq) ;
 	LIS_QISRLOCK(rq, &psw_rq) ;
     }
-    CP(hd,rslt) ;
     F_CLR(rq->q_flag, QWAITING) ;
     F_CLR(wq->q_flag, QWAITING) ;
     wq->q_wakeup_sem = NULL ;
@@ -2037,8 +1949,6 @@ lis_qdetach(queue_t *q, int do_close, int flag, cred_t *creds)
     wq_rslt = lis_lockq(wq) ;			/* lock the write queue */
     rq_rslt = lis_lockq(rq) ;			/* lock the read queue */
 
-    CP(rq,0) ;
-    CP(wq,0) ;
     						/* excludes queuerun action */
     LIS_QISRLOCK(wq, &psw_wq) ;
     LIS_QISRLOCK(rq, &psw_rq) ;
@@ -2086,7 +1996,6 @@ lis_qdetach(queue_t *q, int do_close, int flag, cred_t *creds)
 	    printk("lis_qdetach(q@0x%p,?%d,...) \"%s\" >> calling close(...)\n",
 		   rq, do_close, name);
 
-	CP(rq,0) ;
 	/* call w/queue locked and marked as closing */
 	K_ATOMIC_DEC(&lis_in_syscall) ;	/* "done" with a system call */
 	lis_runqueues() ;
@@ -2230,7 +2139,6 @@ lis_qdetach(queue_t *q, int do_close, int flag, cred_t *creds)
 	printk("lis_qdetach(q@0x%p,...) \"%s\" >> deallocating queues\n",
 	       rq, name);
 
-    CP(rq,0) ;
     lis_freeq(rq);			/* frees both sides of the queue */
     /*
      * We have frozen the stream from our detached queue downward.  Having
@@ -2245,7 +2153,6 @@ lis_qdetach(queue_t *q, int do_close, int flag, cred_t *creds)
      */
     if (unfreeze_q)
     {
-	CP(unfreeze_q,unfreeze_q->q_str) ;
 	lis_unfreezestr(unfreeze_q) ;	/* will balance lis_freezestr */
 	if (F_ISSET(hd->sd_flag, STRFROZEN))
 	{
@@ -2255,7 +2162,6 @@ lis_qdetach(queue_t *q, int do_close, int flag, cred_t *creds)
     }
     else
     {
-	CP(hd,0) ;
 	lis_head_put(hd) ;		/* balance lis_freezestr */
     }
 
@@ -2267,7 +2173,6 @@ lis_qdetach(queue_t *q, int do_close, int flag, cred_t *creds)
     {					/* balance head_get in lis_get_pipe */
 	int	flag ;
 
-	CP(hd, hd_peer) ;
 	lis_spin_lock_irqsave(&hd_peer->sd_lock, &psw_rq) ;
 	hd_peer->sd_peer = hd_peer ;
 	flag = hd_peer->sd_flag ;
@@ -2779,7 +2684,6 @@ int lis_head_flush(stdata_t *shead, queue_t *q, mblk_t *mp, int flush_rputq)
      */
     if (F_ISSET(shead->sd_flag, STRFLUSHWT))
     {						/* close-time flush */
-	CP(q,mp) ;
 	freemsg(mp) ;				/* discard message */
 	CLR_SD_FLAG(shead, STRFLUSHWT) ;
 	lis_wakeup_close_wt(shead) ;
@@ -2800,7 +2704,6 @@ int lis_head_flush(stdata_t *shead, queue_t *q, mblk_t *mp, int flush_rputq)
 
     if (*mp->b_rptr & FLUSHR)
     {					/* flush read queue */
-	CP(mp,0) ;
 	if (flush_rputq)
 	{
 	    /*
@@ -2834,7 +2737,6 @@ int lis_head_flush(stdata_t *shead, queue_t *q, mblk_t *mp, int flush_rputq)
 
     if (*mp->b_rptr & FLUSHW)
     {					/* flush write queue */
-	CP(mp,0) ;
 	if (F_ISSET(*mp->b_rptr,FLUSHBAND))
 	    lis_flushband(LIS_WR(q),mp->b_rptr[1],FLUSHDATA);
 	else
@@ -2930,16 +2832,12 @@ void lis_process_rput(stdata_t *shead, queue_t *q, mblk_t *mp)
 {
     int		typ ;
 
-    CP(shead,mp) ;
     typ = lis_btype(mp);
-    CP(shead,mp) ;
 
-    CP(q,mp) ;
     if (   F_ISSET(shead->sd_flag, STRCLOSE)	/* stream is closing */
 	|| (q->q_flag & (QCLOSING | QPROCSOFF))
        )
     {						/* no file above stream */
-	CP(q,mp) ;
 	switch (typ)
 	{
 	case M_PCPROTO:
@@ -2964,7 +2862,6 @@ void lis_process_rput(stdata_t *shead, queue_t *q, mblk_t *mp)
 	    lis_freemsg(mp) ;			/* no hope of retrieving msg */
 	    if (typ == M_FLUSH && F_ISSET(shead->sd_flag, STRFLUSHWT))
 	    {					/* close-time flush */
-		CP(q,0) ;
 		CLR_SD_FLAG(shead, STRFLUSHWT) ;
 		lis_wakeup_close_wt(shead) ;
 	    }
@@ -2986,14 +2883,12 @@ void lis_process_rput(stdata_t *shead, queue_t *q, mblk_t *mp)
 		lis_msg_type_name(mp), typ, lis_queue_name(backq(q)),
 		shead->sd_name, lis_msgsize(mp)) ;
 
-    CP(q,mp) ;
     switch(typ)
     {
     case M_DATA:
     case M_PCPROTO:			/* flag set in strrput */
     case M_PROTO:
     case M_PASSFP:
-	CP(mp,0) ;
 	LisUpCount(MSGQDSTRHD) ;
 	if (!putq(q, mp))		/* put in official queue */
 	    freemsg(mp);
@@ -3050,7 +2945,6 @@ void lis_process_rput(stdata_t *shead, queue_t *q, mblk_t *mp)
 	{
 	    unsigned char	rderr, wrerr ;
 
-	    CP(mp,0) ;
 	    switch (mp->b_wptr - mp->b_rptr) 	/* how many bytes?  */
 	    {
 	    default:				/* not valid format */
@@ -3079,7 +2973,6 @@ rput_case_1:
 	    break;
 	}
     case M_HANGUP:
-	CP(mp,0) ;
 	lis_freemsg(mp);
 	SET_SD_FLAG(shead,STRHUP);
 	if (F_ISSET(shead->sd_sigflags,S_HANGUP))
@@ -3104,7 +2997,6 @@ rput_case_1:
 	 * strread should not be actively reading.  If this defers then
 	 * it is a bug.
 	 */
-	CP(q,mp) ;
 	if (lis_head_flush(shead, q, mp, 0))	/* just the hd q */
 	{					/* deferred */
 	    printk("lis_process_rput: Bug: M_FLUSH: lis_head_flush fail\n") ;
@@ -3114,14 +3006,12 @@ rput_case_1:
 	break;
 
     case M_SIG:
-	CP(mp,0) ;
 	if (!putq(q,mp))			/* strread will signalusr() */
 	    freemsg(mp);
 	LisUpCount(MSGQDSTRHD) ;
 	lis_check_m_sig(shead) ;	/* see if it is the only msg in the q */
 	break;
     case M_PCSIG:
-	CP(mp,0) ;
 	signalusr(*mp->b_rptr,shead);
 	if (   POLL_WAITING(shead)
 	    || F_ISSET(shead->sd_flag,STRSELPND)
@@ -3135,7 +3025,6 @@ rput_case_1:
 		"should have been handled by lis_strrput\n") ;
 	break ;
     case M_COPYIN: 
-	CP(mp,0) ;
 #if 0					/* intercepted in strrput */
 	if (!F_ISSET(shead->sd_flag,IOCWAIT))
 	    lis_freemsg(mp);
@@ -3156,7 +3045,6 @@ rput_case_1:
 #endif
 	break;
     case M_COPYOUT:
-	CP(mp,0) ;
 #if 0					/* intercepted in strrput */
 	if (!F_ISSET(shead->sd_flag,IOCWAIT))
 	    lis_freemsg(mp);
@@ -3177,23 +3065,20 @@ rput_case_1:
 #endif
 	break;
     case M_SETOPTS:
-	CP(mp,0) ;
 	set_options(shead,(stroptions_t*)mp->b_rptr);
 	lis_freemsg(mp);
 	break ;
     case M_IOCTL:				/* upside-down ioctl */
-	CP(mp,0) ;
 	snd_iocnak(LIS_WR(q),mp,1);
 	return ;
     case M_READ:				/* always discard */
     default:
-	CP(mp,0) ;
 	lis_freemsg(mp);
 	break ;
     }
 
 return_point:
-    CP(mp,0) ;
+	return; /* avoid empty label */
 }
 
 
@@ -3230,7 +3115,6 @@ int	_RP lis_strrsrv(queue_t *q)
 	return(0) ;
     }
 
-    CP(q,0) ;
 
     while ((mp = lis_get_rput_q(hd)) != NULL)
     {
@@ -3245,10 +3129,8 @@ int	_RP lis_strrsrv(queue_t *q)
     q->q_flag &= ~QENAB;		/* allow qenable */
     need_qenable = (hd->sd_rput_hd != NULL) ;	/* msg(s) appeared */
     LIS_QISRUNLOCK(q, &psw) ;
-    CP(q,0) ;
     if (need_qenable)
 	qenable(q) ;
-    CP(q,0) ;
     return(0) ;
 }
 
@@ -3280,12 +3162,10 @@ lis_strrput(queue_t *q, mblk_t *mp)
 	return(0) ;
     }
 
-    CP(q,mp) ;
     LIS_RDQISRLOCK(q, &psw) ;
     if (q->q_flag & QPROCSOFF)   /* Removed APAR LI81053 update */  
     {
 	LIS_RDQISRUNLOCK(q, &psw) ;
-	CP(q,mp) ;
 	if ( LIS_DEBUG_CLOSE )
 	    printk("lis_strput: discarding message from closing queue\n");
 
@@ -3311,7 +3191,6 @@ lis_strrput(queue_t *q, mblk_t *mp)
     case M_PCPROTO:
 	if (F_ISSET(hd->sd_flag,STRPRI))
 	{
-	    CP(q,mp) ;
 	    lis_freemsg(mp);
 	    return(0) ;
 	}
@@ -3337,13 +3216,11 @@ lis_strrput(queue_t *q, mblk_t *mp)
 	   )
 	{
 	    LIS_RDQISRUNLOCK(q, &psw) ;
-	    CP(q,mp) ;
 	    lis_freemsg(mp);
 	}
 	else
 	{				/* everything's ok: now we process it */
 	    LIS_RDQISRUNLOCK(q, &psw) ;
-	    CP(q,mp) ;
 	    hd->sd_iocblk = mp;
 	    lis_wake_up_wiocing(hd);
 	}
@@ -3386,12 +3263,10 @@ int	_RP lis_strwsrv(queue_t *q)
     
     if (hd->magic != STDATA_MAGIC || hd->sd_wq != q) return(0) ;
 
-    CP(hd,0) ;
     while (   (couldput = lis_bcanputnext(q,0))	/* can send downstream */
 	   && (mp = getq(q)) != NULL		/* have queued messages */
 	  )
     {
-	CP(q,mp) ;
 	lis_putnext(q, mp) ;			/* send downstream */
 						/* don't use PUTNEXT */
     }
@@ -3404,7 +3279,6 @@ int	_RP lis_strwsrv(queue_t *q)
 	    printk("lis_strwsrv: stream %s empty, wake up close routine\n",
 		    hd->sd_name) ;
 
-	CP(hd,0) ;
 	lis_wakeup_close((caddr_t) hd) ;	/* wake up close */
    }
 
@@ -3414,7 +3288,6 @@ int	_RP lis_strwsrv(queue_t *q)
 	    && lis_bcanputnext(q,0)
 	   )
 	{
-	    CP(hd,0) ;
 	    kill_procs(hd->sd_siglist,SIGPOLL,S_OUTPUT);
 	}
 
@@ -3431,7 +3304,6 @@ int	_RP lis_strwsrv(queue_t *q)
 	    && lis_bcanputnext_anyband(q)
 	   )
 	{
-	    CP(hd,0) ;
 	    kill_procs(hd->sd_siglist,SIGPOLL,S_WRBAND);
 	}
    }
@@ -3439,7 +3311,6 @@ int	_RP lis_strwsrv(queue_t *q)
    if (couldput && K_ATOMIC_READ(&hd->sd_wrcnt) != 0)
 					        /* write waiting flow ctrl */
    {
-	CP(hd,0) ;
 	lis_wake_up_all_wwrite(hd);		/* wake up all write/putmsg */
    }
 
@@ -3449,7 +3320,6 @@ int	_RP lis_strwsrv(queue_t *q)
 	&& lis_bcanputnext(q,0)			/* can still send downstream */
        )
     {
-	CP(hd,0) ;
 	lis_wake_up_poll(hd,POLLOUT);
     }
 
@@ -3491,7 +3361,6 @@ lis_do_tmout(struct timer_list *tmout_tl)
 	return;
     }
     if (F_ISSET(hd->sd_flag,STIOCTMR)){     /* ioctl timer: awake sleeper*/
-	CP(hd,hd->sd_flag) ;
 	CLR_SD_FLAG(hd,STIOCTMR);
 	if (F_ISSET(hd->sd_flag,IOCWAIT))	/* waiting for ioctl */
 	    lis_wake_up_wiocing(hd);
@@ -3563,7 +3432,6 @@ lis_wait_for_wiocing(stdata_t *hd, int tmout, int ignore_errors)
 #else
         lis_tmout(&tl,lis_do_tmout,(long)hd, SECS_TO(tmout));
 #endif
-    CP(hd,tmout) ;
     if ( LIS_DEBUG_IOCTL )
 	printk("lis_wait_for_wiocing: call lis_sleep_on_wiocing\n");
     rslt = lis_sleep_on_wiocing(hd);
@@ -3573,7 +3441,6 @@ lis_wait_for_wiocing(stdata_t *hd, int tmout, int ignore_errors)
     {
 	if ( LIS_DEBUG_IOCTL )
 	  printk("lis_wait_for_wiocing: bad return %dt\n", rslt);
-	CP(hd,rslt) ;
 	if (tmout != INFTIM)
 #if LINUX_VERSION_CODE > KERNEL_VERSION(4,14,0)
             lis_untmout(&lis_tl.tl);
@@ -3588,12 +3455,10 @@ lis_wait_for_wiocing(stdata_t *hd, int tmout, int ignore_errors)
     {
 	if ( LIS_DEBUG_IOCTL )
 	  printk("lis_wait_for_wiocing: time out\n");
-	CP(hd,ETIME) ;
 	return(-ETIME);
     }
     else
     {
-	CP(hd,0) ;
 	if (tmout != INFTIM)
 #if LINUX_VERSION_CODE > KERNEL_VERSION(4,14,0)
             lis_untmout(&lis_tl.tl);
@@ -3806,7 +3671,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
   again:				/* wioc lock is always held when here */
     if (err < 0)
     {
-	CP(hd,err) ;
 	ioc->ic_len = 0 ;		/* no data */
 	RTN(err) ;
     }
@@ -3827,13 +3691,10 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
     SET_SD_FLAG(hd,IOCWAIT);		/* for strrput */
     if ( LIS_DEBUG_IOCTL )
 	printk("lis_strdoioctl: after SET_SD_FLAG\n");
-    CP(hd,0) ;
     lis_putnext(hd->sd_wq,mioc);	/* do not use PUTNEXT */
     if ( LIS_DEBUG_IOCTL )
 	printk("lis_strdoioctl: after lis_putnext\n");
-    CP(hd,0) ;
     mioc=NULL;			
-    CP(hd,0) ;
     switch (ioc->ic_cmd)
     {
     case I_LINK:
@@ -3854,7 +3715,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
     {
 	if ( LIS_DEBUG_IOCTL )
 	  printk("lis_strdoioctl: err case\n");
-	CP(hd,err) ;
 	ioc->ic_len = 0 ;		/* no data */
 	if (hd->sd_werror)		/* pick up error from M_ERROR if pres */
 	    err = hd->sd_werror ;
@@ -3872,7 +3732,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 		    hd->sd_name) ;
 
     msgtype = lis_btype(mioc) ;
-    CP(hd,msgtype) ;
     switch(msgtype)
     {
     case M_IOCACK:
@@ -4177,7 +4036,6 @@ int lis_open_fifo(struct inode *i, struct file *f, stdata_t *head,
     int		maj = getmajor(head->sd_dev) ;
     int		err = 0;
 
-    CP(head,*ndev) ;
     if (LIS_DEV_IS_CLONE(maj))
 	lis_setq( head->sd_rq,
 		  clone_info.st_rdinit, clone_info.st_wrinit );
@@ -4202,7 +4060,6 @@ int lis_open_fifo(struct inode *i, struct file *f, stdata_t *head,
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* "done" with system call */
     lis_runqueues() ;
     err = lis_qopen( head->sd_rq, ndev, f->f_flags, creds ); 
-    CP(head,*ndev) ;
     K_ATOMIC_INC(&lis_in_syscall) ;	/* processing a system call */
     if (err == 0)
 	lis_setq(head->sd_rq, fifo_info.st_rdinit, fifo_info.st_wrinit);
@@ -4344,7 +4201,6 @@ static int get_sd_opening_sem(stdata_t *head)
 {
     int		ret ;
 
-    CP(head,head->sd_dev) ;
     if ((ret = lis_down(&head->sd_opening)) == 0)
 	SET_SD_FLAG(head, STROSEM_HELD) ;
     return(ret) ;
@@ -4468,7 +4324,6 @@ retry_from_start:			/* retry point for open/close races */
     {
 	existing_head = 1;
 	head = lis_head_get(head) ;	/* increase ref cnt */
-	CP(head,odev) ;
     }
     else
     {					/* opening new stream */
@@ -4480,7 +4335,6 @@ retry_from_start:			/* retry point for open/close races */
 	{
 	    existing_head = 0 ;
 	    head = lis_head_get(NULL) ;	/* allocates new structure */
-	    CP(head,odev) ;
 	    if (head == NULL)
 	    {
 		err = -ENOMEM ;
@@ -4505,7 +4359,6 @@ retry_from_start:			/* retry point for open/close races */
 	    maj  = getmajor(odev);	/* odev may have changed */
 	    mnr  = getminor(odev);
 	    dev_is_clone = LIS_DEV_IS_CLONE(maj) ;
-	    CP(head,odev) ;
 	}
 
 	if (!head)			/* can't proceed w/o a strm head */
@@ -4537,7 +4390,6 @@ retry_from_start:			/* retry point for open/close races */
     if ((err = get_sd_opening_sem(head)) < 0)
 	goto error_rtn ;
 
-    CP(head,odev) ;
     hd_locked = 1 ;			/* now have head's opening sem */
 
     /*
@@ -4549,7 +4401,6 @@ retry_from_start:			/* retry point for open/close races */
      */
     if (existing_head && !DEV_SAME(head->sd_dev, odev))
     {					/* clone open changed sd_dev */
-	CP(head,odev) ;
 	release_sd_opening_sem(head) ;
 	hd_locked = 0 ;
 	lis_head_put(head) ;
@@ -4564,11 +4415,9 @@ retry_from_start:			/* retry point for open/close races */
      * one can no longer be found in a search due to the STRCLOSE
      * flag being set.
      */
-    CP(head,odev) ;
     if (F_ISSET(head->sd_flag,STRCLOSE))
     {
 	SET_FILE_STR(f, NULL);		/* unhook from file */
-	CP(head,odev) ;
 	release_sd_opening_sem(head) ;
 	hd_locked = 0 ;
 	lis_head_put(head) ;		/* give back use count */
@@ -4601,7 +4450,6 @@ retry_from_start:			/* retry point for open/close races */
     if (LIS_SD_OPENCNT(head) >= 1)
     {
         printk("lis_stropen: SD_OPENCNT > 0 - Existing Stream \n ");
-	CP(head,odev) ;
 	if (head->magic != STDATA_MAGIC)	/* paranoia */
 	{
 	    printk("lis_stropen(i@0x%p/%d,f@0x%p/%d)#%ld\n"
@@ -4625,7 +4473,6 @@ retry_from_start:			/* retry point for open/close races */
 	ndev = odev ;
 	if ((err = open_mods( head, &ndev, f->f_flags, &creds )) < 0)
 	{
-	    CP(head,-err) ;
 	    printk("lis_stropen(...)#%ld\n"
 		   "    >> open_mods() error (%d)\n",
 		   this_open, err) ;
@@ -4640,10 +4487,8 @@ retry_from_start:			/* retry point for open/close races */
 	 */
 	if (i != FILE_INODE(f))
 	{
-	    CP(head,i) ;
 	    i = FILE_INODE(f);
 	    head = FILE_STR(f);
-	    CP(head,i) ;
 	}
 
 	/*
@@ -4652,7 +4497,6 @@ retry_from_start:			/* retry point for open/close races */
 	 */
 	if (!DEV_SAME(ndev, odev))
 	{
-	    CP(head,EBUSY) ;
 	    printk("lis_stropen(...)#%ld\n"
 		   "    >> re-open changed dev from 0x%x to 0x%x error (%d)\n",
 		   this_open, odev, ndev, err) ;
@@ -4668,7 +4512,6 @@ retry_from_start:			/* retry point for open/close races */
      * routine.  This is where we have to take clone devices into account.
      * See below for more.
      */
-    CP(head,odev) ;
     if (LIS_DEV_CAN_REOPEN(maj))
     {
         /*
@@ -4678,7 +4521,6 @@ retry_from_start:			/* retry point for open/close races */
 	 *  we can be sure it's valid if we need to check it
 	 *  (we don't keep 'sd_from' if cloning from a clone major)
 	 */
-	CP(head,odev) ;
         head->sd_from  = lis_dget(f->f_dentry);
 	head->sd_mount = FILE_MNTGET(f);
 	SET_SD_FLAG(head, STREOPEN);
@@ -4716,12 +4558,10 @@ retry_from_start:			/* retry point for open/close races */
     SET_SD_FLAG(head, STWOPEN) ;
     if ( LIS_DEV_IS_FIFO(maj) || (dev_is_clone && LIS_DEV_IS_FIFO(mnr)) )
     {
-	CP(head,odev) ;
 	err = lis_open_fifo(i, f, head, this_open, &ndev, &creds) ;
     }
     else
     {
-	CP(head,odev) ;
 	lis_setq( head->sd_rq, &strmhd_rdinit, &strmhd_wrinit );
 
 	lis_new_stream_name(head, f) ;
@@ -4770,8 +4610,6 @@ retry_from_start:			/* retry point for open/close races */
 	 *
 	 * The lookup_stdata routine will find it for us.
 	 */
-	CP(head,odev) ;
-	CP(head,ndev) ;
 	if ((err = lis_down(&lis_stdata_sem)) < 0) 
 	    goto error_rtn ;
 	stdata_locked = 1 ;
@@ -4810,7 +4648,6 @@ retry_from_start:			/* retry point for open/close races */
 	 * Once that is done any simultaneous open directed to this dev
 	 * will find this structure.
 	 */
-	CP(head,ndev) ;
 	SET_FILE_STR(f, head);			/* point file to strm hd */
 	maj  = getmajor(ndev);
 	mnr  = getminor(ndev);
@@ -4857,10 +4694,8 @@ retry_from_start:			/* retry point for open/close races */
 	 *  stream will be lis_major, and the i_dev minor will be the
 	 *  major of the stream's driver.
 	 */
-	CP(head,odev) ;
 	if (!head->sd_inode)
 	{
-	    CP(head,0) ;
 	    head->sd_inode = i ;
 	}
     }
@@ -4892,7 +4727,6 @@ retry_from_start:			/* retry point for open/close races */
 		goto error_rtn;
 	    }
 	    
-	    CP(head,st) ;
 	    if (   (err = lis_down(&lis_fmod_sw[id].f_sem)) < 0
 		|| (err = push_mod(head, st, id, &ndev, f->f_flags, &creds)) < 0
 	       )
@@ -4903,7 +4737,6 @@ retry_from_start:			/* retry point for open/close races */
 
 successful_rtn:					/* returning success */
 
-    CP(head,odev) ;
     err = 0;
     if (!existing_head)
     {						/* opening a new stream */
@@ -4944,7 +4777,6 @@ successful_rtn:					/* returning success */
 
     if (hd_locked)
     {
-	CP(head,odev) ;
 	release_sd_opening_sem(head) ;
     }
 
@@ -4983,7 +4815,6 @@ successful_rtn:					/* returning success */
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;
     }
 
-    CP(head,-err) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
 
     check_for_wantenable(head) ;	/* deferred queue enables */
@@ -4994,7 +4825,6 @@ successful_rtn:					/* returning success */
 
 error_rtn:				/* come here if fail */
 
-    CP(head,odev) ;
     if (stdata_locked)
 	lis_up(&lis_stdata_sem);
 
@@ -5021,7 +4851,6 @@ error_rtn:				/* come here if fail */
 				 oldd, oldd_cnt, oldmnt, oldmnt_cnt);
 	if (hd_locked)			/* have opening semaphore */
 	{
-	    CP(head,odev) ;
 	    release_sd_opening_sem(head) ;
 	}
 
@@ -5036,7 +4865,6 @@ error_rtn:				/* come here if fail */
 	lis_head_put(head) ;
     }
 
-    CP(head,err) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
     lis_runqueues();
 
@@ -7596,13 +7424,11 @@ i_flush:
      * Fall into return point and return the value of "err".
      */
 return_point:
-    CP(hd,err) ;
     lis_unlock_wioc(hd) ;
 return_no_unlock:
     lis_head_put(hd) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
     lis_runqueues();
-    CP(hd,err) ;
     return(err) ;
 
 #undef RTN
@@ -7698,7 +7524,6 @@ void	_RP lis_wakeup_close(caddr_t arg)
 
     if (hd->magic == STDATA_MAGIC)
     {
-	CP(hd,hd->sd_flag) ;
 	untimeout(hd->sd_close_timer) ;		/* cancel timer, just in case */
 	hd->sd_close_timer = 0 ;
 	lis_up(&hd->sd_closing) ;			/* semaphore wakeup */
@@ -7721,7 +7546,6 @@ void	_RP lis_wakeup_flush(caddr_t arg)
 
     if (hd->magic == STDATA_MAGIC)
     {
-	CP(hd,hd->sd_flag) ;
 	untimeout(hd->sd_close_timer) ;		/* cancel timer, just in case */
 	hd->sd_close_timer = 0 ;
 	CLR_SD_FLAG(hd, STRFLUSHWT) ;
@@ -7750,14 +7574,11 @@ static void deschedule(queue_t *q)
 
     rq = RD(q) ;
     wq = WR(q) ;
-    CP(rq,0) ;
-    CP(wq,0) ;
     lis_spin_lock_irqsave(&lis_qhead_lock, &psw) ;
     LIS_QISRLOCK(wq, &psw1) ;
     if (F_ISSET(wq->q_flag,QSCAN))
     {					/* remove from the scan list */
 	LIS_QISRUNLOCK(wq, &psw1) ;
-	CP(q,0) ;
 	p_prev = NULL;
 	p_scan = (queue_t *) lis_scanqhead;
 	while (p_scan != NULL)
@@ -7768,7 +7589,6 @@ static void deschedule(queue_t *q)
 				/* p_scan points to our queue */
 	      K_ATOMIC_DEC(&lis_runq_req_cnt) ; /* one less thing to do */
 	      LIS_QISRLOCK(p_scan, &psw1) ;	/* prevent ISR operations */
-	      CP(p_scan,0) ;
 	      if (p_prev != NULL)		/* trailing ptr valid?  */
 		  p_prev->q_scnxt = p_scan->q_scnxt ;	/* link around q */
 	      else				/* prev still is q_head */
@@ -7804,7 +7624,6 @@ static void deschedule(queue_t *q)
 
 	/* Unschedule the service procedures.
 	 */
-	CP(q,0) ;
 
 	LIS_QISRUNLOCK(rq, &psw2) ;
 	LIS_QISRUNLOCK(wq, &psw1) ;
@@ -7822,8 +7641,6 @@ static void deschedule(queue_t *q)
               if (!LIS_CHECK_Q_MAGIC(p_scan)) break ; /* Contention issue, only check on wq */
 
 	      K_ATOMIC_DEC(&lis_runq_req_cnt) ; /* one less thing to do */
-	      CP(p_scan,lis_qhead) ;
-	      CP(p_prev,lis_qtail) ;
 	      if (p_prev != NULL)		/* trailing ptr valid?  */
 		  p_prev->q_link = p_scan->q_link ;	/* link around q */
 	      else				/* prev still is q_head */
@@ -7880,18 +7697,15 @@ static void mark_closing(queue_t *sd_wq)
     queue_t	*q ;
     lis_flags_t	 psw_wq, psw_rq ;
 
-    CP(sd_wq,0) ;
     do
     {
       if (sd_wq)
       {
 	sd_rq = RD(sd_wq) ;
 
-	CP(sd_wq,sd_rq) ;
 						/* prevent qenable */
 	LIS_QISRLOCK(sd_wq, &psw_wq) ;		/* prevent ISR operations */
 	LIS_QISRLOCK(sd_rq, &psw_rq) ;
-	CP(sd_wq,0) ;
 	sd_wq->q_flag |= (QNOENB | QCLOSING);	/* prevent qenables */
 	sd_rq->q_flag |= (QNOENB | QCLOSING);	/* prevent qenables */
 	LIS_QISRUNLOCK(sd_rq, &psw_rq) ;
@@ -7925,7 +7739,6 @@ static void close_action(stdata_t *head)
     stdata_t   *hd_peer ;
     lis_flags_t	psw ;
 
-    CP(head,0) ;
     SET_SD_FLAG(head, STRCLOSE) ;
 
     /*
@@ -7941,7 +7754,6 @@ static void close_action(stdata_t *head)
 	if ( LIS_DEBUG_CLOSE )
 	    printk("close_action: closing pipe %s <===> %s\n",
 		    head->sd_name, hd_peer->sd_name) ;
-	CP(head,0) ;
 	lis_spin_lock_irqsave(&hd_peer->sd_lock, &psw) ;
 	hd_peer->sd_flag |= STRHUP ;
 	hd_peer->sd_peer = hd_peer;
@@ -7958,7 +7770,6 @@ static void close_action(stdata_t *head)
 	&& lis_qcountstrm(head->sd_wq) != 0	/* messages queued */
        )
     {						/* set a timer */
-	CP(head,0) ;
 	if ( LIS_DEBUG_CLOSE )
 	  printk("close_action: "
 		 "stream %s waiting %dms for queues to drain\n",
@@ -7985,17 +7796,14 @@ static void close_action(stdata_t *head)
 	    untimeout(head->sd_close_timer) ;
 	    head->sd_close_timer = 0 ;
 	}
-	CP(head,0) ;
     }
 
     lis_stream_error(head, EIO, EIO) ;		/* wake up syscalls */
     lis_free_elist(&head->sd_siglist);		/* do in signal masks */
     if (head->sd_mux.mx_hd != NULL)		/* is a ctl stream */
     {
-	CP(head,0) ;
 						/* unlink all lowers */
 	lis_i_unlink(NULL, NULL, head, -1, I_PUNLINK, &head->sd_creds) ;
-	CP(head,0) ;
     }
 
     /*
@@ -8011,7 +7819,6 @@ static void close_action(stdata_t *head)
      * lis_qdetach will sync up with any residual service procedures
      * running on other CPUs.
      */
-    CP(head,head->sd_wq) ;
     mark_closing(head->sd_wq) ;
 
     /*
@@ -8031,12 +7838,10 @@ static void close_action(stdata_t *head)
 					   lis_milli_to_ticks(50),
 					   "stream-flush", MEM_TIMER) ;
 	lis_snd_mflush(head->sd_wq, FLUSHRW, 0);
-	CP(head,head->sd_flag) ;
 	rslt = 0 ;
 	while (   F_ISSET(head->sd_flag,STRFLUSHWT)
 	       && (rslt = lis_sleep_on_close_wt(head)) == 0
 	      )
-	    CP(head,head->sd_close_timer) ;
 
 	if (head->sd_close_timer)
 	{
@@ -8049,17 +7854,14 @@ static void close_action(stdata_t *head)
 		   "sleep_on_close_wt returned %d\n", rslt) ;
     }
 
-    CP(head,head->sd_flag) ;
     while (!pop_mod( head, head->sd_open_flags, &head->sd_creds )) {};
 
-    CP(head,head->sd_wq) ;
     if (SAMESTR(head->sd_wq))
     {
 	lis_qdetach( LIS_RD(head->sd_wq->q_next), 1, 
 		     head->sd_open_flags, &head->sd_creds );
     }
 
-    CP(head,0) ;
     lis_dismantle(head, &head->sd_creds);		/* deallocate queues */
 }
 
@@ -8095,7 +7897,6 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
 	return(-EINVAL) ;
     }
 
-    CP(head,0) ;
     K_ATOMIC_INC(&lis_doclose_cnt);
     this_doclose = K_ATOMIC_READ(&lis_doclose_cnt);
 
@@ -8132,7 +7933,6 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
     if ((head->sd_flag & (STRHUP|STRATTACH)) == (STRHUP|STRATTACH) &&
 	head->sd_rfdcnt == 0)			/* no passfps queued */
     {
-	CP(head,0) ;
 	lis_fdetach_stream(head);
     }
 
@@ -8184,7 +7984,6 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
      * open.  Open will allocate a new stdata structure upon a
      * re-open.
      */
-    CP(head,opencnt) ;
     if (head->sd_linkcnt != 0 && opencnt <= head->sd_linkcnt)
     {
 	lis_free_elist(&head->sd_siglist);	/* do in signal masks */
@@ -8238,7 +8037,6 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
     if (f && ((f->f_mode & FMODE_READ) == FMODE_READ))
       f->f_mode &= ~FMODE_READ;
 #endif
-    CP(head,0) ;
 
     lis_head_put(head) ;			/* done w/structure */
 
@@ -8318,11 +8116,9 @@ lis_strclose(struct inode *i, struct file *f)
     creds.cr_rgid = (kgid_t) current_gid();
 #endif
 
-    CP(head,0) ;
     K_ATOMIC_INC(&lis_in_syscall) ;		/* processing a system call */
     lis_doclose(i, f, head, &creds) ;		/* close processing */
 
-    CP(head,0) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
     lis_runqueues();
     RTNX ;
@@ -8354,9 +8150,6 @@ static void lis_tear_down_stream(stdata_t *head)
 void lis_init_head( void )
 {
     lis_init_locks();
-#if defined(USE_CODE_PATH)
-    lis_spin_lock_init(&lis_code_path_lock, "LiS_code_path_lock") ;
-#endif
     /* We'd better use defaults from strconfig instead of magic #s.
      */
     lis_qhead = lis_qtail =  lis_scanqhead= lis_scanqtail = NULL;
