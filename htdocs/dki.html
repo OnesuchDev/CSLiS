@@ -733,14 +733,6 @@ function MM_swapImage() { //v3.0
         <pre><tt>void add_timer(struct timer_list * timer);</tt> 
 <tt>int&nbsp; del_timer(struct timer_list * timer);</tt></pre>
       </blockquote>
-      <p>The following routine converts time in micro seconds to system &quot;ticks&quot;. 
-        The &quot;ticks&quot; value is suitable for use with the <font face="Courier New, Courier, mono">timeout</font> 
-        routine. Note that if the <font face="Courier New, Courier, mono">micro_sec</font> 
-        parameter is less than the number of micro seconds in a system tick then 
-        the routine returns zero.</p>
-      <blockquote> 
-        <pre>unsigned lis_usectohz(unsigned micro_sec);</pre>
-      </blockquote>
       <p>The following routine is an CSLiS abstraction of the C library routine 
         <font face="Courier New, Courier, mono">gettimeofday</font>. Note the 
         absence of the time zone parameter.</p>
