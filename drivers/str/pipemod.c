@@ -114,11 +114,8 @@ struct streamtab pipemod_info =
 /*
  *  open
  */
-static int _RP pipemod_open( q, devp, flag, sflag, credp )
-queue_t *q;
-dev_t *devp;
-int flag, sflag;
-cred_t *credp;
+static int _RP pipemod_open(queue_t *q, dev_t *devp, int flag, int sflag,
+                             cred_t *credp)
 {
     queue_t	*rq = RD(q);
     char	*cp = rq->q_ptr ;
@@ -135,10 +132,7 @@ cred_t *credp;
 /*
  *  close
  */
-static int _RP pipemod_close( q, flag, credp )
-queue_t *q;
-int flag;
-cred_t *credp;
+static int _RP pipemod_close(queue_t *q, int flag, cred_t *credp)
 {
     RD(q)->q_ptr = WR(q)->q_ptr = NULL;
     MODPUT();
@@ -150,9 +144,7 @@ cred_t *credp;
 /*
  *  canonical module flush handling - this could be used in any module
  */
-static void flush_module( q, mp )
-queue_t *q;
-mblk_t *mp;
+static void flush_module(queue_t *q, mblk_t *mp)
 {
     queue_t *rq = RD(q), *wq = WR(q);
 
@@ -184,9 +176,7 @@ mblk_t *mp;
 /*
  *  put
  */
-static int _RP pipemod_put( q, mp )
-queue_t *q;
-mblk_t *mp;
+static int _RP pipemod_put(queue_t *q, mblk_t *mp)
 {
     switch (mp->b_datap->db_type) {
     case M_FLUSH:
