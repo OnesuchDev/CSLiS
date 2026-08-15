@@ -75,7 +75,6 @@ extern unsigned long	lis_debug_mask2 ;
 #define LIS_DEBUG_POLL_BIT		0x00000400L
 #define LIS_DEBUG_LINK_BIT		0x00000800L
 
-#define LIS_DEBUG_MEAS_TIME_BIT		0x00001000L
 #define	LIS_DEBUG_MEM_LEAK_BIT		0x00002000L
 #define	LIS_DEBUG_FLUSH_BIT		0x00004000L
 #define	LIS_DEBUG_FATTACH_BIT		0x00008000L
@@ -130,7 +129,6 @@ extern unsigned long	lis_debug_mask2 ;
 #define LIS_DEBUG_POLL		(lis_debug_mask & LIS_DEBUG_POLL_BIT)
 #define LIS_DEBUG_LINK		(lis_debug_mask & LIS_DEBUG_LINK_BIT)
 
-#define LIS_DEBUG_MEAS_TIME	(lis_debug_mask & LIS_DEBUG_MEAS_TIME_BIT)
 #define LIS_DEBUG_MEM_LEAK	(lis_debug_mask & LIS_DEBUG_MEM_LEAK_BIT)
 #define LIS_DEBUG_FLUSH		(lis_debug_mask & LIS_DEBUG_FLUSH_BIT)
 #define LIS_DEBUG_FATTACH	(lis_debug_mask & LIS_DEBUG_FATTACH_BIT)
@@ -180,7 +178,6 @@ extern unsigned long	lis_debug_mask2 ;
 #define LIS_DEBUG_POLL		0
 #define LIS_DEBUG_LINK		0
 
-#define LIS_DEBUG_MEAS_TIME	0
 #define LIS_DEBUG_MEM_LEAK	0
 #define LIS_DEBUG_FLUSH		0
 #define LIS_DEBUG_FATTACH	0

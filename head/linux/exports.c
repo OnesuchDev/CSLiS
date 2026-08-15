@@ -147,7 +147,6 @@ EXPORT_SYMBOL(lis_get_free_pages_kernel_fcn);
 EXPORT_SYMBOL(lis_getint);
 EXPORT_SYMBOL(lis_getq);
 EXPORT_SYMBOL(lis_gettimeofday);
-EXPORT_SYMBOL(lis_hitime);
 #if 0 && defined(CONFIG_DEV)
 EXPORT_SYMBOL(lis_inc_mod_cnt_fcn);
 #endif

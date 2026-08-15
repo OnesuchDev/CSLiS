@@ -289,50 +289,12 @@ void lis_terminate_final(void);
 #endif
 
 /*
- * Defines for measuring time intervals
- *
- * Each routine that is measuring its execution time will have a local
- * variable called "time_cell".  The measuring is enabled by a debug
- * bit.
- *
- * time_cell is declared as an unsigned long initialized to zero.
- */
-#define	CLOCKON()	do { \
-    if (LIS_DEBUG_MEAS_TIME) time_cell -= lis_hitime(); } while (0)
-
-#define	CLOCKADD()	do { \
-    if (LIS_DEBUG_MEAS_TIME) time_cell += lis_hitime(); } while (0)
-
-#define	CLOCKOFF(item)	do { \
-    if (LIS_DEBUG_MEAS_TIME) \
-	 LisSetCounter(item, time_cell += lis_hitime()); } while (0)
-
-/*
  *  timing functions - these are available outside the kernel also,
  *  depending on how lis_gettimeofday is defined.
  */
 
 /*
- *  lis_hitime() -
- *
- *  This timer is restricted to a cycle of approx. 64 seconds.
- */
-unsigned long _RP lis_hitime(void)
-{
-    struct timeval	 tv ;
-
-    lis_gettimeofday(&tv);
-    return( (tv.tv_sec & 0x3f) * 1000000 + tv.tv_usec ) ;
-
-} /* lis_hitime */
-
-/*
- *  lis_usecs() -
- *
- *  this is similar to lis_hitime, but it isn't restricted to cycling
- *  at 64 seconds.  This has considerable semantic advantage; namely,
- *  it allows simpler comparison of times crossing a single cycle
- *  boundary because the full range of the underlying type is used.
+ *  lis_usecs()
  */
 unsigned long _RP lis_usecs(void)
 {
@@ -914,9 +876,7 @@ lis_i_unlink(struct inode	*i,
     int			  err ;
     int			  rtn = 0 ;
     lis_flags_t		  psw1, psw2 ;
-    unsigned long  	  time_cell = 0 ;
 
-    CLOCKON() ;
     for (hp = hd->sd_mux.mx_hd, prev = NULL, next = NULL; 
 	 hp != NULL; 
 	 hp = next)
@@ -964,12 +924,10 @@ lis_i_unlink(struct inode	*i,
 	    goto error_rtn ;
 
 	CP(hp,hp->sd_rq) ;
-	CLOCKADD() ;
 	if (   (err = lis_strdoioctl(f,hd,&ioc,creds,0)) < 0
 	    && cmd == I_UNLINK			/* ignore errs for I_PUNLINK */
 	   )
 	{
-	    CLOCKON() ;
 error_rtn:
 	    CP(hd,err) ;
 	    rtn = err ;				/* will return error */
@@ -979,11 +937,9 @@ error_rtn:
 		continue ;
 	    }
 
-	    CLOCKOFF(IOCTLTIME) ;
 	    return(rtn);			/* can't unlink */
 	}
 
-	CLOCKON() ;
 	/* set frozen flag so as to defer puts and qenables */
 	lis_freezestr(hp->sd_rq) ;
 	if (hd->sd_mux.mx_hd == hp)		/* delinking elt at hd */
@@ -1050,9 +1006,7 @@ error_rtn:
 	     *
 	     * lis_doclose will "put" the stdata structure, hp.
 	     */
-	    CLOCKADD() ;
 	    lis_doclose(NULL, NULL, hp, creds) ;	/* close lower mux */
-	    CLOCKON() ;
 	}
 	else
 	if (LIS_SD_OPENCNT(hp) > 1)			/* be safe */
@@ -1074,7 +1028,6 @@ error_rtn:
 	if (l_index >= 0) break ;		/* done */
     }
 
-    CLOCKOFF(IOCTLTIME) ;
     return(rtn) ;
 
 } /* lis_i_unlink */
@@ -1186,11 +1139,9 @@ int	lis_i_link(struct inode	*i,
     strioctl_t		 ioc;
     lis_flags_t	 	 psw;
     int			 err ;
-    unsigned long  	 time_cell = 0 ;
 
-#define	RTN(v) do { CLOCKOFF(IOCTLTIME) ; return(v); } while (0)
+#define	RTN(v) do { return(v); } while (0)
 
-    CLOCKON() ;
     if ( (muxed = lis_fd2str(muxfd)) == NULL )
 	RTN(-EINVAL);
 
@@ -1240,10 +1191,8 @@ int	lis_i_link(struct inode	*i,
 #endif
     muxed->sd_linkcnt++ ;			/* one more I_LINK */
     CP(hd,muxed->sd_rq) ;
-    CLOCKADD() ;
     if ((err = lis_strdoioctl(f,hd,&ioc,creds,0)) < 0)
     {
-	CLOCKON() ;
 	K_ATOMIC_DEC(&muxed->sd_opencnt);	/* undo refcnt bumps */
 	muxed->sd_linkcnt-- ;
 error_rtn:
@@ -1263,7 +1212,6 @@ error_rtn:
 	RTN(err);
     }
 
-    CLOCKON() ;
 
     /*
      * Set initial queue flags.
@@ -1298,7 +1246,6 @@ error_rtn:
     lis_unfreezestr(muxed->sd_rq) ;
 
     CP(hd,lnk.l_index) ;
-    CLOCKOFF(IOCTLTIME) ;
     return(lnk.l_index);
 
 #undef RTN
@@ -2030,12 +1977,9 @@ lis_qdetach(queue_t *q, int do_close, int flag, cred_t *creds)
     queue_t	*wq ;
     stdata_t	*hd ;
     stdata_t	*hd_peer = NULL ;
-    unsigned long  time_cell = 0 ;
 
-    CLOCKON() ;
     if (q == NULL)				/* supposed to be read queue */
     {
-	CLOCKOFF(CLOSETIME) ;
 	return;
     }
 
@@ -2043,7 +1987,6 @@ lis_qdetach(queue_t *q, int do_close, int flag, cred_t *creds)
     rq = RD(q) ;
     if (rq == NULL || wq == NULL)
     {
-	CLOCKOFF(CLOSETIME) ;
 	return;
     }
 
@@ -2144,13 +2087,11 @@ lis_qdetach(queue_t *q, int do_close, int flag, cred_t *creds)
 		   rq, do_close, name);
 
 	CP(rq,0) ;
-	CLOCKADD() ;		/* user routine might sleep */
 	/* call w/queue locked and marked as closing */
 	K_ATOMIC_DEC(&lis_in_syscall) ;	/* "done" with a system call */
 	lis_runqueues() ;
 	(*rq->q_qinfo->qi_qclose)(rq, (rq->q_next ? 0 : flag), creds);
 	K_ATOMIC_INC(&lis_in_syscall) ;	/* processing a system call */
-	CLOCKON() ;
     }
 
     /*
@@ -2341,7 +2282,6 @@ lis_qdetach(queue_t *q, int do_close, int flag, cred_t *creds)
 	lis_head_put(hd) ;
     }
 
-    CLOCKOFF(CLOSETIME) ;
 
 }/*lis_qdetach*/
 
@@ -3751,22 +3691,18 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
     int errv = 0 ;
     int msgtype ;
     int ignore_errors = 0 ;
-    unsigned long  time_cell = 0 ;
 
     /* Use RTN after getting wioc semaphore */
 #define RTN(v)	do { errv=(v); goto return_point; } while (0)
 
-    CLOCKON() ;
     if (ioc->ic_len != TRANSPARENT && (ioc->ic_len < 0 || ioc->ic_timout < -1))
     {
 	ioc->ic_len = 0 ;		/* no data */
-	CLOCKOFF(IOCTLTIME) ;
 	return(-EINVAL);
     }
     if ((mioc=allocb(sizeof(copyreq_t),BPRI_RETRY))==NULL)
     {
 	ioc->ic_len = 0 ;		/* no data */
-	CLOCKOFF(IOCTLTIME) ;
 	return(-ENOMEM);
     }
     if (ioc->ic_len){
@@ -3779,7 +3715,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
             {	
 #endif		    
 	      ioc->ic_len = 0 ;		/* no data */
-	      CLOCKOFF(IOCTLTIME) ;
 	      return(err);
 #if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
@@ -3797,7 +3732,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 	{
 	    ioc->ic_len = 0 ;		/* no data */
 	    lis_freemsg(mioc);
-	    CLOCKOFF(IOCTLTIME) ;
 	    return(-ENOMEM);
 	}
 	if (do_copyin)
@@ -3813,7 +3747,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
                {
                  ioc->ic_len = 0 ;               /* no data */
                  lis_freemsg(mioc);
-                 CLOCKOFF(IOCTLTIME) ;
                  return(err) ;
                }
 	   }
@@ -3823,7 +3756,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
             {
                 ioc->ic_len = 0 ;               /* no data */
                 lis_freemsg(mioc);
-                CLOCKOFF(IOCTLTIME) ;
                 return(err) ;
             }
 #endif
@@ -3895,21 +3827,12 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
     SET_SD_FLAG(hd,IOCWAIT);		/* for strrput */
     if ( LIS_DEBUG_IOCTL )
 	printk("lis_strdoioctl: after SET_SD_FLAG\n");
-    CLOCKADD() ;			/* exclude driver time */
-    if ( LIS_DEBUG_IOCTL )
-	printk("lis_strdoioctl: after CLOCKADD\n");
     CP(hd,0) ;
     lis_putnext(hd->sd_wq,mioc);	/* do not use PUTNEXT */
     if ( LIS_DEBUG_IOCTL )
 	printk("lis_strdoioctl: after lis_putnext\n");
-    CLOCKON() ;
-    if ( LIS_DEBUG_IOCTL )
-	printk("lis_strdoioctl: after CLOCKON\n");
     CP(hd,0) ;
     mioc=NULL;			
-    CLOCKADD() ;
-    if ( LIS_DEBUG_IOCTL )
-	printk("lis_strdoioctl: after CLOCKADD\n");
     CP(hd,0) ;
     switch (ioc->ic_cmd)
     {
@@ -3941,9 +3864,6 @@ lis_strdoioctl(struct file *f, stdata_t *hd,
 	RTN(err) ;
     }
     /* Here we have! */
-    CLOCKON() ;
-    if ( LIS_DEBUG_IOCTL )
-	printk("lis_strdoioctl: after CLOCKON\n");
     hd->sd_iocblk = NULL ;
     if ( LIS_DEBUG_IOCTL )
 	printk("lis_strdoioctl: %s from \"%s\" on stream %s\n",
@@ -4133,7 +4053,6 @@ return_point:
     if (mioc != NULL)
 	lis_freemsg(mioc);
     lis_head_put(hd) ;
-    CLOCKOFF(IOCTLTIME) ;
     return(errv) ;
 
 #undef RTN
@@ -4451,7 +4370,6 @@ lis_stropen( struct inode *i, struct file *f )
     int		   maj, mnr;
     int		   existing_head = 0 ;
     int		   f_count = F_COUNT(f) ;	/* file open count */
-    unsigned long  time_cell = 0;
     unsigned long  this_open ;
     struct dentry   *from;
     struct dentry   *oldd;
@@ -4460,7 +4378,6 @@ lis_stropen( struct inode *i, struct file *f )
 
     CHECK_INO(i,"stropen");		/* may return */
 
-    CLOCKON() ;
 
     K_ATOMIC_INC(&lis_open_cnt);
     this_open = K_ATOMIC_READ(&lis_open_cnt);
@@ -5067,7 +4984,6 @@ successful_rtn:					/* returning success */
     }
 
     CP(head,-err) ;
-    CLOCKOFF(OPENTIME) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
 
     check_for_wantenable(head) ;	/* deferred queue enables */
@@ -5121,7 +5037,6 @@ error_rtn:				/* come here if fail */
     }
 
     CP(head,err) ;
-    CLOCKOFF(OPENTIME) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
     lis_runqueues();
 
@@ -5140,7 +5055,6 @@ lis_strwrite(struct file *fp, const char *ubuff, size_t ulen, loff_t *op)
     int		 chunk;
     int		 written=0; 
     int		 err,newmsg;
-    unsigned long  time_cell = 0 ;
     struct inode  *i = FILE_INODE(fp);
 
 #define RTN(e)  do { err=(e); goto return_point; } while (0)
@@ -5156,7 +5070,6 @@ lis_strwrite(struct file *fp, const char *ubuff, size_t ulen, loff_t *op)
     if (hd == NULL)
 	return(-ENODEV);
 
-    CLOCKON() ;
     lis_head_get(hd) ;
     K_ATOMIC_INC(&lis_in_syscall) ;		/* processing a system call */
 
@@ -5251,9 +5164,7 @@ lis_strwrite(struct file *fp, const char *ubuff, size_t ulen, loff_t *op)
 	    if (LIS_DEBUG_WRITE)
 		printk("strwrite: stream %s: flw cntrl blocked, sleep\n",
 			    hd->sd_name) ;
-	    CLOCKADD() ;
 	    err = lis_wait_on_wwrite(hd);	/* unlocks & relocks sd_wq */
-	    CLOCKON() ;
 	    if (err < 0)
 	    {
 		/* queue is unlocked upon error return */
@@ -5340,9 +5251,7 @@ lis_strwrite(struct file *fp, const char *ubuff, size_t ulen, loff_t *op)
 		hd->sd_name, chunk, lis_queue_name(hd->sd_wq->q_next)) ;
 
 	LisUpCount(WRITECNT) ;
-	CLOCKADD() ;				/* exclude driver time */
         PUTNEXT(hd->sd_wq,hd->sd_wmsg);		/* put & maybe run queues */
-	CLOCKON() ;
         hd->sd_wmsg = NULL ;			/* don't reuse the message */
 	lis_up(&hd->sd_write_sem) ;
 
@@ -5353,7 +5262,6 @@ lis_strwrite(struct file *fp, const char *ubuff, size_t ulen, loff_t *op)
 return_point:
 
     lis_head_put(hd) ;
-    CLOCKOFF(WRITETIME) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
     lis_runqueues();
     return(err) ;
@@ -5457,7 +5365,6 @@ lis_strread(struct file *fp, char *ubuff, size_t ulen, loff_t *op)
     int		 msgs_read = 0 ;
     int		 mread_sent ;
     int err;
-    unsigned long  time_cell = 0 ;
     struct inode *i = FILE_INODE(fp);
 
 #define	RTN(val)  do { err = val; goto return_point; } while (0)
@@ -5476,7 +5383,6 @@ lis_strread(struct file *fp, char *ubuff, size_t ulen, loff_t *op)
     if ((err = lis_sleep_on_read_sem(hd)) < 0)
 	return(err) ;				/* signalled out */
 
-    CLOCKON() ;
     K_ATOMIC_INC(&lis_in_syscall) ;		/* processing a system call */
 
     if ((err=lis_check_umem(fp,VERIFY_WRITE,ubuff,ulen))<0)
@@ -5576,9 +5482,7 @@ lis_strread(struct file *fp, char *ubuff, size_t ulen, loff_t *op)
 	    hd_rq->q_flag &= ~QREADING;
 	    LIS_QISRUNLOCK(hd_rq, &psw) ;
 	    qisrlocked = 0 ;
-	    CLOCKADD() ;
 	    err = lis_sleep_on_wread(hd);	/* unlocks & relocks q */
-	    CLOCKON() ;
 	    if (err < 0)
 	    {
 		qlocked = 0;			/* sd_rq not locked on error */
@@ -5776,7 +5680,6 @@ return_point:
 
     lis_wake_up_read_sem(hd) ;
     lis_head_put(hd) ;
-    CLOCKOFF(READTIME) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
     lis_runqueues();				/* run the streams queues */
     return(err) ;				/* return to user */
@@ -5799,7 +5702,6 @@ lis_strputpmsg(struct inode *i, struct file *fp,
     strbuf_t	   *ctl = (strbuf_t *) ctlp ;
     strbuf_t	   *dat = (strbuf_t *) datp ;
     queue_t	   *q ;
-    unsigned long  time_cell = 0 ;
 
 #define	RTN(val)  do { err = val; goto return_point; } while (0)
 
@@ -5807,7 +5709,6 @@ lis_strputpmsg(struct inode *i, struct file *fp,
     if (hd == NULL)
 	return(-ENODEV);
 
-    CLOCKON() ;
     lis_head_get(hd) ;
     K_ATOMIC_INC(&lis_in_syscall) ;	/* processing a system call */
 
@@ -5971,9 +5872,7 @@ lis_strputpmsg(struct inode *i, struct file *fp,
 		printk("strputmsg: stream %s: flw cntrl blocked, sleep\n",
 			hd->sd_name) ;
 
-	    CLOCKADD() ;
 	    err = lis_wait_on_wwrite(hd);	/* unlocks & relocks sd_wq */
-	    CLOCKON() ;
 	    if (err < 0)
 	    {
 		/* queue is unlocked upon error return */
@@ -6002,14 +5901,11 @@ lis_strputpmsg(struct inode *i, struct file *fp,
 
     q = hd->sd_wq ;
     LisUpCount(WRITECNT) ;
-    CLOCKADD() ;				/* exclude driver time */
     lis_putnext(q,msg);				/* send downstream */
     						/* don't use PUTNEXT */
-    CLOCKON() ;
     err = 0 ;
 
 return_point:
-    CLOCKOFF(PUTMSGTIME) ;
     lis_head_put(hd) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
     lis_runqueues();
@@ -6054,7 +5950,6 @@ lis_strgetpmsg(struct inode *i, struct file *fp,
     int		 band = 0 ;
     int		 flags = 0 ;
     int		 mtype ;
-    unsigned long  time_cell = 0 ;
 
 #define RTN(v)	do { err=(v); goto err_return_point; } while (0)
 
@@ -6070,7 +5965,6 @@ lis_strgetpmsg(struct inode *i, struct file *fp,
     if ((err = lis_sleep_on_read_sem(hd)) < 0)
 	return(err) ;				/* signalled out */
 
-    CLOCKON() ;
     K_ATOMIC_INC(&lis_in_syscall) ;	/* processing a system call */
     if (F_ISSET(hd->sd_flag,STRDERR))
 	RTN(-hd->sd_rerror);
@@ -6149,9 +6043,7 @@ lis_strgetpmsg(struct inode *i, struct file *fp,
 		if (should_notblock_rd(hd,fp))
 		    RTN(-EAGAIN);
 
-		CLOCKADD() ;
 		err = lis_sleep_on_wread(hd);	       /* unlocks & relocks q */
-		CLOCKON() ;
 		if (err < 0) 
 		{
 		    /* sd_rq is not locked on error */
@@ -6478,7 +6370,6 @@ err_return_point:				/* return "err" */
 
     lis_wake_up_read_sem(hd) ;
     lis_head_put(hd) ;
-    CLOCKOFF(GETMSGTIME) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
     lis_runqueues();
     return(err != 0 ? err : rtn);
@@ -6511,7 +6402,6 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
     cred_t creds;
     streamtab_t *st;
     int		 id;
-    unsigned long  time_cell = 0 ;
     pid_t pid=(pid_t)PID(f);
 
 #define RTN(v)	do { err=(v); goto return_point; } while (0)
@@ -6532,7 +6422,6 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
     if (hd == NULL)
 	return(-ENODEV);
 
-    CLOCKON() ;
     K_ATOMIC_INC(&lis_in_syscall) ;		/* processing a system call */
     lis_head_get(hd) ;
 
@@ -6660,9 +6549,7 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 		|| (err=lis_copyin(f,&ioc,(char*)arg,sizeof(strioctl_t)))<0
 	       )
 		RTN(err);
-	    CLOCKADD() ;
 	    res = lis_strdoioctl(f,hd,&ioc,&creds,1);
-	    CLOCKON() ;
 	    if (res == 0)
 		res=lis_copyout(f,&ioc,(char*)arg,sizeof(strioctl_t));
 	    if ( LIS_DEBUG_IOCTL )
@@ -6686,9 +6573,7 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
             strioctl_t ioc;
             int res;
 	    memcpy((void *)&ioc,(void *)arg,sizeof(strioctl_t));
-            CLOCKADD() ;
             res = lis_strdoioctl(f,hd,&ioc,&creds,1);
-            CLOCKON() ;
             if (res == 0)
 		memcpy((void *)arg,(void *)&ioc,sizeof(strioctl_t));    
             if ( LIS_DEBUG_IOCTL )
@@ -7153,9 +7038,7 @@ i_flush:
 		   hd->sd_name, hd->sd_wq, LIS_RD(q));
 
 	q = hd->sd_wq ;
-	CLOCKADD() ;				/* exclude driver time */
 	lis_putnext (q, msg);			/* do not use PUTNEXT */
-	CLOCKON() ;
 	RTN(0);
       }
       break;
@@ -7469,9 +7352,7 @@ i_flush:
 	   )					/* must have lower qinits */
 	    RTN(-EINVAL);
 
-	CLOCKADD() ;
 	err = lis_i_link(i, f, hd, (int) arg, cmd, &creds) ;
-	CLOCKON() ;
 	RTN(err) ;
 	
     case I_PUNLINK:
@@ -7482,12 +7363,10 @@ i_flush:
 	if ((long) arg < -1)		/* compare as signed quantity */
 	    RTN(-EINVAL);
 
-	CLOCKADD() ;
 	if (cmd == I_PUNLINK && arg == MUXID_ALL)
 	    err = lis_unlink_all(i, f, hd, &creds) ;
 	else
 	    err = lis_i_unlink(i, f, hd, (int)arg, cmd, &creds ) ;
-	CLOCKON() ;
 
 	RTN(err) ;
 
@@ -7652,9 +7531,7 @@ i_flush:
 	break ;
 
     case I_LIS_SDBGMSK:			/* LiS only - set debug mask */
-        CLOCKOFF(IOCTLTIME) ;		/* may reset timing debug bit */
 	lis_debug_mask = arg ;		/* maybe an suser() check */
-        CLOCKON() ;
 	break;
     case I_LIS_SDBGMSK2:		/* LiS only - set 2nd debug mask */
 	lis_debug_mask2 = arg ;		/* maybe an suser() check */
@@ -7705,9 +7582,7 @@ i_flush:
 	    ioc.ic_timout=LIS_LNTIME;
 	    ioc.ic_len=TRANSPARENT;
 	    ioc.ic_dp=(char*)arg;
-	    CLOCKADD() ;
 	    res=lis_strdoioctl(f,hd,&ioc,&creds,0);	/* no copyin */
-	    CLOCKON() ;
 	    if ( LIS_DEBUG_IOCTL )
 		printk("lis_strioctl(...) \"%s\""
 		       "<< ic_cmd=0x%x ic_timout=%d ic_len=0 >> rslt=%d\n",
@@ -7725,7 +7600,6 @@ return_point:
     lis_unlock_wioc(hd) ;
 return_no_unlock:
     lis_head_put(hd) ;
-    CLOCKOFF(IOCTLTIME) ;
     K_ATOMIC_DEC(&lis_in_syscall) ;	/* done processing a system call */
     lis_runqueues();
     CP(hd,err) ;
@@ -8204,11 +8078,9 @@ int
 lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
 {
     int		   opencnt ;
-    unsigned long  time_cell = 0 ;
     long           this_doclose ;
     int		   sem2_err = 0 ;
 
-    CLOCKON() ;
 
     /*
      * For information about race conditions see "Analysis of
@@ -8377,7 +8249,6 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
 	       K_ATOMIC_READ(&lis_mnt_cnt),
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;
 
-    CLOCKOFF(CLOSETIME) ;
 
     return(opencnt);
 								     
@@ -8388,12 +8259,10 @@ lis_strclose(struct inode *i, struct file *f)
 {
     struct stdata *head;
     cred_t	   creds;
-    unsigned long  time_cell = 0 ;
     unsigned long  this_close ;
 
 #define RTNX	return(0)
     
-    CLOCKON() ;
 
     K_ATOMIC_INC(&lis_close_cnt);
     this_close = K_ATOMIC_READ(&lis_close_cnt);
@@ -8401,7 +8270,6 @@ lis_strclose(struct inode *i, struct file *f)
     if (!i)
     {
 	printk("lis_strclose: called w/ null inode");
-	CLOCKOFF(CLOSETIME) ;
 	RTNX;
     }
 
@@ -8420,7 +8288,6 @@ lis_strclose(struct inode *i, struct file *f)
     {
 	printk("lis_strclose: called with unused inode (inode 0x%p file 0x%p)",
 		  i, f);
-	CLOCKOFF(CLOSETIME) ;
 	RTNX;
     }
 
@@ -8428,7 +8295,6 @@ lis_strclose(struct inode *i, struct file *f)
 	|| !LIS_DEVOK(getmajor(GET_I_RDEV(i)))
        )
     {
-	CLOCKOFF(CLOSETIME) ;
 	RTNX;
     }
 
@@ -8436,7 +8302,6 @@ lis_strclose(struct inode *i, struct file *f)
     {
 	printk("lis_strclose: called with null stream (inode 0x%p file 0x%p)",
 		  i, f);
-	CLOCKOFF(CLOSETIME) ;
 	RTNX;
     }    
 
@@ -8455,7 +8320,6 @@ lis_strclose(struct inode *i, struct file *f)
 
     CP(head,0) ;
     K_ATOMIC_INC(&lis_in_syscall) ;		/* processing a system call */
-    CLOCKADD() ;
     lis_doclose(i, f, head, &creds) ;		/* close processing */
 
     CP(head,0) ;

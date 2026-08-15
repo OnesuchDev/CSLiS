@@ -330,7 +330,7 @@ extern int	lis_in_interrupt(void) _RP ;
 #include <sys/lislocks.h>
 
 /*
- *  lis_gettimeofday -  used by lis_hitime and similar functions
+ *  lis_gettimeofday -  used by lis_usecs and similar functions
  */
 void lis_gettimeofday(struct timeval *tv)_RP;
 
