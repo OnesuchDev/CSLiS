@@ -600,7 +600,7 @@ function MM_swapImage() { //v3.0
         <pre><tt>void add_timer(struct timer_list * timer);</tt> 
 <tt>int&nbsp; del_timer(struct timer_list * timer);</tt></pre>
       </blockquote>
-      <p>The following routine is an CSLiS abstraction of the C library routine 
+      <p>The following routine is a CSLiS abstraction of the C library routine 
         <font face="Courier New, Courier, mono">gettimeofday</font>. Note the 
         absence of the time zone parameter.</p>
       <blockquote> 
@@ -880,7 +880,7 @@ ptr = lis_free_mem(ptr) ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&
       <hr width="100%">
       <h2> <a name="CSLiS Atomic Functions"></a>CSLiS Atomic Functions</h2>
       <p>CSLiS provides for atomic integers implemented in a portable fashion.&nbsp; 
-        To declare an CSLiS portable atomic integer use the following declaration 
+        To declare a CSLiS portable atomic integer use the following declaration 
         syntax: </p>
       <blockquote> 
         <pre><tt>lis_atomic_t&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; myatom ;</tt> </pre>
@@ -1258,7 +1258,7 @@ lis_rw_lock_t *lis_rw_lock_free(lis_rw_lock_t *lock, const char *name) ; </pre>
         the driver from source when it is installed.&nbsp; CSLiS semaphores allow 
         a STREAMS driver to be compiled independently of kernel options with only 
         the binary needed at driver installation time. </p>
-      <p>To declare an CSLiS semaphore, use a declaration similar to the following: 
+      <p>To declare a CSLiS semaphore, use a declaration similar to the following: 
       <blockquote> 
         <pre><tt>lis_semaphore_t&nbsp;&nbsp;&nbsp; mysem ;</tt></pre>
       </blockquote>
