@@ -40,8 +40,6 @@
 #ifndef _LIS_M_DEP_H
 #define _LIS_M_DEP_H 1
 
-#ident "@(#) CSLiS linux-mdep.h 7.11 2025-11-17 15:30:00 "
-
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
 

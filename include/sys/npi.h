@@ -1,7 +1,6 @@
 /*                                                *
  * Copyright 2022 - IBM Inc. All rights reserved  *
  * SPDX-License-Identifier: LGPL-2.1              */
-#ident "@(#) CSLiS npi.h 7.11 10/20/22 15:30:00 "
 
 /*
  * npi.h header for the Network Provider Interface (OSI Conforming)

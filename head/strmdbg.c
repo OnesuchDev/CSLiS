@@ -29,8 +29,6 @@
  * 
  */
 
-#ident "@(#) CSLiS strmdbg.c 7.111 2024-05-07 15:30:00 "
-
 #include <sys/stream.h>
 #include <sys/poll.h>
 #include <sys/lislocks.h>

@@ -19,7 +19,7 @@
  * MA 02139, USA.
  * 
  */
-#ident "@(#) CSLiS streams.c 7.11 2022-10-26 15:30:00 "
+
 #include <sys/stropts.h>
 #include <sys/LiS/stats.h>
 #define	LOOP_CLONE	"/dev/loop_clone"

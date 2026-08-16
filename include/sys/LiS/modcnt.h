@@ -38,8 +38,6 @@
  *  symbols, since the calls will be within streams.o.
  */
 
-#ident "@(#) CSLiS modcnt.h 7.11 2022-10-26 15:30:00 "
-
 #if defined(_LINUX_MODULE_H)
 
 #ifndef	_STRMDBG_H

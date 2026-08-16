@@ -6,7 +6,6 @@
  *  sad.h  - declarations for Streams Administrative Driver and autopush
  */
 
-#ident "@(#) CSLiS sad.h 7.11 10/20/22 15:30:00 "
 #ifndef _SYS_SAD_H
 #define _SYS_SAD_H
 

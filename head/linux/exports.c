@@ -29,8 +29,6 @@
  * 
  */
 
-#ident "@(#) CSLiS exports.c 7.111 2024-05-07 15:30:00 "
-
 #include <sys/LiS/linux-mdep.h>		/* redefine dev_t b4 any kernel incls */
 
 #ifdef MODVERSIONS

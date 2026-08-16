@@ -31,7 +31,6 @@
 #ifndef _CMD_ERR_H
 #define _CMD_ERR_H 1
 
-#ident "@(#) CSLiS cmn_err.h 7.11 10/20/22 15:30:00 "
 #include <sys/LiS/genconf.h>
 
 #define	CE_CONT		0		/* continue printing */

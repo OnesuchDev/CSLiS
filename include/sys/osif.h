@@ -17,7 +17,6 @@
 #if !defined(OSIF_H)
 #define OSIF_H		/* file included */
 
-#ident "@(#) CSLiS osif.h 7.112 2025-05-28 15:30:00 "
 #include <sys/LiS/genconf.h>
 #include <linux/version.h>
 #include <linux/version.h>

@@ -32,8 +32,6 @@
  * 
  */
 
-#ident "@(#) CSLiS dki.c 7.11 2026-05-21 15:30:00 "
-
 #include <sys/stream.h>
 #ifdef LIS_OBJNAME  /* This must be defined before including module.h on Linux 6.8 */
 #define _LINUX_IF_H

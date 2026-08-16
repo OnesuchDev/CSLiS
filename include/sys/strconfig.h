@@ -36,7 +36,6 @@
 #ifndef _LIS_CONFIG_H
 #define _LIS_CONFIG_H 1
 
-#ident "@(#) CSLiS strconfig.h 7.11 10/20/22 15:30:00 "
 /*  -------------------------------------------------------------------  */
 /*				   Symbols                               */
 

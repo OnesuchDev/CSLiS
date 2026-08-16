@@ -1,7 +1,6 @@
 #ifndef _SYS_CDI_H
 #define _SYS_CDI_H
 
-#ident "@(#) CSLiS cdi.h 7.11 10/20/22 15:30:00 "
 /*
  * cdi.h header for Communications Device Interface
  *

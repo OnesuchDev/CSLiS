@@ -27,7 +27,6 @@
  *  Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  *  MA 02139, USA.
  */
-#ident "@(#) CSLiS pipemod.c 7.111 2024-05-07 15:30:00 "
 
 #ifdef LIS_OBJNAME  /* This must be defined before including module.h on Linux 6.8 */
 #define _LINUX_IF_H

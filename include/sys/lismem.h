@@ -33,7 +33,6 @@
 #ifndef SYS_LISMEM_H
 #define SYS_LISMEM_H	1
 
-#ident "@(#) CSLiS lismem.h 7.11 10/20/22 15:30:00 "
 #include <sys/LiS/genconf.h>
 
 /*

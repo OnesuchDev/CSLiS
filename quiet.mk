@@ -1,4 +1,3 @@
-quiet_mk_ident="@(#) CSLiS quiet.mk 7.11 2022-10-26 15:30:00 "
 #
 # Copyright 2022 - IBM Inc. All rights reserved
 # SPDX-License-Identifier: LGPL-2.1

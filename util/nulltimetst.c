@@ -2,7 +2,7 @@
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
  */
-#ident "@(#) CSLiS nulltimetst.c 7.11 2022-10-26 15:30:00 "
+
 #define	inline				/* make disappear */
 
 #include <sys/stream.h>

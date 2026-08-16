@@ -45,8 +45,6 @@
 #ifndef _EVENTS_H
 #define _EVENTS_H 1
 
-#ident "@(#) CSLiS events.h 7.11 2022-10-26 15:30:00 "
-
 #ifndef _SYS_TYPES_H
 #include <linux/types.h>
 #endif

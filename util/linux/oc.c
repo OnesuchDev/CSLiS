@@ -25,7 +25,7 @@
  *  Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  *  MA 02139, USA.
  */
-#ident "@(#) CSLiS oc.c 7.11 2022-10-26 15:30:00 "
+
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>

@@ -23,7 +23,7 @@
  * MA 02139, USA.
  * 
  */
-#ident "@(#) CSLiS sockio.h 7.11 10/20/22 15:30:00 "
+
 #ifndef IFSTATS_DEFINED
 
 #define IFSTATS_DEFINED                 /* for other include files */

@@ -21,8 +21,6 @@
  * 
  */
 
-#ident "@(#) CSLiS timetst.c 7.11 2022-10-26 15:30:00 "
-
 #define	inline				/* make disappear */
 
 #include <unistd.h>

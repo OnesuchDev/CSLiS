@@ -34,8 +34,6 @@
  * 
  */
 
-#ident "@(#) CSLiS cmn_err.c 7.111 2022-05-07 15:30:00 "
-
 #include <sys/strport.h>
 #include <sys/cmn_err.h>
 

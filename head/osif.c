@@ -30,8 +30,6 @@
 *									*
 ************************************************************************/
 
-#ident "@(#) CSLiS osif.c 7.113 2025-12-11 15:30:00 "
-
 #include <sys/stream.h>
 #include <linux/version.h>
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)

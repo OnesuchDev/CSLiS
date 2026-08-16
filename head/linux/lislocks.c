@@ -24,8 +24,6 @@
 *									*
 ************************************************************************/
 
-#ident "@(#) CSLiS lislocks.c 7.11 2022-10-26 15:30:00 "
-
 #include <sys/stream.h>
 #include <sys/LiS/strmdbg.h>
 #include <sys/lislocks.h>

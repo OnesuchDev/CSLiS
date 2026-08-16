@@ -45,8 +45,6 @@
  *    also reworked, for same purpose.
  */
 
-#ident "@(#) CSLiS linux-mdep.c 7.113 2025-06-11 15:30:00 "
-
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
 

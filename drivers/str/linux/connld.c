@@ -37,8 +37,6 @@
  *  MA 02139, USA.
  */
 
-#ident "@(#) CSLiS connld.c 7.111 2024-05-07 15:30:00 "
-
 #ifdef LIS_OBJNAME  /* This must be defined before including module.h on Linux 6.8 */
 #define _LINUX_IF_H
 #define IFNAMSIZ        16

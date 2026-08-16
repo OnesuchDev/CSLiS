@@ -28,8 +28,6 @@
 *									*
 ************************************************************************/
 
-#ident "@(#) CSLiS lismem.c 7.111 2024-05-07 15:30:00 "
-
 #include <sys/stream.h>		/* gets all the right LiS stuff included */
 #include <sys/lismem.h>		/* LiS mem header file */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)

@@ -19,7 +19,7 @@
  * MA 02139, USA.
  * 
  */
-#ident "@(#) CSLiS log.h 7.11 2022-10-26 15:30:00 "
+
 #define LOG_INUSE 01
 #define LOG_WRITE 02
 #define LOG_READ  04

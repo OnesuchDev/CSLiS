@@ -20,7 +20,6 @@
  * MA 02139, USA.
  * 
  */
-#ident "@(#) CSLiS minimux.h 7.11 2022-10-26 15:30:00 "
 
 #define	MINIMUX_IOCTL(n)	(('m' << 8) | (n))
 #define MINIMUX_DOWN		MINIMUX_IOCTL(1)

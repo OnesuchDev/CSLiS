@@ -29,8 +29,6 @@
  * 
  */
 
-#ident "@(#) CSLiS mtdrv.c 7.111 2024-05-07 15:30:00 "
-
 /*  -------------------------------------------------------------------  */
 
 #ifdef LIS_OBJNAME  /* This must be defined before including module.h on Linux 6.8 */
