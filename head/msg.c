@@ -282,19 +282,9 @@ lis_allocb(int size, unsigned int priority, char *file_name, int line_nr)
 int _RP
 lis_testb(int size, unsigned int priority)
 {
-#ifdef AVAIL
-    int sz = 0;
-    (void)priority;
-    if (size > FASTBUF)
-	sz += size;
-    if (lis_mdbfreelist == NULL)
-	sz += sizeof(struct mdbblock); /* gotta getta hedda */
-    return (sz <= AVAIL());
-#else
     /* hack - allocate and free */
     mblk_t *bp = allocb(size, priority);
     return bp ? (lis_freeb(bp), 1) : 0;
-#endif
 }/*lis_testb*/	
 
 /*  -------------------------------------------------------------------  */
