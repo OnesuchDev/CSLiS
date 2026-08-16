@@ -1421,15 +1421,9 @@ int	_RP lis_down_fcn(lis_semaphore_t *lsem, FL)
  * Useful for semaphores that must be used during close processing.
  * Chances are the process has been signalled at that time.
  */
-#if defined(SIGMASKLOCK)
-#define LOCK_MASK    spin_lock_irq(&current->sigmask_lock)
-#define UNLOCK_MASK    recalc_sigpending(current); \
-		       spin_unlock_irq(&current->sigmask_lock)
-#else
 #define LOCK_MASK    spin_lock_irq(&current->sighand->siglock)
 #define UNLOCK_MASK    recalc_sigpending(); \
 		       spin_unlock_irq(&current->sighand->siglock)
-#endif
 
 void	_RP lis_down_nosig_fcn(lis_semaphore_t *lsem, FL)
 {

@@ -4067,15 +4067,9 @@ int      lis_kill_pg (struct pid *pgrp, int sig, int priv)
 *									*
 ************************************************************************/
 
-#if defined(SIGMASKLOCK)
-#define LOCK_MASK    spin_lock_irq(&current->sigmask_lock)
-#define UNLOCK_MASK    recalc_sigpending(current); \
-		       spin_unlock_irq(&current->sigmask_lock)
-#else
 #define LOCK_MASK    spin_lock_irq(&current->sighand->siglock)
 #define UNLOCK_MASK    recalc_sigpending(); \
 		       spin_unlock_irq(&current->sighand->siglock)
-#endif
 
 void lis_clear_and_save_sigs(stdata_t *hd)
 {

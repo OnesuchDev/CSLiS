@@ -2047,26 +2047,6 @@ else
 fi
 
 #
-# 2.4.20 (or thereabouts) changed the location of the signal mask lock
-#
-# Must set default to no.
-SIGMASKLOCK=n
-
-if [ -f $KSRC/include/linux/sched.h ]; then
-    if grep -q 'sigmask_lock' $KSRC/include/linux/sched.h; then
-        SIGMASKLOCK=y
-    fi
-elif [ "$KVER_MAJORMINOR" = "2.4" -a $KVER_PATCHNO -ge 20 ]; then
-        SIGMASKLOCK=y
-elif [ "$KVER_MAJORMINOR" = "2.5" ]; then
-        SIGMASKLOCK=y
-elif [ "$KVER_MAJORMINOR" = "2.6" ]; then
-        SIGMASKLOCK=y
-elif [ $KVER_MAJOR -ge 3 ]; then
-        SIGMASKLOCK=y
-fi
-
-#
 # Red Hat changed the number of arguments in recalc_sigpending
 #
 if [ -f $KSRC/include/linux/sched.h ]; then
@@ -2388,7 +2368,6 @@ cfg_out CONFIG_MK_KERNEL $CONFIG_MK_KERNEL
 cfg_out STRMS_QUEUES $STRMS_QUEUES
 cfg_out MOD_INST_DIR $MOD_INST_DIR
 cfg_out MOD_INSTALL $MOD_INSTALL
-cfg_out SIGMASKLOCK $SIGMASKLOCK
 cfg_out RCVOID $RCVOID
 cfg_out MACHINE $MACHINE
 cfg_out CC_NAME $CC_NAME
