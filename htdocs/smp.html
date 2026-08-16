@@ -218,7 +218,7 @@ function MM_swapImage() { //v3.0
       <p>CSLiS starts up a kernel thread for each CPU on the system. In the output 
         of a <font face="Courier New, Courier, mono">ps</font> display each thread 
         will show as a process with a name such as &quot;<font face="Courier New, Courier, mono">LiS-CS71100:0</font>&quot;. 
-        This notation means that an CSLiS kernel thread is running and is bound 
+        This notation means that a CSLiS kernel thread is running and is bound 
         to CPU 0 (&quot;<font face="Courier New, Courier, mono">:0</font>&quot;).</p>
       <p>CSLiS maintains a single global list of queues whose service procedures 
         need to be run. A queue is place into this list by calling the function 
@@ -250,7 +250,7 @@ function MM_swapImage() { //v3.0
       </ul>
       <p>In the case that the queue processing routine does not get called directly, 
         CSLiS needs to decide whether to wake up a kernel thread process or whether 
-        to defer queue processing until an CSLiS system call is about to exit.</p>
+        to defer queue processing until a CSLiS system call is about to exit.</p>
       <p>CSLiS tries to enlist one CPU for every four queues that are scheduled. 
         This number is based on considerations of CPU loading and average queue 
         lengths from queueing theory. If the number of CPUs currently processing 
@@ -415,7 +415,7 @@ CPU   Qsched-Cnts Qsched-ISR Svc-Q-Cnts Qrun-Cnts Active Thread-PID
             that removes queues from the schedule list was called. This routine 
             does not return until the queue scheduling list is empty. It can be 
             running on multiple CPUs simultaneously. It is typically called from 
-            the queue runner threads but can also be called from an CSLiS system 
+            the queue runner threads but can also be called from a CSLiS system 
             call either just prior to returning to the user or just prior to sleeping 
             on some event such as the arrival of messages at the stream head.</td>
         </tr>
