@@ -1268,16 +1268,6 @@ get_empty_inode_option()
     $qecho "GET_EMPTY_INODE=${GET_EMPTY_INODE}${NEW_INODE_FORCED}"
 }
 
-set_cpus_allowed_option()
-{
-    SCHED_H=$KSRC/include/linux/sched.h
-    if grep -q set_cpus_allowed $SCHED_H; then
-	SET_CPUS_ALLOWED=y
-    else
-	SET_CPUS_ALLOWED=n
-    fi
-}
-
 #
 # check the compiler version used to compile the kernel against
 # the version info of various C compilers that are available.
@@ -2073,10 +2063,6 @@ $qecho "Using \"$CC_NAME $CC_OPTIMIZE $CC_OPT2\" $CC_VERS as the C compiler"
 # Figure out which routine name to use for "get_empty_inode".
 #
 get_empty_inode_option
-#
-# Figure out whether or not set_cpus_allowed is defined in this kernel
-#
-set_cpus_allowed_option
 
 #
 # Some architectures need an additional include directory
@@ -2312,7 +2298,6 @@ cfg_out CC_OPT2 "$CC_OPT2"
 cfg_out KINCL_MACH_GENERIC ${KINCL_MACH_GENERIC}
 cfg_out KINCL_MACH_DEFAULT ${KINCL_MACH_DEFAULT}
 cfg_out_str GET_EMPTY_INODE ${GET_EMPTY_INODE}
-cfg_out SET_CPUS_ALLOWED $SET_CPUS_ALLOWED
 #cfg_out REGISTER_SYSCALLS $REGISTER_SYSCALLS
 cfg_out CONFIG_DEV $CONFIG_DEV
 cfg_out LIS_MAJOR_BASE ${OPT_DEVICEBASE:-231}
