@@ -406,13 +406,10 @@ default_ksrc()
 
     # change symbolic links to the real directories
     if [ -L $KBIN ]; then
-       KBIN=`ls -l $KBIN | sed -e 's/^.*-> //' -e 's/\.\.\/\.\.\/\.\.\//\/usr\//g'`
+       KBIN=`readlink $KBIN`
     fi
     if [ -L $KSRC ]; then
-	KSRC=`ls -l $KSRC | sed -e 's/^.*-> //' -e 's/\.\.\//\//g'`
-        if [ ! -d "$KSRC" -a ! -L "$KSRC" ]; then
-	    KSRC=Unknown
-	fi
+	KSRC=`readlink $KSRC`
     elif [ -d /usr/src/linux -o -L /usr/src/linux ]; then
         KSRC=/usr/src/linux
     else
@@ -1416,7 +1413,7 @@ $qecho
 #
 SRCDIR=$(cd ${SRCDIR:-$(dirname $0)}; pwd -P)
 if [ -L $SRCDIR ]; then
-    SRCDIR=`ls -ld $SRCDIR | sed -e 's/^.* //'`
+    SRCDIR=`readlink $SRCDIR`
 fi
 
 # set CONFIG to an absolute path name; if prefixed with ./, prefix with
