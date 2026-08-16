@@ -1023,19 +1023,9 @@ get_modules()
     fi
 
     if [ "$KMODVERS..." = "y..." ]; then
-	if [ "$KVER_MAJORMINOR" = "2.6" ]; then
-	    echo '/* Configure generated dummy file for 2.6 */' \
-	    		>${SRCDIR}/include/sys/modversions.h
-	    LISMODVERS=y
-        elif [ "$KVER_MAJOR" = "3" ]; then
-            echo '/* Configure generated dummy file for 3.0 */' \
-                        >${SRCDIR}/include/sys/modversions.h
-           LISMODVERS=y 
-        elif [ $KVER_MAJOR -ge 4 ]; then
-            echo '/* Configure generated dummy file for 4.0 or greater */' \
-                        >${SRCDIR}/include/sys/modversions.h
-           LISMODVERS=y
-	fi
+        echo '/* Configure generated dummy file */' \
+                    >${SRCDIR}/include/sys/modversions.h
+        LISMODVERS=y
 	$qecho "Kernel support for mod-versions detected."
     else
 	$qecho "No kernel support for mod-versions detected."
