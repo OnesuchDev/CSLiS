@@ -104,50 +104,6 @@ log_open (queue_t * q, int dev, int flag, int sflag
 	return 0;
 }
 
-
-#if 0
-void
-log_printtcp (struct log *log, mblk_t * mp, char wr)
-{
-	register struct ip *ip;
-	register uint_t hlen;
-	register struct tcphdr *oth;
-	register struct tcphdr *th;
-
-	register mblk_t *mq = dupmsg (mp);
-
-	if (wr)
-		wr = 'w';
-	else
-		wr = 'r';
-
-	mp = pullup (mq, 128);
-	if (mp == NULL) {
-		freemsg (mq);
-		printf ("Log%cN %d ", wr);
-		return;
-	}
-	ip = (struct ip *) mp->b_rptr;
-	hlen = ip->ip_hl;
-
-
-	if (ip->ip_p != IPPROTO_TCP
-			|| (ip->ip_off & htons (0x3fff)) || mq->b_wptr - mq->b_rptr < 40) {
-		freemsg (mp);
-		printf ("Log%cT %x", wr, ip->ip_p);
-		return;
-	}
-	th = (struct tcphdr *) & ((unchar *) ip)[hlen << 2];
-	if (wr == 'w') {
-		printf ("TCP %x.%x ", th->th_seq, dsize (mp) - th->th_off);
-	} else {
-		printf ("TCP %x ", th->th_ack);
-	}
-	freemsg (mp);
-}
-
-#endif
-
 void
 log_printmsg (struct log *log, const char *text, mblk_t * mp)
 {
@@ -157,10 +113,6 @@ log_printmsg (struct log *log, const char *text, mblk_t * mp)
 	logme ();
 #endif
 	if (log != NULL) {
-#if 0
-		if (log - log_log != 0 && mp->b_datap->db_type == M_DATA)
-			return;
-#endif
 		printf ("Log %d: ", log - log_log);
 	}
 	printf ("%s", text);
@@ -347,11 +299,6 @@ log_wput (queue_t * q, mblk_t * mp)
 	log = (struct log *) q->q_ptr;
 
 	if (log->flags & LOG_WRITE) {
-#if 0
-		if (*mp->b_rptr == 0x45)
-			log_printtcp (log, mp, 1);
-		else
-#endif
 			log_printmsg (log, "write", mp);
 		switch (mp->b_datap->db_type) {
 		default:{
@@ -374,11 +321,6 @@ log_rput (queue_t * q, mblk_t * mp)
 	log = (struct log *) q->q_ptr;
 
 	if (log->flags & LOG_READ) {
-#if 0
-		if (*mp->b_rptr == 0x45)
-			log_printtcp (log, mp, 0);
-		else
-#endif
 			log_printmsg (log, "read", mp);
 	}
 	putnext (q, mp);
