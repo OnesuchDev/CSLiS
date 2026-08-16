@@ -62,7 +62,6 @@ extern "C" {
 #define	LIS_STROPTS_H_SOLARIS_UW_COMPATIBLE	1
 #endif
 
-#ident "@(#) CSLiS stropts.h 7.11 10/20/22 15:30:00 "
 /*  *******************************************************************  */
 /*                               Dependencies                            */
 

@@ -38,7 +38,6 @@
 #ifndef _STR_MSG_H
 #define _STR_MSG_H 1
 
-#ident "@(#) CSLiS strmsg.h 7.11 10/20/22 15:30:00 "
 /*  *******************************************************************  */
 /*                               Dependencies                            */
 

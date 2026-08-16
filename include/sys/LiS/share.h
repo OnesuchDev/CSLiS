@@ -45,8 +45,6 @@
 #ifndef _SHARE_H
 #define _SHARE_H 1
 
-#ident "@(#) CSLiS share.h 7.11 2022-10-26 15:30:00 "
-
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
 /* We put here every linux kernel specific include to 

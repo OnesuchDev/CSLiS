@@ -34,7 +34,6 @@
 #ifndef	DKI_H
 #define	DKI_H		1
 
-#ident "@(#) CSLiS dki.h 7.11 10/20/22 15:30:00 "
 #ifndef _SYS_TYPES_H
 #include <sys/types.h>
 #endif

@@ -32,7 +32,6 @@
 #ifndef SYS_LISLOCKS_H
 #define SYS_LISLOCKS_H	1
 
-#ident "@(#) CSLiS lislocks.h 7.11 10/20/22 15:30:00 "
 #include <sys/LiS/genconf.h>
 
 #define	FL	char *file, int line

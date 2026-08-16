@@ -35,8 +35,6 @@
  * 
  */
 
-#ident "@(#) CSLiS thrtst.c 7.11 2022-10-26 15:30:00 "
-
 #define _REENTRANT
 #define _THREAD_SAFE
 #define _XOPEN_SOURCE	500		/* single unix spec */

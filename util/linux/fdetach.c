@@ -22,8 +22,6 @@
  *  MA 02139, USA.
  */
 
-#ident "@(#) CSLiS fdetach.c 7.11 2022-10-26 15:30:00 "
-
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>

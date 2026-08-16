@@ -24,7 +24,6 @@
  * 
  */
 
-#ident "@(#) CSLiS pulluptst.c 7.11 2022-10-26 15:30:00 "
 #include <sys/stream.h>
 
 

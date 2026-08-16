@@ -42,7 +42,6 @@
 #ifndef _STRPORT_H
 #define _STRPORT_H
 
-#ident "@(#) CSLiS strport.h 7.11 10/20/22 15:30:00 "
 /*  *******************************************************************  */
 /*                               Dependencies                            */
 

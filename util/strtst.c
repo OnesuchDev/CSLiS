@@ -21,7 +21,7 @@
  * MA 02139, USA.
  * 
  */
-#ident "@(#) CSLiS strtst.c 7.11 2022-10-26 15:30:00 "
+
 #define	inline			/* make disappear */
 
 #define _REENTRANT

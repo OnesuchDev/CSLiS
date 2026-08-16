@@ -31,7 +31,6 @@
 #ifndef _CRED_H
 #define _CRED_H 1
 
-#ident "@(#) CSLiS cred.h 7.11 10/20/22 15:30:00 "
 /* This file has to be updated with the Linux counterpart of SVR4 <sys/cred.h>
  * header file. 
  *

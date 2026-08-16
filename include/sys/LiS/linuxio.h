@@ -36,8 +36,6 @@
  * 
  */
 
-#ident "@(#) CSLiS linuxio.h 7.11 2022-10-26 15:30:00 "
-
 #ifndef _SYS_POLL_H
 #include <sys/poll.h>
 #endif

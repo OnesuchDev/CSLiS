@@ -43,8 +43,6 @@
 #ifndef	_STRMDBG_H
 #define	_STRMDBG_H		1
 
-#ident "@(#) CSLiS strmdbg.h 7.11 2022-10-26 15:30:00 "
-
 #ifndef _HEAD_H
 #include <sys/LiS/head.h>
 #endif

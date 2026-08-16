@@ -45,8 +45,6 @@
 extern "C" {
 #endif
 
-#ident "@(#) CSLiS stream.h 7.11 10/20/22 15:30:00 "
-
 /*
  * I heartily recommend using this feature.  It allows you to know
  * who allocated pieces of memory used by streams.  It makes it

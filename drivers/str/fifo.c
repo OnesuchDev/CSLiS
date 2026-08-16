@@ -41,10 +41,6 @@
  *  MA 02139, USA.
  */
 
-
-#ident "@(#) CSLiS fifo.c 7.111 2024-05-07 15:30:00 "
-
-
 #include <sys/LiS/module.h>			/* must be VERY first include */
 
 #include <sys/LiS/config.h>

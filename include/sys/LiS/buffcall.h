@@ -39,8 +39,6 @@
 #ifndef _BUFFCALL_H
 #define _BUFFCALL_H 1
 
-#ident "@(#) CSLiS buffcall.h 7.11 2022-10-26 15:30:00 "
-
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
 

@@ -32,8 +32,6 @@
  * 
  */
 
-#ident "@(#) CSLiS minimux.c 7.111 2024-05-07 15:30:00 "
-
 #include <sys/stream.h>
 #include <sys/cmn_err.h>
 #include <sys/LiS/minimux.h>

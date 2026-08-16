@@ -35,8 +35,6 @@
  *    gram@aztec.co.za, nemo@ordago.uc3m.es
  */
 
-#ident "@(#) CSLiS loop.c 7.111 2024-05-07 15:30:00 "
-
 /*  -------------------------------------------------------------------  */
 
 #include <sys/LiS/module.h>	/* must be VERY first include */

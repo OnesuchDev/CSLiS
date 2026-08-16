@@ -23,8 +23,6 @@
  * 
  */
 
-
-#ident "@(#) CSLiS kmem.h 7.11 10/20/22 15:30:00 "
 #ifdef __KERNEL__
 
 #ifndef _STRPORT_H

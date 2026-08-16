@@ -38,7 +38,6 @@
  * 
  */
 
-#ident "@(#) CSLiS strconf.c 7.11 2022-10-26 15:30:00 "
 #include <linux/version.h>
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,18,0)
 #include <limits.h>

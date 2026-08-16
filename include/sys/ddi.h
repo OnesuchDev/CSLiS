@@ -41,7 +41,6 @@
 #ifndef _DDI_H
 #define _DDI_H 1
 
-#ident "@(#) CSLiS ddi.h 7.11 10/20/22 15:30:00 "
 #include <sys/LiS/genconf.h>
 
 /* This file has to be updated with the Linux counterpart of SVR4 <sys/ddi.h>

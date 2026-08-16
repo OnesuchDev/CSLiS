@@ -36,8 +36,6 @@
  *    gram@aztec.co.za, nemo@ordago.uc3m.es, 100741.1151@compuserve.com
  */
 
-#ident "@(#) CSLiS msg.c 7.111 2024-05-07 15:30:00 "
-
 /*
  * The memory allocation mechanism is based on that in SVR4.2.
  * That is, all memory is allocated dynamically, with freed

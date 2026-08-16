@@ -38,8 +38,6 @@
 #ifndef _WAIT_H
 #define _WAIT_H 1
 
-#ident "@(#) CSLiS wait.h 7.11 2022-10-26 15:30:00 "
-
 #ifdef __KERNEL__
 /*  -------------------------------------------------------------------  */
 /*                               Dependencies                            */

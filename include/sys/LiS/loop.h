@@ -20,7 +20,6 @@
  * MA 02139, USA.
  * 
  */
-#ident "@(#) CSLiS loop.h 7.11 2022-10-26 15:30:00 "
 
 #define	LOOP_IOCTL(n)	(('l' << 8) | (n))
 #define LOOP_SET	LOOP_IOCTL(1)
