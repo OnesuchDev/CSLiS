@@ -16,16 +16,6 @@ ifeq ($(LINUX_TYPE),DEBIAN)
 OPT += -fno-pie -fno-stack-protector
 endif
 
-#
-# Does the user want to run the queues using bottom half or kernel
-# thread.  Set an option to be used when compiling linux-mdep.c
-#
-ifeq ($(STRMS_QUEUES),b)
-OPT += -DUSE_BH
-else
-OPT += -DUSE_KTHREAD
-endif
-
 # Are we compiling to a Linux kernel with module versions?
 ifdef CONFIG_MODULES
   ifdef CONFIG_MODVERSIONS
