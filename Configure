@@ -1489,7 +1489,6 @@ else
     default_ksrc
     check_ksrc
     CONFIG_MK_KERNEL=n
-    STRMS_QUEUES=t
     DBG_OPT=D
     LIS_SHLIB=y
     MACHINE=`uname -m`
@@ -1883,13 +1882,6 @@ if [ ! -d $MOD_INST_DIR ]; then
     fi
 fi
 $qecho "Module installation directory will be $MOD_INST_DIR"
-
-#
-# STRMS_QUEUES
-#
-# Streams queues are always run as tasklets these days.
-#
-STRMS_QUEUES="t"
 
 if [ $NOKSRC -eq 1 -a "$KMODVERS..." = "y..." ]; then
     echo "Generating ${SRCDIR}/include/sys/modversions.h."
@@ -2350,7 +2342,6 @@ cfg_out LISAUTOCONF $LISAUTOCONF
 cfg_out IPV6 $IPV6
 cfg_out IPV6_MODULE $IPV6_MODULE
 cfg_out CONFIG_MK_KERNEL $CONFIG_MK_KERNEL
-cfg_out STRMS_QUEUES $STRMS_QUEUES
 cfg_out MOD_INST_DIR $MOD_INST_DIR
 cfg_out MOD_INSTALL $MOD_INSTALL
 cfg_out MACHINE $MACHINE
