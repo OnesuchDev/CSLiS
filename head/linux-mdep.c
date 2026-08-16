@@ -74,9 +74,6 @@
 #define	__KERNEL_SYSCALLS__	1	/* to make kernel_thread visible */
 #include <linux/unistd.h>		/* for kernel_thread */
 
-# ifdef RH_71_KLUDGE			/* boogered up incls in 2.4.2 */
-#  undef CONFIG_HIGHMEM			/* b_page has semi-circular reference */
-# endif
 #include <asm/signal.h>
 #include <asm/io.h>
 #include <sys/strport.h>	/* interface */

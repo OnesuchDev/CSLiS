@@ -47,10 +47,6 @@
 #undef STR				/* collides with irq.h */
 #endif
 
-# ifdef RH_71_KLUDGE			/* boogered up incls in 2.4.2 */
-#  undef CONFIG_HIGHMEM			/* b_page has semi-circular reference */
-# endif
-
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
 #define _LINUX_IF_H
 #define IFNAMSIZ        16
