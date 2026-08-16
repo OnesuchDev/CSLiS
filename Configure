@@ -2047,21 +2047,6 @@ else
 fi
 
 #
-# Red Hat changed the number of arguments in recalc_sigpending
-#
-if [ -f $KSRC/include/linux/sched.h ]; then
-    if grep -q 'recalc_sigpending(void)' $KSRC/include/linux/sched.h; then
-        RCVOID=y
-    fi
-elif [ -f /usr/src/linux/include/linux/sched.h ]; then
-    if grep -q 'recalc_sigpending(void)' \
-            /usr/src/linux/include/linux/sched.h; then
-        RCVOID=y
-    fi
-fi
-
-
-#
 # Decide which C compiler to use.  gcc 2.96 is buggy, so try to use
 # something better if it is present.
 #
@@ -2368,7 +2353,6 @@ cfg_out CONFIG_MK_KERNEL $CONFIG_MK_KERNEL
 cfg_out STRMS_QUEUES $STRMS_QUEUES
 cfg_out MOD_INST_DIR $MOD_INST_DIR
 cfg_out MOD_INSTALL $MOD_INSTALL
-cfg_out RCVOID $RCVOID
 cfg_out MACHINE $MACHINE
 cfg_out CC_NAME $CC_NAME
 cfg_out CC_VERS $CC_VERS
