@@ -1492,20 +1492,9 @@ else
     DBG_OPT=D
     LIS_SHLIB=y
     MACHINE=`uname -m`
-    INT_PSW=y
     STREAMS_REGPARM=${STREAMS_REGPARM:-0}
 fi
 unset CONFIG_DEV
-
-if [ "$MACHINE" = "s390x" ]; then
-  INT_PSW=n
-fi
-if [ "$MACHINE" = "ppc64le" ]; then
-  INT_PSW=n
-fi
-if [ "$MACHINE" = "x86_64" ]; then
-  INT_PSW=n
-fi
 
 PROMPT="\
 Are you using the native Linux C compiler (y) or\n\
@@ -1987,25 +1976,6 @@ do_read_choice
 LIS_SHLIB=$RESULT
 
 #
-# INT_PSW
-#
-if [ "$INT_PSW..." = "..." ]; then
-    INT_PSW=y
-fi
-PROMPT="\
-When you make STREAMS, do you want to use int type for CPU flags?\n\
-Responding 'n' is more portable but may cause warnings when you\n\
-compile your driver code.\n\
-    y = int type for CPU flags\n\
-    n = unsigned long type for CPU flags\n\
-Please enter y or n"
-RESPONSE="y n"
-DEFAULT=$INT_PSW
-ARGVVALUE=${OPT_INTCPUFLAGS}
-do_read_choice
-INT_PSW=$RESULT
-
-#
 # CONFIG_DEV    -  Compile LiS for development or production.
 #		   We ask the user the question with the opposite sense
 #                  and then invert the answer for our internal flag.
@@ -2354,7 +2324,6 @@ cfg_out KINCL_MACH_DEFAULT ${KINCL_MACH_DEFAULT}
 cfg_out_str GET_EMPTY_INODE ${GET_EMPTY_INODE}
 cfg_out SET_CPUS_ALLOWED $SET_CPUS_ALLOWED
 #cfg_out REGISTER_SYSCALLS $REGISTER_SYSCALLS
-cfg_out INT_PSW $INT_PSW
 cfg_out CONFIG_DEV $CONFIG_DEV
 cfg_out LIS_MAJOR_BASE ${OPT_DEVICEBASE:-231}
 cfg_out CONFIG_INET $OPT_INET
