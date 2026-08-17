@@ -53,18 +53,7 @@ endif
 endif				# IPV6_MODULE
 endif				# CONFIG_INET
 
-ifeq ($(ARCH),s390)
 TOBJS := connld mtdrv
-endif
-ifeq ($(ARCH),s390x)
-TOBJS := connld mtdrv
-endif
-ifeq ($(ARCH),ppc64le)
-TOBJS := connld mtdrv
-endif
-ifeq ($(ARCH),x86_64)
-TOBJS := connld mtdrv
-endif
 
 # Similar to TOBJS, but non-streams modules
 ZOBJS := 
