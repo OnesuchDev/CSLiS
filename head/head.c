@@ -5740,7 +5740,7 @@ lis_strgetpmsg(struct inode *i, struct file *fp,
 
     hd = FILE_STR(fp) ;
     if (hd == NULL)
-	return(-ENODEV);
+	return(-ENOSTR);
 
     lis_head_get(hd) ;
     /*
@@ -5777,7 +5777,7 @@ lis_strgetpmsg(struct inode *i, struct file *fp,
     }
 
     rdq = hd->sd_rq ;
-    if (!LIS_CHECK_Q_MAGIC(rdq)) RTN(-EINVAL) ;
+    if (!LIS_CHECK_Q_MAGIC(rdq)) RTN(-EIO) ;
 
     if (doit)
     {					/* fetch structs from usr space */
@@ -5998,7 +5998,7 @@ lis_strgetpmsg(struct inode *i, struct file *fp,
 	{
 	    printk("strgetpmsg: empty queue: addr of queue 0x%lx\n",
 		    (long) rdq);
-	    err = -EINVAL;
+	    err = -EIO;
 	    goto return_point;
 	}
 
@@ -6018,7 +6018,7 @@ lis_strgetpmsg(struct inode *i, struct file *fp,
 	    lis_requeue(hd, mp) ;
 	    mp = NULL ;
 	    lis_check_m_sig(hd) ;		/* watch for M_SIG in q */
-	    err = -EAGAIN ;
+	    err = -EINTR ;
 	    goto return_point ;
 	}
     }
@@ -6029,7 +6029,7 @@ lis_strgetpmsg(struct inode *i, struct file *fp,
 	if (mtype == M_SIG)			/* not suitable msg */
 	{					/* msg still in queue */
 	    lis_check_m_sig(hd) ;		/* watch for M_SIG in q */
-	    err = -EAGAIN ;
+	    err = -EINTR ;
 	    goto return_point ;
 	}
 
