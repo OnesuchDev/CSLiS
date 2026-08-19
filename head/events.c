@@ -52,11 +52,6 @@
 struct strevent *lis_sefreelist; /* list of free stream events */
 struct strevent *lis_secachep;   /* reserve store of free stream events */
 
-#if 0
-/* see long comment in header --nemo*/
-struct strinfo lis_strinfo[]; /* keeps track of allocated events	*/
-#endif
-
 /*  -------------------------------------------------------------------  */
 /*			Exported functions & macros                      */
 
