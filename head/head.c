@@ -8,6 +8,16 @@
 #else
 #include <generated/autoconf.h>
 #endif
+
+#if defined (__KERNEL__) && LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
+/*
+ * No idea what's going on here.
+ * From Linux v6.19.14 include/uapi/asm-generic/posix_types.h.
+ * The type is the same on 32-bit and 64-bit.
+ */
+typedef unsigned long long	__kernel_uoff_t;
+#endif
+
 /*                               -*- Mode: C -*- 
  * head.c --- LiS stream head processing
  * Author          : Graham Wheeler, Francisco J. Ballesteros
