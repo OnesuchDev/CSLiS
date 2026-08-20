@@ -91,6 +91,10 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 #endif
 #endif
 
+#ifndef _UAPI_LINUX_OPENAT2_H
+#define _UAPI_LINUX_OPENAT2_H /* avoid struct open_how redefinition on 7.2 */
+#endif
+
 #endif /* __KERNEL__*/
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
