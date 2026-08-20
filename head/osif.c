@@ -513,6 +513,41 @@ lis_del_timer(struct timer_list * timer)
 #endif
 }
 
+/* Linux 7.2 removed strncpy */
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0)
+/*
+   Based on glibc 2.44's string/strncpy.c, used instead of Linux 7.1 code
+   because the Linux code is not LGPL-licensed.
+
+   Copyright (C) 1991-2026 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <https://www.gnu.org/licenses/>.  */
+
+char *lis_strncpy (char *s1, const char *s2, size_t n)
+{
+  size_t size = strnlen (s2, n);
+  if (size != n)
+    memset (s1 + size, '\0', n - size);
+  return memcpy (s1, s2, size);
+}
+#endif
+
+/* End code from glibc */
+
 /************************************************************************
 *                        Wrapped Functions                              *
 ************************************************************************/
