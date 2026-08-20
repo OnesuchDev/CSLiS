@@ -114,6 +114,9 @@ void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
 #include <linux/fs.h>		/* linux file sys externs */
 #endif
 #include <linux/vfs.h>		/* linux file sys externs */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7,0,0)
+#include <linux/fs_context.h>
+#endif
 #include <linux/namei.h>	/* linux file sys externs */
 #include <linux/cdev.h>		/* cdev_put */
 #include <linux/pipe_fs_i.h>
@@ -190,7 +193,11 @@ char	*lis_stropts_file =
 /************************************************************************
  *                      Prototypes                                      *
  ************************************************************************/
+#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 0, 0)
 int lis_fs_setup_sb(struct super_block *sb, void *ptr, int silent);
+#else
+int lis_fs_setup_sb(struct super_block *sb, struct fs_context *fc);
+#endif
 void lis_fdetach_all(void);
 mblk_t *lis_get_passfp(void);
 void lis_tq_free_passfp( unsigned long arg );
@@ -481,6 +488,10 @@ struct inode_operations lis_streams_iops = {
 /*
  * File system operations
  */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7,0,0)
+static int lis_init_fs_context(struct fs_context *fc);
+#endif
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 int lis_fs_get_sb(struct file_system_type *fs_type,
 #else
@@ -507,8 +518,10 @@ lis_file_system_ops =
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
     get_sb:	lis_fs_get_sb,
-#else
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(7,0,0)
     mount:      lis_fs_get_sb,
+#else
+    init_fs_context: lis_init_fs_context,
 #endif
     kill_sb:	lis_fs_kill_sb,
     owner:	NULL,
@@ -1214,8 +1227,17 @@ int lis_fs_kern_mount_sb( struct super_block *sb, void *ptr, int silent )
     return(0);
 }
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(7, 0, 0)
 int lis_fs_setup_sb(struct super_block *sb, void *ptr, int silent)
+#else
+int lis_fs_setup_sb(struct super_block *sb, struct fs_context *fc)
+#endif
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 0, 0)
+    void *ptr = fc->s_fs_info; /* set by lis_parse_monolithic */
+    int silent = 0; /* doesn't matter */
+#endif
+
     sb->s_magic		 = LIS_SB_MAGIC ;
     sb->s_blocksize	 = 1024 ;
     sb->s_blocksize_bits = 10 ;
@@ -1229,6 +1251,36 @@ int lis_fs_setup_sb(struct super_block *sb, void *ptr, int silent)
     else
         return lis_fs_kern_mount_sb( sb, ptr, silent );
 }
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7,0,0)
+static int lis_get_tree(struct fs_context *fc)
+{
+    return get_tree_nodev(fc, lis_fs_setup_sb);
+}
+
+/*
+ * Implementing this function allows us to pass binary mount data, as we
+ * require.
+ */
+static int lis_parse_monolithic(struct fs_context *fc, void *data)
+{
+	fc->s_fs_info = data;
+	return 0;
+}
+
+static const struct fs_context_operations lis_fs_context_ops = {
+    .get_tree		= lis_get_tree,
+    .parse_monolithic	= lis_parse_monolithic,
+};
+
+static int lis_init_fs_context(struct fs_context *fc)
+{
+    fc->ops = &lis_fs_context_ops;
+    fc->s_fs_info = NULL;
+    return 0;
+}
+
+#else  /* < 7.0 */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,39)
 int lis_fs_get_sb(struct file_system_type *fs_type,
@@ -1256,6 +1308,8 @@ struct dentry *lis_fs_get_sb(struct file_system_type *fs_type,
     return(mount_nodev(fs_type, flags, ptr, lis_fs_setup_sb));
 #endif
 }
+
+#endif /* < 7.0 */
 
 void lis_fs_kill_sb(struct super_block *sb)
 {
