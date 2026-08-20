@@ -81,6 +81,16 @@ typedef unsigned long long	__kernel_uoff_t;
 #include <linux/kconfig.h>
 #endif
 
+/* Linux 7.2 removed strncpy */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(7, 2, 0)
+#include <linux/types.h> /* size_t */
+
+extern char *lis_strncpy (char *s1, const char *s2, size_t n);
+#ifndef strncpy
+#define strncpy lis_strncpy
+#endif
+#endif
+
 #endif /* __KERNEL__*/
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
