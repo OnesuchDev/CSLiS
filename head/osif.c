@@ -58,7 +58,8 @@
 #endif
 #endif
 
-#include <linux/sched.h>		/* odd place for request_irq */
+#include <linux/sched.h>
+#include <linux/interrupt.h>            /* request_irq, etc. */
 #include <linux/ioport.h>		/* request_region */
 #include <asm/dma.h>
 #include <linux/slab.h>
