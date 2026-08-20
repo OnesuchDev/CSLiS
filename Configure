@@ -2068,7 +2068,13 @@ if [ "$CC_VERS..." = "3.0.2..." ]; then
     do_confirm
 fi
 
-$qecho "Using \"$CC_NAME $CC_OPTIMIZE $CC_OPT2 $CC_OPT3 $CC_OPT4\" $CC_VERS as the C compiler"
+# Disable an unfixed warning in <linux/objpool.h>
+# The option is only supported in GCC 9+
+if [ "$(echo "$CC_VERS" | cut -d . -f1)" -ge 9 ]; then
+    CC_OPT5="-Wno-address-of-packed-member"
+fi
+
+$qecho "Using \"$CC_NAME $CC_OPTIMIZE $CC_OPT2 $CC_OPT3 $CC_OPT4 $CC_OPT5\" $CC_VERS as the C compiler"
 
 #
 # Figure out which routine name to use for "get_empty_inode".
@@ -2308,6 +2314,7 @@ cfg_out CC_OPTIMIZE "$CC_OPTIMIZE"
 cfg_out CC_OPT2 "$CC_OPT2"
 cfg_out CC_OPT3 "$CC_OPT3"
 cfg_out CC_OPT4 "$CC_OPT4"
+cfg_out CC_OPT5 "$CC_OPT5"
 cfg_out KINCL_MACH_GENERIC ${KINCL_MACH_GENERIC}
 cfg_out KINCL_MACH_DEFAULT ${KINCL_MACH_DEFAULT}
 cfg_out_str GET_EMPTY_INODE ${GET_EMPTY_INODE}
