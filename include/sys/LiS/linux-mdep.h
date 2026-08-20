@@ -66,7 +66,9 @@
 #include <generated/autoconf.h>
 #endif
 
-#if defined (__KERNEL__) && LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
+#if defined (__KERNEL__)
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
 /*
  * No idea what's going on here.
  * From Linux v6.19.14 include/uapi/asm-generic/posix_types.h.
@@ -75,8 +77,13 @@
 typedef unsigned long long	__kernel_uoff_t;
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,1,0)
 #include <linux/kconfig.h>
+#endif
+
+#endif /* __KERNEL__*/
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
 /* define needed for later kernel support */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
 #define f_vfsmnt   __f_path.mnt
