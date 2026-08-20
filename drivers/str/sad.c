@@ -455,10 +455,10 @@ static void sad_cleanup_module(void)
 module_init(sad_init_module) ;
 module_exit(sad_cleanup_module) ;
 
+MODULE_LICENSE("GPL and additional rights");
+MODULE_AUTHOR("Ole Husgaard (sparre@login.dknet.dk)");
+MODULE_DESCRIPTION("STREAMS Administrative Driver");
+
 #endif /* KM26 */
 
 #endif					/* MODULE */
-
-MODULE_LICENSE("GPL and additional rights");
-MODULE_AUTHOR("Ole Husgaard (sparre@login.dknet.dk");
-MODULE_DESCRIPTION("STREAMS Administrative Driver");
