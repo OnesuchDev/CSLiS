@@ -2048,6 +2048,17 @@ if [ $CROSS_COMPILING = "n" ]; then
     fi
 fi
 
+# On x86, kernel 4.19+ uses -mfentry; omitting it causes an error in headers
+# that use it in 5.2+. See Linux commit 562e14f72292249e52e6346a9e3a30be652b0cf6
+if [ "$MACHINE" = "x86_64" ] || [ "$MACHINE" = "i686" ]; then
+    if [ $KVER_MAJOR -eq 4 -a $KVER_MINOR -ge 19 ] || \
+        [ $KVER_MAJOR -gt 4 ]; then
+            CC_OPT3="-mfentry"
+            # Used by kernel headers to determine the presence of -mfentry
+            CC_OPT4="-DCC_USING_FENTRY"
+    fi
+fi
+
 if [ "$CC_VERS..." = "3.0.2..." ]; then
     echo
     echo "Compiler $CC_NAME $GCC_VERS is known to be buggy when"
@@ -2057,7 +2068,7 @@ if [ "$CC_VERS..." = "3.0.2..." ]; then
     do_confirm
 fi
 
-$qecho "Using \"$CC_NAME $CC_OPTIMIZE $CC_OPT2\" $CC_VERS as the C compiler"
+$qecho "Using \"$CC_NAME $CC_OPTIMIZE $CC_OPT2 $CC_OPT3 $CC_OPT4\" $CC_VERS as the C compiler"
 
 #
 # Figure out which routine name to use for "get_empty_inode".
@@ -2295,6 +2306,8 @@ cfg_out CC_NAME $CC_NAME
 cfg_out CC_VERS $CC_VERS
 cfg_out CC_OPTIMIZE "$CC_OPTIMIZE"
 cfg_out CC_OPT2 "$CC_OPT2"
+cfg_out CC_OPT3 "$CC_OPT3"
+cfg_out CC_OPT4 "$CC_OPT4"
 cfg_out KINCL_MACH_GENERIC ${KINCL_MACH_GENERIC}
 cfg_out KINCL_MACH_DEFAULT ${KINCL_MACH_DEFAULT}
 cfg_out_str GET_EMPTY_INODE ${GET_EMPTY_INODE}

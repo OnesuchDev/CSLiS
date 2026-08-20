@@ -145,9 +145,9 @@ XOPTS+= -D"KBUILD_BASENAME=KBUILD_STR(streams)"
 # Compiler options for debugging and optimization.
 
 ifeq ($(DBG_OPT),y)
-XOPTS += -ggdb -O $(CC_OPT2)
+XOPTS += -ggdb -O $(CC_OPT2) $(CC_OPT3) $(CC_OPT4)
 else
-XOPTS += $(CC_OPTIMIZE) $(CC_OPT2) -DINLINE=inline -DSTATIC=static -std=gnu11 -fomit-frame-pointer
+XOPTS += $(CC_OPTIMIZE) $(CC_OPT2) $(CC_OPT3) $(CC_OPT4) -DINLINE=inline -DSTATIC=static -std=gnu11 -fomit-frame-pointer
 endif
 
 # Add -fcf-protection if it is required
