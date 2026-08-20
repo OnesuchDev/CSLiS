@@ -3090,13 +3090,8 @@ int lis_recvfd( stdata_t *recvhd, strrecvfd_t *recv, struct file *fp )
 	goto not_passfp;
 
     error = -ENFILE;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
-    if ((recv->f.fd = get_unused_fd()) < 0)
-	goto no_fds;
-#else
     if ((recv->f.fd = get_unused_fd_flags(0)) < 0)
 	goto no_fds;
-#endif
     /*
      *  it's a passed FP - hook up the file that was passed to the new FD
      */
