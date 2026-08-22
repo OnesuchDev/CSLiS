@@ -4017,7 +4017,7 @@ int lis_open_fifo(struct inode *i, struct file *f, stdata_t *head,
 
     head->sd_peer = head;
     SET_SD_FLAG( head, STFIFO );
-    F_SET( head->sd_wropt, SNDZERO|SNDPIPE );
+    F_SET( head->sd_wropt, SNDPIPE ); /* This had SNDZERO, but that's wrong */
 
     if (LIS_DEBUG_OPEN || LIS_DEBUG_REFCNTS)
 	printk("lis_open_fifo(i@0x%p/%d,f@0x%p/%li,h@0x%p/%d/%d)#%d"
