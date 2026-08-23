@@ -68,35 +68,11 @@ struct strevent {
     short se_evs;		/* events wanted */
 } strevent_t;
 
-#if 0
-/* I don't know if it's a good idea to keep the strinfo structs around
- * other structs. It's good to debug memory issues, but we should reimplement
- * completelly the STREAMS memory management. 
- * I guess it would be better just to alloc raw memory pages and avoid 
- * memory fragmentation by using the knowledge of what's likely to be requested
- * what's likely to be freed and what the sizes are.
- * When one of those pages get w/ count 0 (i.e., no used chunk inside) we could
- * just give it back to the kernel.
- * More on, we could keep initialized structs in a pre-initialized state, so
- * only the very first time they're use they're filled. Later on, the initial
- * initialization process could be skipped.
- * There was an article in UNSENIX (don't remember exactly where) about this.
- * -- nemo
- */
-
-struct strinfo {};
-#endif /* 0 */
-
 /*  -------------------------------------------------------------------  */
 /*				 Glob. Vars.                             */
 
 extern struct strevent *lis_sefreelist; /* list of free stream events */
 extern struct strevent *lis_secachep;   /* reserve store of free str events */
-
-#if 0
-/* see long comment above -- nemo */
-extern struct strinfo lis_strinfo[]; /* keeps track of allocated events	*/
-#endif
 
 /*  -------------------------------------------------------------------  */
 /*			Exported functions & macros                      */
