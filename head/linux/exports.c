@@ -337,6 +337,7 @@ EXPORT_SYMBOL(lis_unregister_strdev);
 EXPORT_SYMBOL(lis_unregister_strmod);
 EXPORT_SYMBOL(lis_untimeout);
 EXPORT_SYMBOL(lis_up_fcn);
+EXPORT_SYMBOL(lis_usectohz);
 EXPORT_SYMBOL(lis_version);
 EXPORT_SYMBOL(lis_vfree);
 EXPORT_SYMBOL(lis_virt_to_phys);
