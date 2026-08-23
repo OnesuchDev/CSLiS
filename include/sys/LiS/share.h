@@ -56,11 +56,6 @@
 /*  -------------------------------------------------------------------  */
 /*			Exported functions & macros                      */
 
-/*  -------------------------------------------------------------------  */
-/* This defines values returned by some utility functions
- */
-enum { STR_ERR = 0, STR_OK = 1 };
-
 #define lis_min(a,b)	(((a)<(b))?(a):(b))
 #define lis_max(a,b)	(((a)>(b))?(a):(b))
 #ifndef min

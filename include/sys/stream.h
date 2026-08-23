@@ -143,7 +143,7 @@ extern "C" {
 /*  -------------------------------------------------------------------  */
 
 /* test for flow cntl in band
- * returns STR_OK if msg can be put(), STR_ERR (0) if not.
+ * returns 1 if msg can be put(), 0 if not.
  */
 #ifdef __KERNEL__
 #define bcanput		lis_bcanput
@@ -267,7 +267,7 @@ extern void lis_safe_putmsg(queue_t *q, mblk_t *mp, char *f, int l)_RP;
 /* recover from allocb failure: call this when allocb() rets NULL
  * func will be called asap when a buffer for size bytes is available.
  * arg is the argument given to func
- * Returns STR_OK if ok and STR_ERR if couldn't install func.
+ * Returns 1 if ok and 0 if couldn't install func.
  */
 #define bufcall 	 lis_bufcall
 #define esbbcall	 lis_esbbcall
