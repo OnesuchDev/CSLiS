@@ -67,7 +67,7 @@
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0))
 extern unsigned long long int strtoull (char *nptr, char **endptr, int base);
 #endif
-#include <sys/LiS/linuxio.h>
+#include <sys/poll.h>
 
 #include <sys/LiS/config.h>
 #include <sys/strport.h>

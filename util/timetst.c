@@ -36,10 +36,9 @@
 #include <sys/stream.h>
 #include <sys/stropts.h>
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
-#define _SYS_POLL_H 1                /* for 3.10 kernel, do not include kernel header */ 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
+#include <sys/poll.h>	/* for 3.10 kernel, do not include kernel header */
 #endif
-#include <sys/LiS/linuxio.h>
 
 #include <sys/LiS/loop.h>		/* an odd place for this file */
 
