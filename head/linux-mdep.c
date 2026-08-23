@@ -794,13 +794,6 @@ dev_t lis_i_rdev(struct inode *i)
 
 
 /*  -------------------------------------------------------------------  */
-/*
- * lis_get_new_inode
- *
- * Depending upon kernel version and distribution this is either
- * get_empty_inode or new_inode.  The configuration script has figured
- * out which it is and set the GET_EMPTY_INODE macro accordingly
- */
 static struct inode *lis_get_new_inode(struct super_block *sb)
 {
     struct inode *i = NULL;;
@@ -811,7 +804,7 @@ static struct inode *lis_get_new_inode(struct super_block *sb)
 	return(NULL) ;
     }
 
-    i = GET_EMPTY_INODE(sb);
+    i = new_inode(sb);
 
     /*
      *  mark this inode as a LiS inode, and count it

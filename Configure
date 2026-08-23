@@ -46,8 +46,6 @@ OPTIONS
        -g|--sourcedebug Source level debugging [y|n optional]
        -R|--sharedlibs Use shared libraries [Y|n required]
        -c|--intcpuflags  "int or unsigned long" type for CPU [y|n required] 
-       -i|--forcenewinode Force new_inode usage (only when not detected)
-                       [y|n optional]
        -p|--productioncode Performance enhanced production code [y|n required]
        -I|--inet Attempt to build 'streams-inet' kernel module
        -D|--devbase  Base major device number [value required]
@@ -81,7 +79,7 @@ EXAMPLE
  --ksourcedir=/usr/src/kernel-headers-2.4.22-1-686-smp 
  --versionlinux=2.4.22-1-686-smp    --loadmodules=n 
  --moduleslocation=/lib/modules/2.4.22-1-686-smp/ --backcompat=n 
- --solaris=n --sourcedebug=y --sharedlibs=y --intcpuflags=n --forcenewinode=y 
+ --solaris=n --sourcedebug=y --sharedlibs=y --intcpuflags=n
  --productioncode=y
 
 EOF
@@ -96,7 +94,7 @@ setup_opts ()
 	"onmachine:" "nativecompiler:" "onrunning:"		\
 	"ksourcedir:" "versionlinux:" "loadmodules:" "moduleslocation:" \
 	"backcompat::" "solaris::" "sourcedebug::" "sharedlibs:" 	\
-	"intcpuflags:" "forcenewinode::" "productioncode:" "inet" 	\
+	"intcpuflags:" "productioncode:" "inet" 	\
 	"noprompt" "devicebase:" "output:" "comment:" "make" "quiet" 	\
 	"help" "package:" "prefix:" "execprefix:" "includedir:"		\
 	"libdir:" "bindir:" "sbindir:" "sysconfdir:" "datadir:"		\
@@ -151,7 +149,6 @@ case "$1" in
     -g|--sourcedebug) OPT_SRCDBG=${2:-y}; shift 2 ;;
     -R|--sharedlibs) OPT_SHAREDLIBS=$2; shift 2 ;;
     -c|--intcpuflags) OPT_INTCPUFLAGS=$2; shift 2 ;;
-    -i|--forcenewinode) OPT_FORCENEWINODE=${2:-y}; shift 2 ;;
     -p|--productioncode) OPT_PRODUCTIONCODE=$2; shift 2 ;;
     -I|--inet) OPT_INET=y; shift ;;
     -D|--devicebase) OPT_DEVICEBASE=$2; shift 2 ;;
@@ -1181,92 +1178,6 @@ generate_autoconf()
 }
 
 #
-# get_empty_inode_option
-#
-# Try to find out whether or not the routine that gets an empty inode
-# is still called "get_empty_inode" or "new_inode".
-#
-# we assume this option will be passed a value s; this makes it easier
-# to define the macro conventionally
-#
-# This must be done after it is known whether we are going to install
-# on the running kernel and whether there is kernel source available.
-#
-get_empty_inode_option()
-{
-    if [ "$KVER_MAJORMINOR" = "2.6" ]; then
-       GET_EMPTY_INODE="new_inode((LIS_SB))"
-    elif [ "$KVER_MAJOR" = "3" ]; then
-       GET_EMPTY_INODE="new_inode((LIS_SB))"
-    elif [ $KVER_MAJOR -ge 4 ]; then
-       GET_EMPTY_INODE="new_inode((LIS_SB))"
-    elif [ "$USE_RUNNING_KERNEL..." = "y..." ]; then
-	if grep -q new_inode $KSYMS; then
-	    GET_EMPTY_INODE="new_inode((LIS_SB))"
-	elif grep -q get_empty_inode $KSYMS; then
-	    GET_EMPTY_INODE="get_empty_inode()"
-	else
-	    GET_EMPTY_INODE="get_empty_inode()"
-	    echo "Your running kernel exports neither the symbol"
-	    echo "get_empty_inode nor new_inode.  The compilation of"
-	    echo "LiS will probably print warnings related to"
-	    echo "these symbols, and LiS will probably fail to"
-	    echo "load as a module."
-	    do_confirm
-	fi
-	return
-    elif [ -f $KSRC/kernel/ksyms.c ]; then
-	if grep -q new_inode $KSRC/kernel/ksyms.c; then
-	    GET_EMPTY_INODE="new_inode((LIS_SB))"
-	elif grep -q get_empty_inode $KSRC/kernel/ksyms.c; then
-	    GET_EMPTY_INODE="get_empty_inode()"
-	else
-	    GET_EMPTY_INODE="get_empty_inode()"
-	    echo "Your kernel source exports neither the symbol"
-	    echo "get_empty_inode nor new_inode.  The compilation of"
-	    echo "LiS will probably print warnings related to"
-	    echo "these symbols, and LiS will probably fail to"
-	    echo "load as a module."
-	     if [ "$OPT_FORCENEWINODE..." = "..." ] ;then
-	      do_confirm
-             else
-                 if  [ "$OPT_FORCENEWINODE" = "y" ] ;then
-             	    GET_EMPTY_INODE="new_inode((LIS_SB))" 
-                    #echo "***new_inode FORCED***"
-		    NEW_INODE_FORCED=" (forced)"
-                else
-           	    GET_EMPTY_INODE="get_empty_inode()" 
-                fi
-             fi
-	fi
-	return
-    else
-	GET_EMPTY_INODE="get_empty_inode()"
-	echo "You have told the LiS installation that you do not"
-	echo "intend to run LiS on the running kernel and we cannot"
-	echo "find the file $KSRC/kernel/ksyms.c"
-	echo "One or the other is necessary to determine whether"
-	echo "to use get_empty_inode or new_inode.  The compilation of"
-	echo "LiS will probably print warnings related to"
-	echo "these symbols, and LiS will probably fail to"
-	echo "load as a module."
-        if [ "$OPT_FORCENEWINODE..." = "..." ] ;then
-            do_confirm
-        else
-            if  [ "$OPT_FORCENEWINODE" = "y" ] ;then
-                GET_EMPTY_INODE="new_inode((LIS_SB))" 
-                #echo "***new_inode FORCED***"
-		NEW_INODE_FORCED=" (forced)"
-            else
-                GET_EMPTY_INODE="get_empty_inode()" 
-            fi
-        fi
-    fi
-
-    $qecho "GET_EMPTY_INODE=${GET_EMPTY_INODE}${NEW_INODE_FORCED}"
-}
-
-#
 # check the compiler version used to compile the kernel against
 # the version info of various C compilers that are available.
 #
@@ -2073,11 +1984,6 @@ fi
 $qecho "Using \"$CC_NAME $CC_OPTIMIZE\" $CC_VERS as the C compiler"
 
 #
-# Figure out which routine name to use for "get_empty_inode".
-#
-get_empty_inode_option
-
-#
 # Some architectures need an additional include directory
 # When installing with no kernel source we will use /usr/src/linux anyway
 # and just hope that this stuff got installed even though the rest of the
@@ -2313,7 +2219,6 @@ cfg_out CC_OPT4 "$CC_OPT4"
 cfg_out CC_OPT5 "$CC_OPT5"
 cfg_out KINCL_MACH_GENERIC ${KINCL_MACH_GENERIC}
 cfg_out KINCL_MACH_DEFAULT ${KINCL_MACH_DEFAULT}
-cfg_out_str GET_EMPTY_INODE ${GET_EMPTY_INODE}
 #cfg_out REGISTER_SYSCALLS $REGISTER_SYSCALLS
 cfg_out CONFIG_DEV $CONFIG_DEV
 cfg_out LIS_MAJOR_BASE ${OPT_DEVICEBASE:-231}
