@@ -228,7 +228,7 @@ print(char *fmt, ...)
     {
 	strcpy(bfr, "strtst:") ;
 	bfr[7] = ' ' ;
-        rslt = 	user_write(printk_fd, bfr, strlen(bfr)) ;
+        rslt = 	write(printk_fd, bfr, strlen(bfr)) ;
         if (rslt < 0)
             printf("print: %s\n", strerror(ENO(rslt))) ;
         else
@@ -286,24 +286,24 @@ void	set_debug_mask(unsigned long long msk)
     unsigned long	mask1 = (unsigned long)(msk & 0xFFFFFFFF) ;
     unsigned long	mask2 = (msk >> 32) ;
 
-    fd = user_open(LOOP_1, O_RDWR, 0) ;
+    fd = open(LOOP_1, O_RDWR) ;
     if (fd < 0)
     {
 	print("loop.1: %s\n", strerror(ENO(fd))) ;
 	xit() ;
     }
 
-    rslt = user_ioctl(fd, I_LIS_SDBGMSK, mask1) ;
+    rslt = ioctl(fd, I_LIS_SDBGMSK, mask1) ;
     if (rslt < 0)
     {
 	print("loop.1: I_LIS_SDBGMSK: %s\n", strerror(ENO(rslt))) ;
 	xit() ;
     }
 
-    rslt = user_ioctl(fd, I_LIS_SDBGMSK2, mask2) ;
+    rslt = ioctl(fd, I_LIS_SDBGMSK2, mask2) ;
     print("\nSTREAMS debug mask set to 0x%08lx%08lx\n", mask2, mask1) ;
 
-    user_close(fd) ;
+    close(fd) ;
 
 } /* set_debug_mask */
 
@@ -389,7 +389,7 @@ void	print_mem(void)
     int		fd ;
     int		rslt ;
 
-    fd = user_open(LOOP_1, O_RDWR, 0) ;
+    fd = open(LOOP_1, O_RDWR) ;
     if (fd < 0)
     {
 	print("loop.1: %s\n", strerror(ENO(fd))) ;
@@ -397,7 +397,7 @@ void	print_mem(void)
     }
 
     print("\n\nBegin dump of in-use memory areas\n\n") ;
-    rslt = user_ioctl(fd, I_LIS_PRNTMEM, 0) ;
+    rslt = ioctl(fd, I_LIS_PRNTMEM, 0) ;
     if (rslt < 0)
     {
 	print("loop.1: I_LIS_PRNTMEM: %s\n", strerror(ENO(rslt))) ;
@@ -405,7 +405,7 @@ void	print_mem(void)
     }
 
     print("\n\nEnd dump of in-use memory areas\n\n") ;
-    user_close(fd) ;
+    close(fd) ;
 
 } /* print_mem */
 
@@ -420,7 +420,7 @@ void	print_stream(int fd)
 {
     int		rslt ;
 
-    rslt = user_ioctl(fd, I_LIS_PRNTSTRM, 0) ;
+    rslt = ioctl(fd, I_LIS_PRNTSTRM, 0) ;
     if (rslt < 0)
     {
 	print("I_LIS_PRNTSTRM: %s\n", strerror(ENO(rslt))) ;
@@ -525,32 +525,32 @@ void	open_close_test(void)
     {
 	print("\nopen_close_test iteration #%d\n", i) ;
 
-	fd1 = user_open(LOOP_1, O_RDWR, 0) ;
+	fd1 = open(LOOP_1, O_RDWR) ;
 	if (fd1 < 0)
 	{
 	    print("loop.1: %s\n", strerror(ENO(fd1))) ;
 	    break ;
 	}
 
-	fd2 = user_open(LOOP_2, O_RDWR, 0) ;
+	fd2 = open(LOOP_2, O_RDWR) ;
 	if (fd2 < 0)
 	{
 	    print("loop.2: %s\n", strerror(ENO(fd2))) ;
 	    break ;
 	}
 
-	fd3 = user_open(LOOP_1, O_RDWR, 0) ;
+	fd3 = open(LOOP_1, O_RDWR) ;
 	if (fd3 < 0)
 	{
 	    print("loop.1 (second open): %s\n", strerror(ENO(fd3))) ;
 	    break ;
 	}
 
-	rslt = user_open(LOOP_255, O_RDWR, 0) ;
+	rslt = open(LOOP_255, O_RDWR) ;
 	if (rslt >= 0)			/* this is supposed to fail */
 	{
 	    print("loop.255 succeeded, but should have failed\n") ;
-	    user_close(rslt) ;
+	    close(rslt) ;
 	    break ;
 	}
 
@@ -560,24 +560,24 @@ void	open_close_test(void)
 	ioc.ic_len	  = 0 ;
 
         print("loop.2: ioctl LOOP_DENY_OPEN\n");
-	rslt = user_ioctl(fd2, I_STR, &ioc) ;
+	rslt = ioctl(fd2, I_STR, &ioc) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: ioctl LOOP_DENY_OPEN: %s\n", strerror(ENO(rslt))) ;
 	    break ;
 	}
 
-	rslt = user_open(LOOP_2, O_RDWR, 0) ;
+	rslt = open(LOOP_2, O_RDWR) ;
 	if (rslt >= 0)			/* this is supposed to fail */
 	{
 	    print("loop.2 succeeded, but should have failed\n") ;
-	    user_close(rslt) ;
+	    close(rslt) ;
 	    break ;
 	}
 
-	user_close(fd1) ;
-	user_close(fd2) ;
-	user_close(fd3) ;
+	close(fd1) ;
+	close(fd2) ;
+	close(fd3) ;
     }
 
 } /* open_close_test */
@@ -596,18 +596,18 @@ int	open_files(int *fd1, int *fd2)
     int			rslt ;
     struct strioctl	ioc ;
 
-    *fd1 = user_open(LOOP_1, O_RDWR, 0) ;
+    *fd1 = open(LOOP_1, O_RDWR) ;
     if (*fd1 < 0)
     {
 	print("loop.1: %s\n", strerror(ENO(*fd1))) ;
 	return(*fd1) ;
     }
 
-    *fd2 = user_open(LOOP_2, O_RDWR, 0) ;
+    *fd2 = open(LOOP_2, O_RDWR) ;
     if (*fd2 < 0)
     {
 	print("loop.2: %s\n", strerror(ENO(*fd2))) ;
-	user_close(*fd1) ;
+	close(*fd1) ;
 	return(*fd2) ;
     }
 
@@ -617,7 +617,7 @@ int	open_files(int *fd1, int *fd2)
     ioc.ic_dp	  = (char *) &arg ;
 
     arg = 2 ;
-    rslt = user_ioctl(*fd1, I_STR, &ioc) ;
+    rslt = ioctl(*fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop.1: ioctl LOOP_SET: %s\n", strerror(ENO(rslt))) ;
@@ -641,14 +641,14 @@ int	open_clones(int *fd1, int *fd2)
     int			rslt ;
     struct strioctl	ioc ;
 
-    *fd1 = user_open(LOOP_CLONE, O_RDWR, 0) ;
+    *fd1 = open(LOOP_CLONE, O_RDWR) ;
     if (*fd1 < 0)
     {
 	print("loop_clone.1: %s\n", strerror(ENO(*fd1))) ;
 	xit() ;
     }
 
-    *fd2 = user_open(LOOP_CLONE, O_RDWR, 0) ;
+    *fd2 = open(LOOP_CLONE, O_RDWR) ;
     if (*fd2 < 0)
     {
 	print("loop_clone.2: %s\n", strerror(ENO(*fd2))) ;
@@ -661,7 +661,7 @@ int	open_clones(int *fd1, int *fd2)
 
     ioc.ic_cmd 	  = LOOP_GET_DEV ;
     arg = -1 ;
-    rslt = user_ioctl(*fd2, I_STR, &ioc) ;
+    rslt = ioctl(*fd2, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.2: ioctl LOOP_GET_DEV: %s\n", strerror(ENO(rslt))) ;
@@ -676,7 +676,7 @@ int	open_clones(int *fd1, int *fd2)
 
     ioc.ic_cmd 	  = LOOP_SET ;
     ioc.ic_len	  = sizeof(int) ;
-    rslt = user_ioctl(*fd1, I_STR, &ioc) ;
+    rslt = ioctl(*fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.1: ioctl LOOP_SET: %s\n", strerror(ENO(rslt))) ;
@@ -700,7 +700,7 @@ int	n_read(int fd)
     int		rslt ;
     int		arg ;
 
-    rslt = user_ioctl(fd, I_NREAD, &arg) ;
+    rslt = ioctl(fd, I_NREAD, &arg) ;
     if (rslt < 0)
     {
 	print("I_NREAD: %s\n", strerror(ENO(rslt))) ;
@@ -723,7 +723,7 @@ int	n_read_msgs(int fd)
     int		rslt ;
     int		arg ;
 
-    rslt = user_ioctl(fd, I_NREAD, &arg) ;
+    rslt = ioctl(fd, I_NREAD, &arg) ;
     if (rslt < 0)
 	print("I_NREAD: %s\n", strerror(ENO(rslt))) ;
 
@@ -742,7 +742,7 @@ int	write_data(int fd, char *bfr, int cnt)
 {
     int		rslt ;
 
-    rslt = user_write(fd, bfr, cnt) ;
+    rslt = write(fd, bfr, cnt) ;
     if (rslt < 0)
 	print("write_data: %s\n", strerror(ENO(rslt))) ;
     else
@@ -767,7 +767,7 @@ int	put_msg(int fd, struct strbuf *ctlptr,
 {
     int		rslt ;
 
-    rslt = user_putpmsg(fd, ctlptr, dataptr, band, flags) ;
+    rslt = putpmsg(fd, ctlptr, dataptr, band, flags) ;
     if (rslt < 0)
 	print("put_msg: %s\n", strerror(ENO(rslt))) ;
     else
@@ -825,14 +825,14 @@ void	ioctl_test(void)
 		*           Open Files          * 
 		********************************/
 
-	fd1 = user_open(LOOP_1, O_RDWR, 0) ;
+	fd1 = open(LOOP_1, O_RDWR) ;
 	if (fd1 < 0)
 	{
 	    print("loop.1: %s\n", strerror(ENO(fd1))) ;
 	    xit() ;
 	}
 
-	fd2 = user_open(LOOP_2, O_RDWR, 0) ;
+	fd2 = open(LOOP_2, O_RDWR) ;
 	if (fd2 < 0)
 	{
 	    print("loop.2: %s\n", strerror(ENO(fd2))) ;
@@ -849,7 +849,7 @@ void	ioctl_test(void)
 	ioc.ic_dp	  = (char *) &arg ;
 
 	arg = 2 ;
-	rslt = user_ioctl(fd1, I_STR, &ioc) ;
+	rslt = ioctl(fd1, I_STR, &ioc) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: ioctl LOOP_SET: %s\n", strerror(ENO(rslt))) ;
@@ -862,7 +862,7 @@ void	ioctl_test(void)
 	 */
 	arg = 1 ;
 	ioc.ic_len	  = sizeof(int) ;
-	rslt = user_ioctl(fd2, I_STR, &ioc) ;
+	rslt = ioctl(fd2, I_STR, &ioc) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: ioctl returned expected error: %s\n",
@@ -872,11 +872,11 @@ void	ioctl_test(void)
 	    print("loop.2: ioctl returned unexpected success, "
 	          "should fail with EBUSY\n") ;
 
-	user_close(fd1) ;
-	user_close(fd2) ;
+	close(fd1) ;
+	close(fd2) ;
 
 
-	fd1 = user_open(LOOP_1, O_RDWR, 0) ;
+	fd1 = open(LOOP_1, O_RDWR) ;
 	if (fd1 < 0)
 	{
 	    print("loop.1: %s\n", strerror(ENO(fd1))) ;
@@ -888,7 +888,7 @@ void	ioctl_test(void)
 		********************************/
 
 	print("\nTesting I_PUSH (relay)\n") ;
-	rslt = user_ioctl(fd1, I_PUSH, "relay") ;
+	rslt = ioctl(fd1, I_PUSH, "relay") ;
 	if (rslt < 0)
 	{
 	    print("loop.1: I_PUSH (relay): %s\n", strerror(ENO(rslt))) ;
@@ -903,7 +903,7 @@ void	ioctl_test(void)
 
 	print("\nTesting I_LOOK\n") ;
 	strcpy(buf,"Nothing at all") ;
-	rslt = user_ioctl(fd1, I_LOOK, buf) ;
+	rslt = ioctl(fd1, I_LOOK, buf) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: I_LOOK: %s\n", strerror(ENO(fd1))) ;
@@ -918,7 +918,7 @@ void	ioctl_test(void)
 		********************************/
 
 	print("\nTesting I_PUSH (relay2)\n") ;
-	rslt = user_ioctl(fd1, I_PUSH, "relay2") ;
+	rslt = ioctl(fd1, I_PUSH, "relay2") ;
 	if (rslt < 0)
 	{
 	    print("loop.1: I_PUSH (relay2): %s\n", strerror(ENO(rslt))) ;
@@ -933,7 +933,7 @@ void	ioctl_test(void)
 		********************************/
 
 	print("\nTesting I_FIND\n") ;
-	rslt = user_ioctl(fd1, I_FIND, "relay") ;
+	rslt = ioctl(fd1, I_FIND, "relay") ;
 	if (rslt < 0)
 	{
 	    print("loop.1: I_FIND: %s\n", strerror(ENO(rslt))) ;
@@ -949,7 +949,7 @@ void	ioctl_test(void)
 		*         Read/Write            * 
 		********************************/
 
-	fd2 = user_open(LOOP_2, O_RDWR, 0) ;
+	fd2 = open(LOOP_2, O_RDWR) ;
 	if (fd2 < 0)
 	{
 	    print("loop.2: %s\n", strerror(ENO(fd2))) ;
@@ -962,7 +962,7 @@ void	ioctl_test(void)
 	ioc.ic_dp	  = (char *) &arg ;
 
 	arg = 2 ;
-	rslt = user_ioctl(fd1, I_STR, &ioc) ;
+	rslt = ioctl(fd1, I_STR, &ioc) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: ioctl LOOP_SET: %s\n", strerror(ENO(rslt))) ;
@@ -980,7 +980,7 @@ void	ioctl_test(void)
 	 * this option.  For now, just read what was written.
 	 */
 	rdbuf[0] = 0 ;
-	rslt = user_read(fd2, rdbuf, lgth);
+	rslt = read(fd2, rdbuf, lgth);
 	if (rslt < 0)
 	{
 	    print("loop.2: read: %s\n", strerror(ENO(rslt))) ;
@@ -1017,7 +1017,7 @@ void	ioctl_test(void)
 	 * this option.  For now, just read what was written.
 	 */
 	rdbuf[0] = 0 ;
-	rslt = user_read(fd2, rdbuf, lgth);
+	rslt = read(fd2, rdbuf, lgth);
 	if (rslt < 0)
 	{
 	    print("loop.2: read: %s\n", strerror(ENO(rslt))) ;
@@ -1075,7 +1075,7 @@ void	ioctl_test(void)
 	    print("loop.2: I_NREAD returned %d, OK\n", rslt) ;
 
 	memset(rdbuf, 0, sizeof(rdbuf)) ;
-	rslt = user_read(fd2, rdbuf, lgth);
+	rslt = read(fd2, rdbuf, lgth);
 	if (rslt < 0)
 	{
 	    print("loop.2: read: %s\n", strerror(ENO(rslt))) ;
@@ -1114,7 +1114,7 @@ void	ioctl_test(void)
 	    xit() ;
 	}
 
-	rslt = user_ioctl(fd2, I_FLUSH, FLUSHRW) ;
+	rslt = ioctl(fd2, I_FLUSH, FLUSHRW) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: I_FLUSH: %s\n", strerror(ENO(rslt))) ;
@@ -1146,14 +1146,14 @@ void	ioctl_test(void)
 	ioc.ic_dp	  = buf;
 	ioc.ic_cmd 	  = LOOP_FLUSH ;
 	ioc.ic_len	  = strlen(buf) ;
-	rslt = user_ioctl(fd1, I_STR, &ioc) ;
+	rslt = ioctl(fd1, I_STR, &ioc) ;
 	if (rslt < 0)
 	{
 	    print("loop_clone.1: ioctl LOOP_FLUSH: %s\n", strerror(ENO(rslt))) ;
 	}
 
 	memset(rdbuf, 0, sizeof(rdbuf)) ;
-	rslt = user_read(fd2, rdbuf, ioc.ic_len);
+	rslt = read(fd2, rdbuf, ioc.ic_len);
 	if (rslt < 0)
 	{
 	    print("loop.2: read: %s\n", strerror(ENO(rslt))) ;
@@ -1180,7 +1180,7 @@ void	ioctl_test(void)
 		********************************/
 
 	print("\nTesting I_CANPUT\n") ;
-	rslt = user_ioctl(fd2, I_CANPUT, 0) ;
+	rslt = ioctl(fd2, I_CANPUT, 0) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: I_CANPUT: %s\n", strerror(ENO(rslt))) ;
@@ -1194,7 +1194,7 @@ void	ioctl_test(void)
 		********************************/
 
 	print("\nTesting __LIS_OLD_WRONG_I_SETCLTIME\n") ;
-	rslt = user_ioctl(fd2, __LIS_OLD_WRONG_I_SETCLTIME, 50) ;
+	rslt = ioctl(fd2, __LIS_OLD_WRONG_I_SETCLTIME, 50) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: __LIS_OLD_WRONG_I_SETCLTIME: %s\n", strerror(ENO(rslt))) ;
@@ -1208,7 +1208,7 @@ void	ioctl_test(void)
 	arg = 50;
 
 	print("\nTesting I_SETCLTIME\n") ;
-	rslt = user_ioctl(fd2, I_SETCLTIME, &arg) ;
+	rslt = ioctl(fd2, I_SETCLTIME, &arg) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: I_SETCLTIME: %s\n", strerror(ENO(rslt))) ;
@@ -1223,7 +1223,7 @@ void	ioctl_test(void)
 
 	print("\nTesting I_GETCLTIME\n") ;
 	arg = 0 ;
-	rslt = user_ioctl(fd2, I_GETCLTIME, &arg) ;
+	rslt = ioctl(fd2, I_GETCLTIME, &arg) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: I_GETCLTIME: %s\n", strerror(ENO(rslt))) ;
@@ -1240,7 +1240,7 @@ void	ioctl_test(void)
 		********************************/
 
 	print("\nTesting I_LIST\n") ;
-	rslt = user_ioctl(fd1, I_LIST, NULL) ;
+	rslt = ioctl(fd1, I_LIST, NULL) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: I_LIST: %s\n", strerror(ENO(rslt))) ;
@@ -1249,7 +1249,7 @@ void	ioctl_test(void)
 	print("I_LIST(loop.1, NULL) = %d\n", rslt) ;
 	lgth = rslt ;			/* length of list */
 
-	rslt = user_ioctl(fd2, I_LIST, NULL) ;
+	rslt = ioctl(fd2, I_LIST, NULL) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: I_LIST: %s\n", strerror(ENO(rslt))) ;
@@ -1259,7 +1259,7 @@ void	ioctl_test(void)
 	lgth2 = rslt ;			/* length of list */
 
 	mod_list.sl_nmods = sizeof(mod_names)/sizeof(mod_names[0]);
-	rslt = user_ioctl(fd1, I_LIST, &mod_list) ;
+	rslt = ioctl(fd1, I_LIST, &mod_list) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: I_LIST: %s\n", strerror(ENO(rslt))) ;
@@ -1285,7 +1285,7 @@ void	ioctl_test(void)
 	}
 
 	mod_list.sl_nmods = sizeof(mod_names)/sizeof(mod_names[0]);
-	rslt = user_ioctl(fd2, I_LIST, &mod_list) ;
+	rslt = ioctl(fd2, I_LIST, &mod_list) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: I_LIST: %s\n", strerror(ENO(rslt))) ;
@@ -1327,7 +1327,7 @@ void	ioctl_test(void)
 	ioc.ic_dp	  = NULL;
 	ioc.ic_cmd 	  = LOOP_PUTNXT ;  /* use putnext rather then svcq */
 	ioc.ic_len	  = 0 ;
-	rslt = user_ioctl(fd1, I_STR, &ioc) ;
+	rslt = ioctl(fd1, I_STR, &ioc) ;
 	if (rslt < 0)
 	{
 	    print("loop_clone.1: ioctl LOOP_PUTNXT: %s\n", strerror(ENO(rslt))) ;
@@ -1336,7 +1336,7 @@ void	ioctl_test(void)
 	strcpy(buf, "Data to send down the file for testing I_ATMARK") ;
 	lgth = strlen(buf) ;
 
-	rslt = user_ioctl(fd2, I_ATMARK, ANYMARK) ;
+	rslt = ioctl(fd2, I_ATMARK, ANYMARK) ;
 	print("loop.2: I_ATMARK w/no messages: ") ;
 	if (rslt < 0)
 	{
@@ -1356,7 +1356,7 @@ void	ioctl_test(void)
 	    xit() ;
 	}
 
-	rslt = user_ioctl(fd2, I_ATMARK, ANYMARK) ;
+	rslt = ioctl(fd2, I_ATMARK, ANYMARK) ;
 	print("loop.2: I_ATMARK w/non-marked message: ") ;
 	if (rslt < 0)
 	{
@@ -1366,7 +1366,7 @@ void	ioctl_test(void)
 
 	print("OK\n") ;
 
-	rslt = user_ioctl(fd2, I_FLUSH, FLUSHRW) ;
+	rslt = ioctl(fd2, I_FLUSH, FLUSHRW) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: I_FLUSH: %s\n", strerror(ENO(rslt))) ;
@@ -1379,7 +1379,7 @@ void	ioctl_test(void)
 	ioc.ic_len	  = 0 ;
 	ioc.ic_dp	  = NULL ;
 
-	rslt = user_ioctl(fd1, I_STR, &ioc) ;
+	rslt = ioctl(fd1, I_STR, &ioc) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: ioctl LOOP_MARK: %s\n", strerror(ENO(rslt))) ;
@@ -1395,7 +1395,7 @@ void	ioctl_test(void)
 	    print("loop.2: message failed to appear\n") ;
 	    xit() ;
 	}
-	rslt = user_ioctl(fd2, I_ATMARK, ANYMARK) ;
+	rslt = ioctl(fd2, I_ATMARK, ANYMARK) ;
 	print("loop.2: I_ATMARK(ANYMARK) w/marked message: ") ;
 	if (rslt < 0)
 	{
@@ -1411,7 +1411,7 @@ void	ioctl_test(void)
 	    xit() ;
 	}
 
-	rslt = user_ioctl(fd2, I_ATMARK, LASTMARK) ;
+	rslt = ioctl(fd2, I_ATMARK, LASTMARK) ;
 	print("loop.2: I_ATMARK(LASTMARK) w/marked message last: ") ;
 	if (rslt < 0)
 	{
@@ -1436,7 +1436,7 @@ void	ioctl_test(void)
 	    print("loop.2: messages failed to appear\n") ;
 	    xit() ;
 	}
-	rslt = user_ioctl(fd2, I_ATMARK, ANYMARK) ;
+	rslt = ioctl(fd2, I_ATMARK, ANYMARK) ;
 	print("loop.2: I_ATMARK(ANYMARK) w/marked message: ") ;
 	if (rslt < 0)
 	{
@@ -1452,7 +1452,7 @@ void	ioctl_test(void)
 	    xit() ;
 	}
 
-	rslt = user_ioctl(fd2, I_ATMARK, LASTMARK) ;
+	rslt = ioctl(fd2, I_ATMARK, LASTMARK) ;
 	print("loop.2: I_ATMARK(LASTMARK) w/marked message last: ") ;
 	if (rslt < 0)
 	{
@@ -1469,7 +1469,7 @@ void	ioctl_test(void)
 	}
 
 	ioc.ic_len	  = 0 ;
-	rslt = user_ioctl(fd1, I_STR, &ioc) ;		/* mark nxt msg */
+	rslt = ioctl(fd1, I_STR, &ioc) ;		/* mark nxt msg */
 	if (rslt < 0)
 	{
 	    print("loop.1: ioctl LOOP_MARK: %s\n", strerror(ENO(rslt))) ;
@@ -1485,7 +1485,7 @@ void	ioctl_test(void)
 	    print("loop.2: messages failed to appear\n") ;
 	    xit() ;
 	}
-	rslt = user_ioctl(fd2, I_ATMARK, ANYMARK) ;
+	rslt = ioctl(fd2, I_ATMARK, ANYMARK) ;
 	print("loop.2: I_ATMARK(ANYMARK) w/marked message: ") ;
 	if (rslt < 0)
 	{
@@ -1501,7 +1501,7 @@ void	ioctl_test(void)
 	    xit() ;
 	}
 
-	rslt = user_ioctl(fd2, I_ATMARK, LASTMARK) ;
+	rslt = ioctl(fd2, I_ATMARK, LASTMARK) ;
 	print("loop.2: I_ATMARK(LASTMARK) w/marked message not last: ") ;
 	if (rslt < 0)
 	{
@@ -1517,7 +1517,7 @@ void	ioctl_test(void)
 	    xit() ;
 	}
 
-	rslt = user_ioctl(fd2, I_FLUSH, FLUSHRW) ;
+	rslt = ioctl(fd2, I_FLUSH, FLUSHRW) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: I_FLUSH: %s\n", strerror(ENO(rslt))) ;
@@ -1532,14 +1532,14 @@ void	ioctl_test(void)
 		********************************/
 
 	print("\nTesting I_SETSIG/I_GETSIG\n") ;
-	rslt = user_ioctl(fd1, I_SETSIG, S_INPUT) ;
+	rslt = ioctl(fd1, I_SETSIG, S_INPUT) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: I_SETSIG: %s\n", strerror(ENO(rslt))) ;
 	    xit() ;
 	}
 
-	rslt = user_ioctl(fd1, I_GETSIG, &arg) ;
+	rslt = ioctl(fd1, I_GETSIG, &arg) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: I_GETSIG: %s\n", strerror(ENO(rslt))) ;
@@ -1569,7 +1569,7 @@ void	ioctl_test(void)
 		********************************/
 
 	print("\nTesting I_POP\n") ;
-	rslt = user_ioctl(fd1, I_POP, 0) ;
+	rslt = ioctl(fd1, I_POP, 0) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: I_POP: %s\n", strerror(ENO(rslt))) ;
@@ -1585,7 +1585,7 @@ void	ioctl_test(void)
 	xp.cmnd  = LOOP_XPARENT_COPYIN ;
 	xp.i_arg = strlen(buf) ;
 	xp.p_arg = buf ;
-	rslt = user_ioctl(fd1, LOOP_XPARENT_COPYIN, &xp) ;
+	rslt = ioctl(fd1, LOOP_XPARENT_COPYIN, &xp) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: LOOP_XPARENT_COPYIN: %s\n", strerror(ENO(rslt))) ;
@@ -1595,7 +1595,7 @@ void	ioctl_test(void)
 	xp.cmnd  = LOOP_XPARENT_COPYOUT ;
 	xp.i_arg = sizeof(rdbuf) ;
 	xp.p_arg = rdbuf ;
-	rslt = user_ioctl(fd1, LOOP_XPARENT_COPYOUT, &xp) ;
+	rslt = ioctl(fd1, LOOP_XPARENT_COPYOUT, &xp) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: LOOP_XPARENT_COPYOUT: %s\n", strerror(ENO(rslt))) ;
@@ -1621,8 +1621,8 @@ void	ioctl_test(void)
 		*         Close Files           * 
 		********************************/
 
-	user_close(fd1) ;
-	user_close(fd2) ;
+	close(fd1) ;
+	close(fd2) ;
     }
 
 } /* ioctl_test */
@@ -1658,14 +1658,14 @@ void	rdopt_test(void)
     ioc.ic_dp	  = NULL;
     ioc.ic_cmd 	  = LOOP_PUTNXT ;	/* use putnxt rather then svcq */
     ioc.ic_len	  = 0 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.1: ioctl LOOP_PUTNXT: %s\n", strerror(ENO(rslt))) ;
     }
 
     ioc.ic_len	  = 0 ;
-    rslt = user_ioctl(fd2, I_STR, &ioc) ;
+    rslt = ioctl(fd2, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.2: ioctl LOOP_PUTNXT: %s\n", strerror(ENO(rslt))) ;
@@ -1676,14 +1676,14 @@ void	rdopt_test(void)
 	    ********************************/
 
     print("\nTesting I_SRDOPT/I_GRDOPT(RNORM)\n") ;
-    rslt = user_ioctl(fd1, I_SRDOPT, RNORM) ;
+    rslt = ioctl(fd1, I_SRDOPT, RNORM) ;
     if (rslt < 0)
     {
 	print("loop.1: I_SRDOPT(RNORM): %s\n", strerror(ENO(rslt))) ;
 	xit() ;
     }
 
-    rslt = user_ioctl(fd1, I_GRDOPT, &arg) ;
+    rslt = ioctl(fd1, I_GRDOPT, &arg) ;
     if (rslt < 0)
     {
 	print("loop.1: I_GRDOPT(RNORM): %s\n", strerror(ENO(rslt))) ;
@@ -1717,7 +1717,7 @@ void	rdopt_test(void)
 	xit() ;
     }
     memset(rdbuf, 0, sizeof(rdbuf)) ;
-    rslt = user_read(fd1, rdbuf, 2*lgth+1);
+    rslt = read(fd1, rdbuf, 2*lgth+1);
     if (rslt < 0)
     {
 	print("loop.1: read: %s\n", strerror(ENO(rslt))) ;
@@ -1734,7 +1734,7 @@ void	rdopt_test(void)
      * Read the rest in with a count that is more than the length
      * of the remaining data.
      */
-    rslt = user_read(fd1, &rdbuf[2*lgth+1], 2*lgth);
+    rslt = read(fd1, &rdbuf[2*lgth+1], 2*lgth);
     if (rslt < 0)
     {
 	print("loop.1: read: %s\n", strerror(ENO(rslt))) ;
@@ -1765,14 +1765,14 @@ void	rdopt_test(void)
 	    ********************************/
 
     print("\nTesting I_SRDOPT/I_GRDOPT(RMSGD)\n") ;
-    rslt = user_ioctl(fd1, I_SRDOPT, RMSGD) ;
+    rslt = ioctl(fd1, I_SRDOPT, RMSGD) ;
     if (rslt < 0)
     {
 	print("loop.1: I_SRDOPT(RMSGD): %s\n", strerror(ENO(rslt))) ;
 	xit() ;
     }
 
-    rslt = user_ioctl(fd1, I_GRDOPT, &arg) ;
+    rslt = ioctl(fd1, I_GRDOPT, &arg) ;
     if (rslt < 0)
     {
 	print("loop.1: I_GRDOPT(RMSGD): %s\n", strerror(ENO(rslt))) ;
@@ -1804,7 +1804,7 @@ void	rdopt_test(void)
 	xit() ;
     }
     memset(rdbuf, 0, sizeof(rdbuf)) ;	
-    rslt = user_read(fd1, rdbuf, lgth/2);	/* read half the message */
+    rslt = read(fd1, rdbuf, lgth/2);	/* read half the message */
     if (rslt < 0)
     {
 	print("loop.1: read: %s\n", strerror(ENO(rslt))) ;
@@ -1840,14 +1840,14 @@ void	rdopt_test(void)
 	    ********************************/
 
     print("\nTesting I_SRDOPT/I_GRDOPT(RMSGN)\n") ;
-    rslt = user_ioctl(fd1, I_SRDOPT, RMSGN) ;
+    rslt = ioctl(fd1, I_SRDOPT, RMSGN) ;
     if (rslt < 0)
     {
 	print("loop.1: I_SRDOPT(RMSGN): %s\n", strerror(ENO(rslt))) ;
 	xit() ;
     }
 
-    rslt = user_ioctl(fd1, I_GRDOPT, &arg) ;
+    rslt = ioctl(fd1, I_GRDOPT, &arg) ;
     if (rslt < 0)
     {
 	print("loop.1: I_GRDOPT(RMSGN): %s\n", strerror(ENO(rslt))) ;
@@ -1879,7 +1879,7 @@ void	rdopt_test(void)
 	xit() ;
     }
     memset(rdbuf, 0, sizeof(rdbuf)) ;	
-    rslt = user_read(fd1, rdbuf, lgth/2);	/* read half the message */
+    rslt = read(fd1, rdbuf, lgth/2);	/* read half the message */
     if (rslt < 0)
     {
 	print("loop.1: read: %s\n", strerror(ENO(rslt))) ;
@@ -1903,7 +1903,7 @@ void	rdopt_test(void)
 
     print("%d bytes waiting to be read, OK\n", rslt) ;
 
-    rslt = user_read(fd1, &rdbuf[lgth/2], lgth) ;	/* read the rest */
+    rslt = read(fd1, &rdbuf[lgth/2], lgth) ;	/* read the rest */
     if (rslt < 0)
     {
 	print("loop.1: read: %s\n", strerror(ENO(rslt))) ;
@@ -1932,14 +1932,14 @@ void	rdopt_test(void)
 	    ********************************/
 
     print("\nTesting I_SRDOPT/I_GRDOPT(RPROTDAT)\n") ;
-    rslt = user_ioctl(fd1, I_SRDOPT, RNORM|RPROTDAT) ;
+    rslt = ioctl(fd1, I_SRDOPT, RNORM|RPROTDAT) ;
     if (rslt < 0)
     {
 	print("loop.1: I_SRDOPT(RPROTDAT): %s\n", strerror(ENO(rslt))) ;
 	xit() ;
     }
 
-    rslt = user_ioctl(fd1, I_GRDOPT, &arg) ;
+    rslt = ioctl(fd1, I_GRDOPT, &arg) ;
     if (rslt < 0)
     {
 	print("loop.1: I_GRDOPT(RPROTDAT): %s\n", strerror(ENO(rslt))) ;
@@ -1969,7 +1969,7 @@ void	rdopt_test(void)
 	xit() ;
     }
     memset(rdbuf, 0, sizeof(rdbuf)) ;	
-    rslt = user_read(fd1, rdbuf, lgth);		/* read the message */
+    rslt = read(fd1, rdbuf, lgth);		/* read the message */
     if (rslt < 0)
     {
 	print("loop.1: read: %s\n", strerror(ENO(rslt))) ;
@@ -2012,7 +2012,7 @@ void	rdopt_test(void)
 	print("loop.1: message failed to appear\n") ;
 	xit() ;
     }
-    rslt = user_read(fd1, rdbuf, lgth);		/* read the message */
+    rslt = read(fd1, rdbuf, lgth);		/* read the message */
     if (rslt < 0)
     {
 	print("loop.1: read: %s\n", strerror(ENO(rslt))) ;
@@ -2041,14 +2041,14 @@ void	rdopt_test(void)
 	    ********************************/
 
     print("\nTesting I_SRDOPT/I_GRDOPT(RPROTDIS)\n") ;
-    rslt = user_ioctl(fd1, I_SRDOPT, RMSGN|RPROTDIS) ;
+    rslt = ioctl(fd1, I_SRDOPT, RMSGN|RPROTDIS) ;
     if (rslt < 0)
     {
 	print("loop.1: I_SRDOPT(RPROTDIS): %s\n", strerror(ENO(rslt))) ;
 	xit() ;
     }
 
-    rslt = user_ioctl(fd1, I_GRDOPT, &arg) ;
+    rslt = ioctl(fd1, I_GRDOPT, &arg) ;
     if (rslt < 0)
     {
 	print("loop.1: I_GRDOPT(RPROTDIS): %s\n", strerror(ENO(rslt))) ;
@@ -2090,7 +2090,7 @@ void	rdopt_test(void)
 	xit() ;
     }
 
-    rslt = user_read(fd1, rdbuf, sizeof(rdbuf));	/* read the message */
+    rslt = read(fd1, rdbuf, sizeof(rdbuf));	/* read the message */
     if (rslt < 0)
     {
 	print("loop.1: read: %s\n", strerror(ENO(rslt))) ;
@@ -2122,7 +2122,7 @@ void	rdopt_test(void)
 	print("loop.1: messages failed to appear\n") ;
 	xit() ;
     }
-    rslt = user_read(fd1, rdbuf, sizeof(rdbuf));	/* read the message */
+    rslt = read(fd1, rdbuf, sizeof(rdbuf));	/* read the message */
     if (rslt < 0)
     {
 	print("loop.1: read: %s\n", strerror(ENO(rslt))) ;
@@ -2150,8 +2150,8 @@ void	rdopt_test(void)
 	    ********************************/
 
     print("\nrdopt_test: close files\n") ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 } /* rdopt_test */
 
@@ -2189,7 +2189,7 @@ void	write_test(void)
 	    ********************************/
 
     print("\nTesting write zero bytes w/o SNDZERO option\n") ;
-    rslt = user_write(fd1, buf, 0) ;
+    rslt = write(fd1, buf, 0) ;
 #if 1
     if (rslt == 0)
 	print("loop.1: *** write zero bytes returned zero.  Should it?\n") ;
@@ -2208,14 +2208,14 @@ void	write_test(void)
 #endif
 
     print("\nTesting write zero bytes with SNDZERO option\n") ;
-    rslt = user_ioctl(fd1, I_SWROPT, SNDZERO) ;
+    rslt = ioctl(fd1, I_SWROPT, SNDZERO) ;
     if (rslt < 0)
     {
 	print("loop.1: I_SWROPT(SNDZERO): %s\n", strerror(ENO(rslt))) ;
 	xit() ;
     }
 
-    rslt = user_ioctl(fd1, I_GWROPT, &arg) ;
+    rslt = ioctl(fd1, I_GWROPT, &arg) ;
     if (rslt < 0)
     {
 	print("loop.1: I_SWROPT(SNDZERO): %s\n", strerror(ENO(rslt))) ;
@@ -2231,7 +2231,7 @@ void	write_test(void)
 	xit() ;
     }
 
-    rslt = user_write(fd1, buf, 0) ;
+    rslt = write(fd1, buf, 0) ;
     if (rslt < 0)
     {
 	print("loop.1: write zero bytes: %s\n", strerror(ENO(rslt))) ;
@@ -2246,7 +2246,7 @@ void	write_test(void)
 	print("loop.2: message failed to appear\n") ;
 	xit() ;
     }
-    rslt = user_read(fd2, rdbuf, sizeof(rdbuf)) ;
+    rslt = read(fd2, rdbuf, sizeof(rdbuf)) ;
     if (rslt < 0)
     {
 	print("loop.2: read: %s\n", strerror(ENO(rslt))) ;
@@ -2273,7 +2273,7 @@ void	write_test(void)
     ioc.ic_dp	  = (char *) &arg ;
 
     arg = 60 ;			/* number of burst messages */
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop.1: ioctl LOOP_BURST: %s\n", strerror(ENO(rslt))) ;
@@ -2283,7 +2283,7 @@ void	write_test(void)
     strcpy(buf, "Burst data test:  ............data pattern.......") ;
     lgth = strlen(buf)+1 ;
 
-    rslt = user_write(fd1, buf, lgth) ;
+    rslt = write(fd1, buf, lgth) ;
     if (rslt < 0)
     {
 	print("loop.1: write: %s\n", strerror(ENO(rslt))) ;
@@ -2296,7 +2296,7 @@ void	write_test(void)
     /*
      * Set RMSGN so that read will just return a single message.
      */
-    rslt = user_ioctl(fd2, I_SRDOPT, RMSGN) ;
+    rslt = ioctl(fd2, I_SRDOPT, RMSGN) ;
     if (rslt < 0)
     {
 	print("loop.2: I_SRDOPT(RMSGN): %s\n", strerror(ENO(rslt))) ;
@@ -2305,7 +2305,7 @@ void	write_test(void)
 
     for (i = 0; n_read(fd2) > 0; i++)
     {
-	rslt = user_read(fd2, rdbuf, sizeof(rdbuf)) ;
+	rslt = read(fd2, rdbuf, sizeof(rdbuf)) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: read: %s\n", strerror(ENO(rslt))) ;
@@ -2350,7 +2350,7 @@ hang on the write and never get control back to do the read.
     ioc.ic_dp	  = (char *) &arg ;
 
     arg = 20 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop.1: ioctl LOOP_MSGLVL: %s\n", strerror(ENO(rslt))) ;
@@ -2361,9 +2361,9 @@ hang on the write and never get control back to do the read.
     for (lgth = 0; lgth < 20; lgth++)
 	strcat(buf, ".....more data.....") ;
     lgth = strlen(buf) ;
-    while ((rslt = user_ioctl(fd1, I_CANPUT, 0)) > 0)
+    while ((rslt = ioctl(fd1, I_CANPUT, 0)) > 0)
     {
-	rslt = user_write(fd1, buf, lgth) ;
+	rslt = write(fd1, buf, lgth) ;
 	if (rslt < 0) break ;
 	arg-- ;				/* count down nr of messages */
     }
@@ -2383,7 +2383,7 @@ hang on the write and never get control back to do the read.
     ioc.ic_dp	  = (char *) &arg ;
 
     arg = 0 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop.1: ioctl LOOP_MSGLVL: %s\n", strerror(ENO(rslt))) ;
@@ -2392,7 +2392,7 @@ hang on the write and never get control back to do the read.
 
     while (arg--)
     {
-	rslt = user_write(fd1, buf, lgth) ;
+	rslt = write(fd1, buf, lgth) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: write: %s\n", strerror(ENO(rslt))) ;
@@ -2404,7 +2404,7 @@ hang on the write and never get control back to do the read.
     unblocked = 0 ;
     while (n_read(fd2) > 0)		/* read all the data */
     {
-	rslt = user_ioctl(fd1, I_CANPUT, 0) ;
+	rslt = ioctl(fd1, I_CANPUT, 0) ;
 	if (rslt < 0)
 	{
 	    print("loop.1: ioctl during readback: %s\n", strerror(ENO(rslt))) ;
@@ -2418,7 +2418,7 @@ hang on the write and never get control back to do the read.
 	    unblocked = 1 ;
 	}
 
-	rslt = user_read(fd2, rdbuf, sizeof(rdbuf)) ;
+	rslt = read(fd2, rdbuf, sizeof(rdbuf)) ;
 	if (rslt < 0)
 	{
 	    print("loop.2: read: %s\n", strerror(ENO(rslt))) ;
@@ -2440,8 +2440,8 @@ hang on the write and never get control back to do the read.
 	    *         Close Files           * 
 	    ********************************/
 
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 } /* write_test */
 
@@ -2481,7 +2481,7 @@ void	close_timer_test(void)
     ioc.ic_dp	  = (char *) &arg ;
 
     arg = 2 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop.1: ioctl LOOP_MSGLVL: %s\n", strerror(ENO(rslt))) ;
@@ -2505,8 +2505,8 @@ void	close_timer_test(void)
 	    *         Close Files           * 
 	    ********************************/
 
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 
 	    /********************************
@@ -2528,7 +2528,7 @@ void	close_timer_test(void)
     ioc.ic_dp	  = (char *) &arg ;
 
     arg = 2 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop.1: ioctl LOOP_MSGLVL: %s\n", strerror(ENO(rslt))) ;
@@ -2538,7 +2538,7 @@ void	close_timer_test(void)
     ioc.ic_cmd 	  = LOOP_TIMR ;		/* set timer for queue */
     arg = 10 ;				/* # timer ticks */
     ioc.ic_len	  = sizeof(int) ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop.1: ioctl LOOP_TIMR: %s\n", strerror(ENO(rslt))) ;
@@ -2562,8 +2562,8 @@ void	close_timer_test(void)
 	    *         Close Files           * 
 	    ********************************/
 
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 } /* close_timer_test */
 
@@ -2676,7 +2676,7 @@ void	do_get_put(int putfd, int getfd,
 	print("do_get_put: message failed to appear\n") ;
 	xit() ;
     }
-    rslt = user_getpmsg(getfd, &rd_ctl, &rd_dta, &rband, &flags) ;
+    rslt = getpmsg(getfd, &rd_ctl, &rd_dta, &rband, &flags) ;
     check_getmsg_rslts(rslt, &rd_ctl, &rd_dta, &flags, band, rband) ;
 
 } /* do_get_put */
@@ -2744,7 +2744,7 @@ void	do_peek_fcn(int putfd, int getfd,
 	print("loop.1: %d message(s) failed to appear\n", msgs) ;
 	xit() ;
     }
-    rslt = user_ioctl(getfd, I_PEEK, &pk_str) ;
+    rslt = ioctl(getfd, I_PEEK, &pk_str) ;
     if (rslt < 0)
     {
 	print("do_peek: ioctl I_PEEK: %s\n", strerror(ENO(rslt))) ;
@@ -2787,7 +2787,7 @@ void	do_peek_fcn(int putfd, int getfd,
     memset(rdbuf, 0, sizeof(rdbuf)) ;
 
     flags = MSG_ANY ;
-    rslt = user_getpmsg(getfd, &rd_ctl, &rd_dta, &rband, &flags) ;
+    rslt = getpmsg(getfd, &rd_ctl, &rd_dta, &rband, &flags) ;
     check_getmsg_rslts(rslt, &rd_ctl, &rd_dta, &flags, band, rband) ;
 
 } /* do_peek */
@@ -2855,7 +2855,7 @@ void	putmsg_test(void)
 	print("loop.2: message failed to appear\n") ;
 	xit() ;
     }
-    rslt = user_read(fd2, rdbuf, lgth);
+    rslt = read(fd2, rdbuf, lgth);
     if (rslt < 0)
     {
 	print("loop_clone.2: read: %s\n", strerror(ENO(rslt))) ;
@@ -2892,7 +2892,7 @@ void	putmsg_test(void)
 	print("loop.2: message failed to appear\n") ;
 	xit() ;
     }
-    rslt = user_read(fd2, rdbuf, lgth);
+    rslt = read(fd2, rdbuf, lgth);
     if (rslt < 0)
 	print("loop_clone.2: read returned expected error: %s\n", strerror(ENO(rslt))) ;
     else
@@ -2914,7 +2914,7 @@ void	putmsg_test(void)
     memset(rdbuf, 0, sizeof(rdbuf)) ;
     flags = MSG_ANY;
     rband = 0 ;
-    rslt = user_getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
+    rslt = getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
     if (rslt < 0)
     {
 	print("loop_clone.2:  getmsg returned %d\n", rslt) ;
@@ -2968,14 +2968,14 @@ void	putmsg_test(void)
     ioc.ic_dp	  = NULL;
     ioc.ic_cmd 	  = LOOP_PUTNXT ;		/* use putnxt rather then svcq */
     ioc.ic_len	  = 0 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.1: ioctl LOOP_PUTNXT: %s\n", strerror(ENO(rslt))) ;
     }
 
     ioc.ic_len	  = 0 ;
-    rslt = user_ioctl(fd2, I_STR, &ioc) ;
+    rslt = ioctl(fd2, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.2: ioctl LOOP_PUTNXT: %s\n", strerror(ENO(rslt))) ;
@@ -3030,7 +3030,7 @@ void	putmsg_test(void)
     ioc.ic_dp	  = (char *) &arg ;
     ioc.ic_cmd 	  = LOOP_CONCAT ;	/* concatenate messages */
     arg		  = 3 ;			/* concat 3 messages */
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.1: ioctl LOOP_CONCAT: %s\n", strerror(ENO(rslt))) ;
@@ -3060,7 +3060,7 @@ void	putmsg_test(void)
 	print("loop.2: messages failed to appear\n") ;
 	xit() ;
     }
-    rslt = user_getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
+    rslt = getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
     if (rslt < 0)
     {
 	print("loop_clone.2: getpmsg: %s\n", strerror(ENO(rslt))) ;
@@ -3101,7 +3101,7 @@ void	putmsg_test(void)
     ioc.ic_dp	  = (char *) &arg ;
     ioc.ic_cmd 	  = LOOP_CONCAT ;	/* concatenate messages */
     arg		  = 3 ;			/* concat 3 messages */
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.1: ioctl LOOP_CONCAT: %s\n", strerror(ENO(rslt))) ;
@@ -3131,7 +3131,7 @@ void	putmsg_test(void)
 	print("loop.2: message failed to appear\n") ;
 	xit() ;
     }
-    rslt = user_getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
+    rslt = getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
     if (rslt < 0)
     {
 	print("loop_clone.2: getpmsg: %s\n", strerror(ENO(rslt))) ;
@@ -3171,7 +3171,7 @@ void	putmsg_test(void)
     ioc.ic_dp	  = (char *) &arg ;
     ioc.ic_cmd 	  = LOOP_CONCAT ;	/* concatenate messages */
     arg		  = 6 ;			/* concat 3 messages */
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.1: ioctl LOOP_CONCAT: %s\n", strerror(ENO(rslt))) ;
@@ -3206,7 +3206,7 @@ void	putmsg_test(void)
 	print("loop.2: messages failed to appear\n") ;
 	xit() ;
     }
-    rslt = user_getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
+    rslt = getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
     if (rslt < 0)
     {
 	print("loop_clone.2: getpmsg: %s\n", strerror(ENO(rslt))) ;
@@ -3250,8 +3250,8 @@ void	putmsg_test(void)
 	    ********************************/
 
     print("\nputmsg_test: closing files\n") ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 } /* putmsg_test */
 
@@ -3304,7 +3304,7 @@ void	poll_test(void)
     print("\nPoll function test\n") ;
 
     print("Poll with no descriptors, just timeout\n") ;
-    rslt = user_poll(fds, 0, 50) ;
+    rslt = poll(fds, 0, 50) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3339,7 +3339,7 @@ void	poll_test(void)
     fds[1].events	= POLLIN ;
     fds[1].revents	= 0 ;		/* returned events */
 
-    rslt = user_poll(fds, 2, 100) ;
+    rslt = poll(fds, 2, 100) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3369,7 +3369,7 @@ void	poll_test(void)
     fds[1].events	= POLLRDNORM ;
     fds[1].revents	= 0 ;		/* returned events */
 
-    rslt = user_poll(fds, 2, 100) ;
+    rslt = poll(fds, 2, 100) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3399,7 +3399,7 @@ void	poll_test(void)
     fds[1].events	= POLLRDBAND ;
     fds[1].revents	= 0 ;		/* returned events */
 
-    rslt = user_poll(fds, 2, 100) ;
+    rslt = poll(fds, 2, 100) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3429,7 +3429,7 @@ void	poll_test(void)
     fds[1].events	= POLLPRI ;
     fds[1].revents	= 0 ;		/* returned events */
 
-    rslt = user_poll(fds, 2, 100) ;
+    rslt = poll(fds, 2, 100) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3455,7 +3455,7 @@ void	poll_test(void)
     }
 
     memset(rdbuf, 0, sizeof(rdbuf)) ;
-    rslt = user_read(fd2, rdbuf, lgth);
+    rslt = read(fd2, rdbuf, lgth);
     if (rslt < 0)
     {
 	print("loop_clone.2: read: %s\n", strerror(ENO(rslt))) ;
@@ -3495,7 +3495,7 @@ void	poll_test(void)
     fds[1].events	= POLLIN ;
     fds[1].revents	= 0 ;		/* returned events */
 
-    rslt = user_poll(fds, 2, 100) ;
+    rslt = poll(fds, 2, 100) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3525,7 +3525,7 @@ void	poll_test(void)
     fds[1].events	= POLLRDNORM ;
     fds[1].revents	= 0 ;		/* returned events */
 
-    rslt = user_poll(fds, 2, 100) ;
+    rslt = poll(fds, 2, 100) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3555,7 +3555,7 @@ void	poll_test(void)
     fds[1].events	= POLLRDBAND ;
     fds[1].revents	= 0 ;		/* returned events */
 
-    rslt = user_poll(fds, 2, 100) ;
+    rslt = poll(fds, 2, 100) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3585,7 +3585,7 @@ void	poll_test(void)
     fds[1].events	= POLLPRI ;
     fds[1].revents	= 0 ;		/* returned events */
 
-    rslt = user_poll(fds, 2, 100) ;
+    rslt = poll(fds, 2, 100) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3616,7 +3616,7 @@ void	poll_test(void)
     fds[1].events	= POLLPRI ;
     fds[1].revents	= 0 ;		/* returned events */
 
-    rslt = user_poll(fds, 2, 100) ;
+    rslt = poll(fds, 2, 100) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3650,7 +3650,7 @@ void	poll_test(void)
     memset(rdctlbuf, 0, sizeof(rdctlbuf)) ;
     memset(rdbuf, 0, sizeof(rdbuf)) ;
 
-    rslt = user_getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
+    rslt = getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
     check_getmsg_rslts(rslt, &rd_ctl, &rd_dta, &flags, 0, rband) ;
 
 
@@ -3664,7 +3664,7 @@ void	poll_test(void)
     ioc.ic_dp	  = (char *) &arg ;
 
     arg = 50 ;				/* # timer ticks */
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop.1: ioctl LOOP_TIMR: %s\n", strerror(ENO(rslt))) ;
@@ -3678,7 +3678,7 @@ void	poll_test(void)
     fds[1].events	= POLLPRI ;
     fds[1].revents	= 0 ;		/* returned events */
 
-    rslt = user_poll(fds, 2, 100) ;
+    rslt = poll(fds, 2, 100) ;
     if (rslt < 0)
     {
 	print("poll: %s\n", strerror(ENO(rslt))) ;
@@ -3712,7 +3712,7 @@ void	poll_test(void)
     memset(rdctlbuf, 0, sizeof(rdctlbuf)) ;
     memset(rdbuf, 0, sizeof(rdbuf)) ;
 
-    rslt = user_getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
+    rslt = getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
     check_getmsg_rslts(rslt, &rd_ctl, &rd_dta, &flags, 0, rband) ;
 
 
@@ -3721,8 +3721,8 @@ void	poll_test(void)
 	    ********************************/
 
     print("\npoll_test: closing files\n") ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 
 } /* poll_test */
@@ -3783,7 +3783,7 @@ void	mux_test(void)
     if (rslt < 0) xit() ;
 
     print("mux_test: open a mux-clone device\n") ;
-    muxfd1 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd1 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd1 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd1))) ;
@@ -3791,7 +3791,7 @@ void	mux_test(void)
     }
 
     print("mux_test: open another mux-clone device\n") ;
-    muxfd2 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd2 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd2 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd2))) ;
@@ -3799,7 +3799,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_LINK loop driver under mux (muxfd1->fd1)\n") ;
-    muxid1 = user_ioctl(muxfd1, I_LINK, fd1) ;	/* link fd1 below muxfd1 */
+    muxid1 = ioctl(muxfd1, I_LINK, fd1) ;	/* link fd1 below muxfd1 */
     if (muxid1 < 0)
     {
 	print("mux_clone: I_LINK: %s\n", strerror(ENO(muxid1))) ;
@@ -3809,7 +3809,7 @@ void	mux_test(void)
 	print("                   muxid=%d\n", muxid1) ;
 
     print("mux_test: I_LINK loop driver under mux (muxfd2->fd2)\n") ;
-    muxid2 = user_ioctl(muxfd2, I_LINK, fd2) ;	/* link fd2 below muxfd2 */
+    muxid2 = ioctl(muxfd2, I_LINK, fd2) ;	/* link fd2 below muxfd2 */
     if (muxid2 < 0)
     {
 	print("mux_clone: I_LINK: %s\n", strerror(ENO(muxid2))) ;
@@ -3821,8 +3821,8 @@ void	mux_test(void)
     print_stream(muxfd1) ;
     print_stream(muxfd2) ;
     print("mux_test: close files to loop driver (now detached)\n") ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
     print("mux_test: send data down through the mux/loop and read back\n") ;
     strcpy(buf, "Test data for sending through the mini-mux") ;
@@ -3834,8 +3834,8 @@ void	mux_test(void)
 	    ********************************/
 
     print("\nmux_test: closing control streams\n") ;
-    user_close(muxfd1) ;
-    user_close(muxfd2) ;
+    close(muxfd1) ;
+    close(muxfd2) ;
 
 
     print("\nTest cascaded multiplexors\n") ;
@@ -3878,7 +3878,7 @@ void	mux_test(void)
     if (rslt < 0) xit() ;
 
     print("mux_test: open a mux-clone device\n") ;
-    muxfd1 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd1 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd1 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd1))) ;
@@ -3886,7 +3886,7 @@ void	mux_test(void)
     }
 
     print("mux_test: open another mux-clone device\n") ;
-    muxfd2 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd2 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd2 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd2))) ;
@@ -3894,7 +3894,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_LINK loop driver under mux (muxfd1->fd1)\n") ;
-    muxid1 = user_ioctl(muxfd1, I_LINK, fd1) ;	/* link fd1 below muxfd1 */
+    muxid1 = ioctl(muxfd1, I_LINK, fd1) ;	/* link fd1 below muxfd1 */
     if (muxid1 < 0)
     {
 	print("mux_clone: I_LINK: %s\n", strerror(ENO(muxid1))) ;
@@ -3904,7 +3904,7 @@ void	mux_test(void)
 	print("                   muxid=%d\n", muxid1) ;
 
     print("mux_test: I_LINK loop driver under mux (muxfd2->fd2)\n") ;
-    muxid2 = user_ioctl(muxfd2, I_LINK, fd2) ;	/* link fd2 below muxfd2 */
+    muxid2 = ioctl(muxfd2, I_LINK, fd2) ;	/* link fd2 below muxfd2 */
     if (muxid2 < 0)
     {
 	print("mux_clone: I_LINK: %s\n", strerror(ENO(muxid2))) ;
@@ -3914,7 +3914,7 @@ void	mux_test(void)
 	print("                   muxid=%d\n", muxid2) ;
 
     print("mux_test: open a mux-clone device to cascade\n") ;
-    muxfd3 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd3 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd3 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd3))) ;
@@ -3922,7 +3922,7 @@ void	mux_test(void)
     }
 
     print("mux_test: open another mux-clone device to cascade\n") ;
-    muxfd4 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd4 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd4 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd4))) ;
@@ -3930,7 +3930,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_LINK mux driver under mux (muxfd3->muxfd1)\n") ;
-    muxid3 = user_ioctl(muxfd3, I_LINK, muxfd1) ; /* link muxfd1 below muxfd3 */
+    muxid3 = ioctl(muxfd3, I_LINK, muxfd1) ; /* link muxfd1 below muxfd3 */
     if (muxid3 < 0)
     {
 	print("mux_clone: I_LINK: %s\n", strerror(ENO(muxid3))) ;
@@ -3940,7 +3940,7 @@ void	mux_test(void)
 	print("                   muxid=%d\n", muxid3) ;
 
     print("mux_test: I_LINK mux driver under mux (muxfd4->muxfd2)\n") ;
-    muxid4 = user_ioctl(muxfd4, I_LINK, muxfd2) ; /* link muxfd2 below muxfd4 */
+    muxid4 = ioctl(muxfd4, I_LINK, muxfd2) ; /* link muxfd2 below muxfd4 */
     if (muxid4 < 0)
     {
 	print("mux_clone: I_LINK: %s\n", strerror(ENO(muxid4))) ;
@@ -3952,11 +3952,11 @@ void	mux_test(void)
     print_stream(muxfd3) ;
     print_stream(muxfd4) ;
     print("mux_test: close files to loop driver (now detached)\n") ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
     print("mux_test: close files to lower mux driver (now detached)\n") ;
-    user_close(muxfd1) ;
-    user_close(muxfd2) ;
+    close(muxfd1) ;
+    close(muxfd2) ;
 
     print("mux_test: send data down through the mux/mux/loop and read back\n") ;
     strcpy(buf, "Test data for sending through the mini-mux") ;
@@ -3968,8 +3968,8 @@ void	mux_test(void)
 	    ********************************/
 
     print("\nmux_test: closing control streams of cascaded muxs\n") ;
-    user_close(muxfd3) ;
-    user_close(muxfd4) ;
+    close(muxfd3) ;
+    close(muxfd4) ;
 
 
 	    /********************************
@@ -4007,7 +4007,7 @@ void	mux_test(void)
     if (rslt < 0) xit() ;
 
     print("mux_test: open a mux-clone device\n") ;
-    muxfd1 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd1 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd1 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd1))) ;
@@ -4015,7 +4015,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_LINK loop driver under mux (muxfd1->fd1)\n") ;
-    muxid1 = user_ioctl(muxfd1, I_LINK, fd1) ;	/* link fd1 below muxfd1 */
+    muxid1 = ioctl(muxfd1, I_LINK, fd1) ;	/* link fd1 below muxfd1 */
     if (muxid1 < 0)
     {
 	print("mux_clone: I_LINK: %s\n", strerror(ENO(muxid1))) ;
@@ -4025,7 +4025,7 @@ void	mux_test(void)
 	print("                   muxid=%d\n", muxid1) ;
 
     print("mux_test: I_LINK loop driver under mux (muxfd1->fd2)\n") ;
-    muxid2 = user_ioctl(muxfd1, I_LINK, fd2) ;	/* link fd2 below muxfd2 */
+    muxid2 = ioctl(muxfd1, I_LINK, fd2) ;	/* link fd2 below muxfd2 */
     if (muxid2 < 0)
     {
 	print("mux_clone: I_LINK: %s\n", strerror(ENO(muxid2))) ;
@@ -4036,8 +4036,8 @@ void	mux_test(void)
 
     print_stream(muxfd1) ;
     print("mux_test: close files to loop driver (now detached)\n") ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
     ioc.ic_cmd 	  = MINIMUX_DOWN ;	/* set downstream linkage */
     ioc.ic_timout = 10 ;
@@ -4045,7 +4045,7 @@ void	mux_test(void)
     ioc.ic_dp	  = (char *) &arg ;
 
     arg = muxid1 ;			/* downstream muxfd1 -> muxid1 */
-    rslt = user_ioctl(muxfd1, I_STR, &ioc) ;
+    rslt = ioctl(muxfd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("minimux.1: ioctl MINIMUX_DOWN: %s\n", strerror(ENO(rslt))) ;
@@ -4055,7 +4055,7 @@ void	mux_test(void)
     ioc.ic_cmd 	  = MINIMUX_UP ;	/* set upstream linkage */
     arg = muxid2 ;			/* upstream muxfd1 <- muxid2 */
     ioc.ic_len	  = sizeof(int) ;
-    rslt = user_ioctl(muxfd1, I_STR, &ioc) ;
+    rslt = ioctl(muxfd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("minimux.1: ioctl MINIMUX_UP: %s\n", strerror(ENO(rslt))) ;
@@ -4072,7 +4072,7 @@ void	mux_test(void)
 	    ********************************/
 
     print("\nmux_test: closing control streams\n") ;
-    user_close(muxfd1) ;
+    close(muxfd1) ;
 
 
 	    /********************************
@@ -4106,7 +4106,7 @@ void	mux_test(void)
     if (rslt < 0) xit() ;
 
     print("mux_test: open a mux-clone device\n") ;
-    muxfd1 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd1 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd1 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd1))) ;
@@ -4114,7 +4114,7 @@ void	mux_test(void)
     }
 
     print("mux_test: open another mux-clone device\n") ;
-    muxfd2 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd2 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd2 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd2))) ;
@@ -4122,7 +4122,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_LINK loop driver under mux (muxfd1->fd1)\n") ;
-    muxid1 = user_ioctl(muxfd1, I_LINK, fd1) ;	/* link fd1 below muxfd1 */
+    muxid1 = ioctl(muxfd1, I_LINK, fd1) ;	/* link fd1 below muxfd1 */
     if (muxid1 < 0)
     {
 	print("mux_clone: I_LINK: %s\n", strerror(ENO(muxid1))) ;
@@ -4132,7 +4132,7 @@ void	mux_test(void)
 	print("                   muxid=%d\n", muxid1) ;
 
     print("mux_test: I_LINK loop driver under mux (muxfd2->fd2)\n") ;
-    muxid2 = user_ioctl(muxfd2, I_LINK, fd2) ;	/* link fd2 below muxfd2 */
+    muxid2 = ioctl(muxfd2, I_LINK, fd2) ;	/* link fd2 below muxfd2 */
     if (muxid2 < 0)
     {
 	print("mux_clone: I_LINK: %s\n", strerror(ENO(muxid2))) ;
@@ -4151,7 +4151,7 @@ void	mux_test(void)
     do_get_put(muxfd1, muxfd2, -1, lgth, 0) ;
 
     print("mux_test: I_UNLINK muxid1 from muxfd1\n") ;
-    rslt = user_ioctl(muxfd1, I_UNLINK, muxid1) ;
+    rslt = ioctl(muxfd1, I_UNLINK, muxid1) ;
     if (rslt < 0)
     {
 	print("minimux: I_UNLINK: %s\n", strerror(ENO(rslt))) ;
@@ -4159,7 +4159,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_UNLINK muxid2 from muxfd2\n") ;
-    rslt = user_ioctl(muxfd2, I_UNLINK, muxid2) ;
+    rslt = ioctl(muxfd2, I_UNLINK, muxid2) ;
     if (rslt < 0)
     {
 	print("minimux: I_UNLINK: %s\n", strerror(ENO(rslt))) ;
@@ -4174,12 +4174,12 @@ void	mux_test(void)
 	    ********************************/
 
     print("\nmux_test: close control streams\n") ;
-    user_close(muxfd1) ;
-    user_close(muxfd2) ;
+    close(muxfd1) ;
+    close(muxfd2) ;
     print("mux_test: send data down through the loop and read back\n") ;
     do_get_put(fd1, fd2, -1, lgth, 0) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 
 	    /********************************
@@ -4215,7 +4215,7 @@ void	mux_test(void)
     if (rslt < 0) xit() ;
 
     print("mux_test: open minor 1 of mux device\n") ;
-    muxfd1 = user_open(MUX_1, O_RDWR, 0) ;
+    muxfd1 = open(MUX_1, O_RDWR) ;
     if (muxfd1 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd1))) ;
@@ -4223,7 +4223,7 @@ void	mux_test(void)
     }
 
     print("mux_test: open a mux-clone device\n") ;
-    muxfd2 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd2 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd2 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd2))) ;
@@ -4231,7 +4231,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_PLINK loop driver under mux (muxfd1->fd1)\n") ;
-    muxid1 = user_ioctl(muxfd1, I_PLINK, fd1) ;	/* link fd1 below muxfd1 */
+    muxid1 = ioctl(muxfd1, I_PLINK, fd1) ;	/* link fd1 below muxfd1 */
     if (muxid1 < 0)
     {
 	print("mux_clone: I_PLINK: %s\n", strerror(ENO(muxid1))) ;
@@ -4241,7 +4241,7 @@ void	mux_test(void)
 	print("                   muxid=%d\n", muxid1) ;
 
     print("mux_test: I_PLINK loop driver under mux (muxfd2->fd2)\n") ;
-    muxid2 = user_ioctl(muxfd2, I_PLINK, fd2) ;	/* link fd2 below muxfd2 */
+    muxid2 = ioctl(muxfd2, I_PLINK, fd2) ;	/* link fd2 below muxfd2 */
     if (muxid2 < 0)
     {
 	print("mux_clone: I_PLINK: %s\n", strerror(ENO(muxid2))) ;
@@ -4260,9 +4260,9 @@ void	mux_test(void)
     do_get_put(muxfd1, muxfd2, -1, lgth, 0) ;
 
     print("mux_test: close muxfd1 \n") ;
-    user_close(muxfd1) ;
+    close(muxfd1) ;
     print("mux_test: re-open muxfd1 to minor 1\n") ;
-    muxfd1 = user_open(MUX_1, O_RDWR, 0) ;
+    muxfd1 = open(MUX_1, O_RDWR) ;
     if (muxfd1 < 0)
     {
 	print("mux_clone: %s\n", strerror(ENO(muxfd1))) ;
@@ -4271,7 +4271,7 @@ void	mux_test(void)
 
     print("mux_test: I_PUNLINK muxid1 from muxfd1\n") ;
     print_stream(muxfd1) ;
-    rslt = user_ioctl(muxfd1, I_PUNLINK, muxid1) ;
+    rslt = ioctl(muxfd1, I_PUNLINK, muxid1) ;
     if (rslt < 0)
     {
 	print("minimux: I_PUNLINK: %s\n", strerror(ENO(rslt))) ;
@@ -4283,7 +4283,7 @@ void	mux_test(void)
 
     print("mux_test: I_PUNLINK muxid2 from muxfd2\n") ;
     print_stream(muxfd2) ;
-    rslt = user_ioctl(muxfd2, I_PUNLINK, muxid2) ;
+    rslt = ioctl(muxfd2, I_PUNLINK, muxid2) ;
     if (rslt < 0)
     {
 	print("minimux: I_PUNLINK: %s\n", strerror(ENO(rslt))) ;
@@ -4302,12 +4302,12 @@ void	mux_test(void)
 	    ********************************/
 
     print("\nmux_test: close control streams\n") ;
-    user_close(muxfd1) ;
-    user_close(muxfd2) ;
+    close(muxfd1) ;
+    close(muxfd2) ;
     print("mux_test: send data down through the loop and read back\n") ;
     do_get_put(fd1, fd2, -1, lgth, 0) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 
 	    /********************************
@@ -4343,7 +4343,7 @@ void	mux_test(void)
     if (rslt < 0) xit() ;
 
     print("mux_test: open minimux.1\n") ;
-    muxfd1 = user_open(MUX_1, O_RDWR, 0) ;
+    muxfd1 = open(MUX_1, O_RDWR) ;
     if (muxfd1 < 0)
     {
 	print(MUX_1 ": %s\n", strerror(ENO(muxfd1))) ;
@@ -4351,7 +4351,7 @@ void	mux_test(void)
     }
 
     print("mux_test: open minimux.2\n") ;
-    muxfd2 = user_open(MUX_2, O_RDWR, 0) ;
+    muxfd2 = open(MUX_2, O_RDWR) ;
     if (muxfd2 < 0)
     {
 	print(MUX_2 ": %s\n", strerror(ENO(muxfd2))) ;
@@ -4359,7 +4359,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_PLINK loop driver under mux (muxfd1->fd1)\n") ;
-    muxid1 = user_ioctl(muxfd1, I_PLINK, fd1) ;	/* link fd1 below muxfd1 */
+    muxid1 = ioctl(muxfd1, I_PLINK, fd1) ;	/* link fd1 below muxfd1 */
     if (muxid1 < 0)
     {
 	print("mux_clone: I_PLINK: %s\n", strerror(ENO(muxid1))) ;
@@ -4369,7 +4369,7 @@ void	mux_test(void)
 	print("                   muxid=%d\n", muxid1) ;
 
     print("mux_test: I_PLINK loop driver under mux (muxfd2->fd2)\n") ;
-    muxid2 = user_ioctl(muxfd2, I_PLINK, fd2) ;	/* link fd2 below muxfd2 */
+    muxid2 = ioctl(muxfd2, I_PLINK, fd2) ;	/* link fd2 below muxfd2 */
     if (muxid2 < 0)
     {
 	print("mux_clone: I_PLINK: %s\n", strerror(ENO(muxid2))) ;
@@ -4389,12 +4389,12 @@ void	mux_test(void)
 
     print("mux_test: close mux streams\n") ;
 
-    user_close(muxfd1) ;
-    user_close(muxfd2) ;
+    close(muxfd1) ;
+    close(muxfd2) ;
 
     print("mux_test: re-open first mux-clone stream\n") ;
     print("mux_test: re-open minimux.1\n") ;
-    muxfd1 = user_open(MUX_1, O_RDWR, 0) ;
+    muxfd1 = open(MUX_1, O_RDWR) ;
     if (muxfd1 < 0)
     {
 	print(MUX_1 ": %s\n", strerror(ENO(muxfd1))) ;
@@ -4402,7 +4402,7 @@ void	mux_test(void)
     }
 
     print("mux_test: re-open minimux.2\n") ;
-    muxfd2 = user_open(MUX_2, O_RDWR, 0) ;
+    muxfd2 = open(MUX_2, O_RDWR) ;
     if (muxfd2 < 0)
     {
 	print(MUX_2 ": %s\n", strerror(ENO(muxfd2))) ;
@@ -4420,7 +4420,7 @@ void	mux_test(void)
     do_get_put(muxfd1, muxfd2, -1, lgth, 0) ;
 
     print("mux_test: I_PUNLINK muxid1 from muxfd1\n") ;
-    rslt = user_ioctl(muxfd1, I_PUNLINK, muxid1) ;
+    rslt = ioctl(muxfd1, I_PUNLINK, muxid1) ;
     if (rslt < 0)
     {
 	print("minimux: I_PUNLINK: %s\n", strerror(ENO(rslt))) ;
@@ -4428,7 +4428,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_PUNLINK muxid2 from muxfd2\n") ;
-    rslt = user_ioctl(muxfd2, I_PUNLINK, muxid2) ;
+    rslt = ioctl(muxfd2, I_PUNLINK, muxid2) ;
     if (rslt < 0)
     {
 	print("minimux: I_PUNLINK: %s\n", strerror(ENO(rslt))) ;
@@ -4443,12 +4443,12 @@ void	mux_test(void)
 	    ********************************/
 
     print("\nmux_test: close control streams\n") ;
-    user_close(muxfd1) ;
-    user_close(muxfd2) ;
+    close(muxfd1) ;
+    close(muxfd2) ;
     print("mux_test: send data down through the loop and read back\n") ;
     do_get_put(fd1, fd2, -1, lgth, 0) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 	    /********************************
 	    *         Open Files            * 
@@ -4485,7 +4485,7 @@ void	mux_test(void)
     if (rslt < 0) xit() ;
 
     print("mux_test: open minimux.1\n") ;
-    muxfd1 = user_open(MUX_1, O_RDWR, 0) ;
+    muxfd1 = open(MUX_1, O_RDWR) ;
     if (muxfd1 < 0)
     {
 	print(MUX_1 ": %s\n", strerror(ENO(muxfd1))) ;
@@ -4493,7 +4493,7 @@ void	mux_test(void)
     }
 
     print("mux_test: open minimux.2\n") ;
-    muxfd2 = user_open(MUX_2, O_RDWR, 0) ;
+    muxfd2 = open(MUX_2, O_RDWR) ;
     if (muxfd2 < 0)
     {
 	print(MUX_2 ": %s\n", strerror(ENO(muxfd2))) ;
@@ -4501,7 +4501,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_PLINK loop driver under mux (muxfd1->fd1)\n") ;
-    muxid1 = user_ioctl(muxfd1, I_PLINK, fd1) ;	/* link fd1 below muxfd1 */
+    muxid1 = ioctl(muxfd1, I_PLINK, fd1) ;	/* link fd1 below muxfd1 */
     if (muxid1 < 0)
     {
 	print("mux_clone: I_PLINK: %s\n", strerror(ENO(muxid1))) ;
@@ -4511,7 +4511,7 @@ void	mux_test(void)
 	print("                   muxid=%d\n", muxid1) ;
 
     print("mux_test: I_PLINK loop driver under mux (muxfd2->fd2)\n") ;
-    muxid2 = user_ioctl(muxfd2, I_PLINK, fd2) ;	/* link fd2 below muxfd2 */
+    muxid2 = ioctl(muxfd2, I_PLINK, fd2) ;	/* link fd2 below muxfd2 */
     if (muxid2 < 0)
     {
 	print("mux_clone: I_PLINK: %s\n", strerror(ENO(muxid2))) ;
@@ -4531,11 +4531,11 @@ void	mux_test(void)
 
     print("mux_test: close mux streams\n") ;
 
-    user_close(muxfd1) ;
-    user_close(muxfd2) ;
+    close(muxfd1) ;
+    close(muxfd2) ;
 
     print("mux_test: re-open first mux-clone stream\n") ;
-    muxfd1 = user_open(MUX_CLONE, O_RDWR, 0) ;
+    muxfd1 = open(MUX_CLONE, O_RDWR) ;
     if (muxfd1 < 0)
     {
 	print(MUX_1 ": %s\n", strerror(ENO(muxfd1))) ;
@@ -4543,7 +4543,7 @@ void	mux_test(void)
     }
 
     print("mux_test: I_PUNLINK MUXID_ALL from mux-clone stream\n") ;
-    rslt = user_ioctl(muxfd1, I_PUNLINK, MUXID_ALL) ;
+    rslt = ioctl(muxfd1, I_PUNLINK, MUXID_ALL) ;
     if (rslt < 0)
     {
 	print("minimux: I_PUNLINK(MUXID_ALL): %s\n", strerror(ENO(rslt))) ;
@@ -4555,11 +4555,11 @@ void	mux_test(void)
 	    ********************************/
 
     print("\nmux_test: close control streams\n") ;
-    user_close(muxfd1) ;
+    close(muxfd1) ;
     print("mux_test: send data down through the loop and read back\n") ;
     do_get_put(fd1, fd2, -1, lgth, 0) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 
 } /* mux_test */
@@ -4589,14 +4589,14 @@ void	clone_test(void)
     rslt = open_clones(&fd3, &fd4) ;
     if (rslt < 0) xit() ;
 
-    fd5 = user_open(LOOP_1, O_RDWR, 0) ;
+    fd5 = open(LOOP_1, O_RDWR) ;
     if (fd5 < 0) xit() ;
 
-    user_close(fd1) ;
-    user_close(fd2) ;
-    user_close(fd3) ;
-    user_close(fd4) ;
-    user_close(fd5) ;
+    close(fd1) ;
+    close(fd2) ;
+    close(fd3) ;
+    close(fd4) ;
+    close(fd5) ;
 
     rslt = open_clones(&fd1, &fd2) ;
     if (rslt < 0) xit() ;
@@ -4604,14 +4604,14 @@ void	clone_test(void)
     rslt = open_clones(&fd3, &fd4) ;
     if (rslt < 0) xit() ;
 
-    fd5 = user_open(LOOP_1, O_RDWR, 0) ;
+    fd5 = open(LOOP_1, O_RDWR) ;
     if (fd5 < 0) xit() ;
 
-    user_close(fd1) ;
-    user_close(fd2) ;
-    user_close(fd3) ;
-    user_close(fd4) ;
-    user_close(fd5) ;
+    close(fd1) ;
+    close(fd2) ;
+    close(fd3) ;
+    close(fd4) ;
+    close(fd5) ;
 
 } /* clone_test */
 
@@ -4650,7 +4650,7 @@ void bufcall_test(void)
     ioc.ic_dp	  = NULL;
     ioc.ic_cmd 	  = LOOP_BUFCALL ;	/* use bufcall to enable svcq */
     ioc.ic_len	  = 0 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.1: ioctl LOOP_BUFCALL: %s\n", strerror(ENO(rslt))) ;
@@ -4668,7 +4668,7 @@ void bufcall_test(void)
 	print("loop.2: message failed to appear\n") ;
 	xit() ;
     }
-    rslt = user_read(fd2, rdbuf, lgth);
+    rslt = read(fd2, rdbuf, lgth);
     if (rslt < 0)
     {
 	print("loop_clone.2: read: %s\n", strerror(ENO(rslt))) ;
@@ -4698,8 +4698,8 @@ void bufcall_test(void)
 	    ********************************/
 
     print("\nbufcall_test: closing files\n") ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 } /* bufcall_test */
 
@@ -4710,7 +4710,7 @@ int sad_vml_test(int fd, struct str_list *list)
 {
 	int rslt;
 
-	rslt = user_ioctl(fd, SAD_VML, list);
+	rslt = ioctl(fd, SAD_VML, list);
 	if (rslt < 0) {
 		print("sad_vml_test: SAD_VML ioctl failed: %s\n", strerror(ENO(rslt)));
 		xit();
@@ -4729,13 +4729,13 @@ void autopush_test(void)
 	print("\nSTREAMS Auto-Push test\n");
 
 	print("autopush_test: open loop.9 w/autopush relay module\n");
-	fd = user_open(LOOP_9, O_RDWR, 0);
+	fd = open(LOOP_9, O_RDWR);
 	if (fd < 0) {
 		print("autopush_test: loop.9 open: %s\n", strerror(ENO(fd)));
 		xit();
 	}
 
-	rslt = user_ioctl(fd, I_FIND, "relay") ;
+	rslt = ioctl(fd, I_FIND, "relay") ;
 	if (rslt < 0)
 	{
 	    print("loop.9: I_FIND: %s\n", strerror(ENO(rslt))) ;
@@ -4751,7 +4751,7 @@ void autopush_test(void)
 	}
 
 	print("autopush_test: closing files\n");
-	user_close(fd) ;
+	close(fd) ;
 }
 
 /************************************************************************
@@ -4768,7 +4768,7 @@ void sad_test(void)
 	print("\nSTREAMS Administrative Driver test\n");
 
 	print("sad_test: open a sad device\n");
-	fd = user_open(SAD_CLONE, O_RDWR, 0);
+	fd = open(SAD_CLONE, O_RDWR);
 	if (fd < 0) {
 		print("sad_test: SAD driver open: %s\n", strerror(ENO(fd)));
 		xit();
@@ -4819,7 +4819,7 @@ void sad_test(void)
 	/* Check that autopush is unconfigured */
 	apush.sap_major = SLOOP__CMAJOR_0;
 	apush.sap_minor = 1;
-	rslt = user_ioctl(fd, SAD_GAP, &apush);
+	rslt = ioctl(fd, SAD_GAP, &apush);
 	if (rslt >= 0) {
 		print("sad_test: SAD says autopush is configured "
 		      "for loop minor 1.\n");
@@ -4840,20 +4840,20 @@ void sad_test(void)
 	apush.sap_npush = 2;
 	strcpy(apush.sap_list[0], "relay");
 	strcpy(apush.sap_list[1], "relay2");
-	rslt = user_ioctl(fd, SAD_SAP, &apush);
+	rslt = ioctl(fd, SAD_SAP, &apush);
 	if (rslt < 0) {
 		print("sad_test: SAD_SAP ioctl failed: %s\n", strerror(ENO(rslt)));
 		xit();
 	}
 
 	/* Test autopush */
-	fd2 = user_open(LOOP_1, O_RDWR, 0);
+	fd2 = open(LOOP_1, O_RDWR);
 	if (fd2 < 0) {
 		print("sad_test: loop driver open: %s\n", strerror(ENO(fd)));
 		xit();
 	}
 	list.sl_nmods = 4;
-	rslt = user_ioctl(fd2, I_LIST, &list);
+	rslt = ioctl(fd2, I_LIST, &list);
 	if (rslt < 0) {
 		print("sad_test: I_LIST: %s\n", strerror(ENO(rslt)));
 		xit();
@@ -4875,14 +4875,14 @@ void sad_test(void)
 		print("sad_test: Expected \"relay\".\n");
 		xit();
 	}
-	user_close(fd2);
+	close(fd2);
 	print("sad_test: Autopush tested OK.\n");
 
 	/* Remove autopush configuration */
 	apush.sap_cmd = SAP_CLEAR;
 	apush.sap_major = SLOOP__CMAJOR_0;
 	apush.sap_minor = 1;
-	rslt = user_ioctl(fd, SAD_SAP, &apush);
+	rslt = ioctl(fd, SAD_SAP, &apush);
 	if (rslt < 0) {
 		print("sad_test: SAD_SAP ioctl failed: %s\n", strerror(ENO(rslt)));
 		xit();
@@ -4891,7 +4891,7 @@ void sad_test(void)
 	/* Check that autopush configuration was removed */
 	apush.sap_major = SLOOP__CMAJOR_0;
 	apush.sap_minor = 1;
-	rslt = user_ioctl(fd, SAD_GAP, &apush);
+	rslt = ioctl(fd, SAD_GAP, &apush);
 	if (rslt >= 0) {
 		print("sad_test: SAD says autopush is configured "
 		      "for loop minor 1.\n");
@@ -4906,7 +4906,7 @@ void sad_test(void)
 	print("sad_test: SAD_GAP and SAD_SAP IOCTL tests passed\n");
 
 	print("sad_test: closing files\n");
-	user_close(fd);
+	close(fd);
 }
 
 /************************************************************************
@@ -4916,53 +4916,53 @@ void fifo_test(void)
 {
     int fd[2];
     int i;
-    struct user_stat stat;
+    struct stat stat;
 
     print("\nSTREAMS-based FIFO/pipe test\n");
     
     for (i = 0;  i < 2;  i++) {
-	fd[i] = user_open(CLONE_FIFO, O_RDWR, 0);
+	fd[i] = open(CLONE_FIFO, O_RDWR);
 	if (fd[i] < 0) {
 	    print("fifo_test: fifo open: %s\n", strerror(errno) );
 	    xit();
 	}
-	user_fstat( fd[i], &stat );
+	fstat( fd[i], &stat );
 	print("fifo_test: open(\"%s\",O_RDWR) #%d: fd %d mode 0%o dev 0x%x\n",
 	      CLONE_FIFO, i+1, fd[i],
 	      (int)stat.st_mode, (int)stat.st_rdev );
     }
-    user_close(fd[0]);
-    user_close(fd[1]);
+    close(fd[0]);
+    close(fd[1]);
     
     for (i = 0;  i < 2;  i++) {
-	fd[i] = user_open(FIFO_0, O_RDWR, 0);
+	fd[i] = open(FIFO_0, O_RDWR);
 	if (fd[i] < 0) {
 	    print("fifo_test: fifo open: %s\n", strerror(errno) );
 	    xit();
 	}
-	user_fstat( fd[i], &stat );
+	fstat( fd[i], &stat );
 	print("fifo_test: open(\"%s\",O_RDWR) #%d: fd %d mode 0%o dev 0x%x\n",
 	      FIFO_0, i+1, fd[i],
 	      (int)stat.st_mode, (int)stat.st_rdev );
     }
-    user_close(fd[0]);
-    user_close(fd[1]);
+    close(fd[0]);
+    close(fd[1]);
     
-    if ((user_pipe(fd)) < 0) {
+    if ((pipe(fd)) < 0) {
 	print("pipe: %s\n", strerror(errno) );
 	xit();
     }
-    user_ioctl( fd[0], I_PUSH, "pipemod" );
+    ioctl( fd[0], I_PUSH, "pipemod" );
 
-    user_fstat( fd[0], &stat );
+    fstat( fd[0], &stat );
     print("fifo_test: pipe() 0: fd %d mode 0%o dev 0x%x\n",
 	  fd[0], (int)stat.st_mode, (int)stat.st_rdev );
-    user_fstat( fd[1], &stat );
+    fstat( fd[1], &stat );
     print("fifo_test: pipe() 1: fd %d mode 0%o dev 0x%x\n",
 	  fd[1], (int)stat.st_mode, (int)stat.st_rdev );
 
-    user_close(fd[0]);
-    user_close(fd[1]);
+    close(fd[0]);
+    close(fd[1]);
 }
 
 /************************************************************************
@@ -4972,55 +4972,55 @@ void passfd_test(void)
 {
     int fd[2], sendfd;
     struct strrecvfd recv;
-    struct user_stat stat;
+    struct stat stat;
     
     print("\nI_SENDFD/I_RECVFD test\n");
     
-    if ((user_pipe(fd)) < 0) {
+    if ((pipe(fd)) < 0) {
 	print("pipe: %s\n", strerror(errno) );
 	xit();
     }
-    user_fstat( fd[0], &stat );
+    fstat( fd[0], &stat );
     print("passfd_test: pipe() 0: fd %d mode 0%o dev 0x%x\n",
 	  fd[0], (int)stat.st_mode, (int)stat.st_rdev );
-    user_fstat( fd[1], &stat );
+    fstat( fd[1], &stat );
     print("passfd_test: pipe() 1: fd %d mode 0%o dev 0x%x\n",
 	  fd[1], (int)stat.st_mode, (int)stat.st_rdev );
 
-    sendfd = user_open(FIFO_0, O_RDWR, 0);
+    sendfd = open(FIFO_0, O_RDWR);
     if (sendfd < 0) {
 	print("passfd_test: open(\"%s\",O_RDWR) failed: %s\n",
 	      FIFO_0, strerror(errno) );
 	xit();
     }
-    user_fstat( sendfd, &stat );
+    fstat( sendfd, &stat );
     print("passfd_test: sending fd %d mode 0%o dev 0x%x\n",
 	  sendfd, (int)stat.st_mode, (int)stat.st_rdev );
     
-    if (user_ioctl( fd[0], I_SENDFD, sendfd ) < 0) {
+    if (ioctl( fd[0], I_SENDFD, sendfd ) < 0) {
 	print("ioctl( %d, I_SENDFD, %d ) failed: %s\n",
 	      fd[0], sendfd, strerror(errno) );
 	xit();
     }
     sleep(1) ;			/* allow time for service queues */
     print("passfd_test: closing sendfd %d\n", sendfd);
-    user_close(sendfd);
+    close(sendfd);
     print("passfd_test: closing pipe fd[0] %d\n", fd[0]);
-    user_close(fd[0]);
+    close(fd[0]);
     
-    if (user_ioctl( fd[1], I_RECVFD, &recv ) < 0) {
+    if (ioctl( fd[1], I_RECVFD, &recv ) < 0) {
 	print("ioctl( %d, I_RECVFD, ... ) failed: %s\n",
 	      fd[1], strerror(errno) );
 	xit();
     }
-    user_fstat( recv.fd, &stat );
+    fstat( recv.fd, &stat );
     print("passfd_test: received fd %d mode 0%o dev 0x%x\n",
 	  recv.fd, (int)stat.st_mode, (int)stat.st_rdev );
 
     print("passfd_test: closing pipe fd[1] %d\n", fd[1]);
-    user_close(fd[1]);
+    close(fd[1]);
     print("passfd_test: closing recv.fd %d\n", recv.fd);
-    user_close(recv.fd);
+    close(recv.fd);
 }
 
 /************************************************************************
@@ -5045,7 +5045,7 @@ void ck_band(int fd, int band, int expected, int nmsgs)
 	xit() ;
     }
 
-    rslt = user_ioctl(fd, I_CKBAND, band) ;
+    rslt = ioctl(fd, I_CKBAND, band) ;
     if (rslt < 0)
     {
 	print("ck_band(%d): I_CKBAND: %s\n", band, strerror(ENO(rslt))) ;
@@ -5111,7 +5111,7 @@ void receive_band(int fd, int band, int seq, int mtype)
     memset(rdbuf, 0, sizeof(rdbuf)) ;
 
     nread_wait_msgs(fd, 1) ;
-    rslt = user_getpmsg(fd, &rd_ctl, &rd_dta, &rband, &flags) ;
+    rslt = getpmsg(fd, &rd_ctl, &rd_dta, &rband, &flags) ;
     if (rslt < 0)
     {
 	print("receive_band(%d): seq=%d %s\n", band, seq, strerror(ENO(rslt))) ;
@@ -5209,13 +5209,13 @@ void band_test(void)
     ioc.ic_dp	  = NULL;
     ioc.ic_cmd 	  = LOOP_PUTNXT ;  /* use putnext rather then svcq */
     ioc.ic_len	  = 0 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.1: ioctl LOOP_PUTNXT: %s\n", strerror(ENO(rslt))) ;
     }
 
-    rslt = user_ioctl(fd2, I_STR, &ioc) ;
+    rslt = ioctl(fd2, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.2: ioctl LOOP_PUTNXT: %s\n", strerror(ENO(rslt))) ;
@@ -5291,7 +5291,7 @@ void band_test(void)
     print("\nband_test: "
 	    "fill up band 1, then write band 2; read 2, 1, 1, ...\n");
     send_seq = 10000 ;
-    for (n_sent = 0; user_ioctl(fd1, I_CANPUT, 1) == 1 ; n_sent++)
+    for (n_sent = 0; ioctl(fd1, I_CANPUT, 1) == 1 ; n_sent++)
     {
 	send_band(fd1, 1, send_seq + n_sent, _M_DATA) ;
 	if (n_sent == 0)
@@ -5319,7 +5319,7 @@ void band_test(void)
     receive_band_quiet = 0 ;
     send_seq = 20000 ;
     send_band(fd1, 1, 20, _M_DATA) ;
-    for (n_sent = 0; user_ioctl(fd1, I_CANPUT, 2) == 1 ; n_sent++)
+    for (n_sent = 0; ioctl(fd1, I_CANPUT, 2) == 1 ; n_sent++)
     {
 	send_band(fd1, 2, send_seq + n_sent, _M_DATA) ;
 	if (n_sent == 0)
@@ -5350,7 +5350,7 @@ void band_test(void)
     receive_band_quiet = 0 ;
     send_seq = 30000 ;
     send_band(fd1, 1, 22, _M_DATA) ;
-    for (n_sent = 0; user_ioctl(fd1, I_CANPUT, 2) == 1 ; n_sent++)
+    for (n_sent = 0; ioctl(fd1, I_CANPUT, 2) == 1 ; n_sent++)
     {
 	send_band(fd1, 2, send_seq + n_sent, _M_DATA) ;
 	if (n_sent == 0)
@@ -5370,7 +5370,7 @@ void band_test(void)
 	    set_debug_mask(0x00000000L) ;
 	    receive_band_quiet = 1 ;
 	}
-	if (!flow_ok && user_ioctl(fd1, I_CANPUT, 2) == 1)
+	if (!flow_ok && ioctl(fd1, I_CANPUT, 2) == 1)
 	{
 	    flow_ok = 1 ;
 	    print("band_test: backpressure relieved at %d messages queued\n",
@@ -5390,8 +5390,8 @@ void band_test(void)
     }
 
 
-    user_close(fd1);
-    user_close(fd2);
+    close(fd1);
+    close(fd2);
 
     print("End of band test\n") ;
 }
@@ -5416,13 +5416,13 @@ void flush_test(void)
     ioc.ic_dp	  = NULL;
     ioc.ic_cmd 	  = LOOP_PUTNXT ;  /* use putnext rather then svcq */
     ioc.ic_len	  = 0 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.1: ioctl LOOP_PUTNXT: %s\n", strerror(ENO(rslt))) ;
     }
 
-    rslt = user_ioctl(fd2, I_STR, &ioc) ;
+    rslt = ioctl(fd2, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	print("loop_clone.2: ioctl LOOP_PUTNXT: %s\n", strerror(ENO(rslt))) ;
@@ -5439,7 +5439,7 @@ void flush_test(void)
 	xit() ;
     }
 
-    rslt = user_ioctl(fd2, I_FLUSH, FLUSHRW) ;
+    rslt = ioctl(fd2, I_FLUSH, FLUSHRW) ;
     if (rslt < 0)
     {
 	print("loop.2: I_FLUSH: %s\n", strerror(ENO(rslt))) ;
@@ -5468,7 +5468,7 @@ void flush_test(void)
 	xit() ;
     }
 
-    rslt = user_ioctl(fd2, I_FLUSH, FLUSHRW) ;
+    rslt = ioctl(fd2, I_FLUSH, FLUSHRW) ;
     if (rslt < 0)
     {
 	print("loop.2: I_FLUSH: %s\n", strerror(ENO(rslt))) ;
@@ -5500,7 +5500,7 @@ void flush_test(void)
     bi.bi_pri = 1 ;			/* flush band 1 */
     bi.bi_flag = FLUSHRW ;		/* flush both read/write */
 
-    rslt = user_ioctl(fd2, I_FLUSHBAND, &bi) ;
+    rslt = ioctl(fd2, I_FLUSHBAND, &bi) ;
     if (rslt < 0)
     {
 	print("loop.2: I_FLUSHBAND: %s\n", strerror(ENO(rslt))) ;
@@ -5534,7 +5534,7 @@ void flush_test(void)
     bi.bi_pri = 2 ;			/* flush band 2 */
     bi.bi_flag = FLUSHRW ;		/* flush both read/write */
 
-    rslt = user_ioctl(fd2, I_FLUSHBAND, &bi) ;
+    rslt = ioctl(fd2, I_FLUSHBAND, &bi) ;
     if (rslt < 0)
     {
 	print("loop.2: I_FLUSHBAND: %s\n", strerror(ENO(rslt))) ;
@@ -5571,7 +5571,7 @@ void flush_test(void)
 	xit() ;
     }
 
-    rslt = user_ioctl(fd2, I_FLUSH, FLUSHRW) ;
+    rslt = ioctl(fd2, I_FLUSH, FLUSHRW) ;
     if (rslt < 0)
     {
 	print("loop.2: I_FLUSH: %s\n", strerror(ENO(rslt))) ;
@@ -5607,7 +5607,7 @@ void flush_test(void)
     bi.bi_pri = 0 ;			/* flush band 0 */
     bi.bi_flag = FLUSHRW ;		/* flush both read/write */
 
-    rslt = user_ioctl(fd2, I_FLUSHBAND, &bi) ;
+    rslt = ioctl(fd2, I_FLUSHBAND, &bi) ;
     if (rslt < 0)
     {
 	print("loop.2: I_FLUSH: %s\n", strerror(ENO(rslt))) ;
@@ -5645,7 +5645,7 @@ void flush_test(void)
     bi.bi_pri = 1 ;			/* flush band 1 */
     bi.bi_flag = FLUSHRW ;		/* flush both read/write */
 
-    rslt = user_ioctl(fd2, I_FLUSHBAND, &bi) ;
+    rslt = ioctl(fd2, I_FLUSHBAND, &bi) ;
     if (rslt < 0)
     {
 	print("loop.2: I_FLUSH: %s\n", strerror(ENO(rslt))) ;
@@ -5664,8 +5664,8 @@ void flush_test(void)
     print("flush_test: band 0 data + M_PCPROTO via I_FLUSHBAND -- OK\n") ;
 
 
-    user_close(fd1);
-    user_close(fd2);
+    close(fd1);
+    close(fd2);
 
     print("End of queue flushing test\n") ;
 }
@@ -5683,14 +5683,14 @@ void pullupmsg_test(void)
     int		rslt ;
 
     print("Begin pullupmsg test\n") ;
-    rslt = user_open(PUTST, O_RDWR, 0) ;
+    rslt = open(PUTST, O_RDWR) ;
     if (rslt < 0)
     {
 	print("putst: %s\n", strerror(ENO(rslt))) ;
 	xit() ;
     }
 
-    user_close(rslt) ;
+    close(rslt) ;
     print("pullupmsg test OK\n") ;
 }
 
@@ -6088,7 +6088,7 @@ int module_is_present(int fd, char *name)
 {
     int		rslt ;
 
-    rslt = user_ioctl(fd, I_FIND, name) ;
+    rslt = ioctl(fd, I_FIND, name) ;
     if (rslt < 0)
     {
 	print("module_is_present(%s): I_FIND: %s\n", name, strerror(ENO(rslt))) ;
@@ -6120,7 +6120,7 @@ void module_push(int fd, char *name)
 {
     int		rslt ;
 
-    if ((rslt = user_ioctl(fd, I_PUSH, name)) < 0)
+    if ((rslt = ioctl(fd, I_PUSH, name)) < 0)
     {
 	print("module_push(%s): I_PUSH: %s\n", name, strerror(ENO(rslt))) ;
 	xit() ;
@@ -6140,7 +6140,7 @@ void module_pop(int fd)
 {
     int		rslt ;
 
-    rslt = user_ioctl(fd, I_POP, 0) ;
+    rslt = ioctl(fd, I_POP, 0) ;
     if (rslt < 0)
     {
 	print("module_pop: I_POP: %s\n", strerror(ENO(rslt))) ;
@@ -6156,14 +6156,14 @@ void module_test_data(int fd1, int fd2)
     static char	*msg = "Test data for modules" ;
     int		 lgth = strlen(msg) ;
 
-    if ((rslt = user_write(fd1, msg, lgth)) < 0)
+    if ((rslt = write(fd1, msg, lgth)) < 0)
     {
 	print("module_test_data: write fd1: %s\n", strerror(ENO(rslt))) ;
 	xit() ;
     }
 
     memset(rdbuf, 0, lgth+1) ;
-    if ((rslt = user_read(fd2, rdbuf, lgth)) < 0)
+    if ((rslt = read(fd2, rdbuf, lgth)) < 0)
     {
 	print("module_test_data: read fd2: %s\n", strerror(ENO(rslt))) ;
 	xit() ;
@@ -6178,14 +6178,14 @@ void module_test_data(int fd1, int fd2)
 	xit() ;
     }
 
-    if ((rslt = user_write(fd2, msg, lgth)) < 0)
+    if ((rslt = write(fd2, msg, lgth)) < 0)
     {
 	print("module_test_data: write fd2: %s\n", strerror(ENO(rslt))) ;
 	xit() ;
     }
 
     memset(rdbuf, 0, lgth+1) ;
-    if ((rslt = user_read(fd1, rdbuf, lgth)) < 0)
+    if ((rslt = read(fd1, rdbuf, lgth)) < 0)
     {
 	print("module_test_data: read fd1: %s\n", strerror(ENO(rslt))) ;
 	xit() ;
@@ -6217,12 +6217,12 @@ void module_test(void)
     print("\nSimple test of relay module linked with LiS\n") ;
     module_push(fd1, "relay") ;
     module_test_data(fd1, fd2) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 
     print("\nTest loading of relay3 via modprobe\n") ;
-    if ((user_pipe(fds)) < 0) {
+    if ((pipe(fds)) < 0) {
 	print("pipe: %s\n", strerror(errno) );
 	xit();
     }
@@ -6233,12 +6233,12 @@ void module_test(void)
     }
     module_push(fd1, "relay3") ;
     module_test_data(fd1, fd2) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
     module_unload("relay3") ;
 
     print("\nRepeat loading of relay3 via modprobe\n") ;
-    if ((user_pipe(fds)) < 0) {
+    if ((pipe(fds)) < 0) {
 	print("pipe: %s\n", strerror(errno) );
 	xit();
     }
@@ -6249,36 +6249,36 @@ void module_test(void)
     }
     module_push(fd1, "relay3") ;
     module_test_data(fd1, fd2) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
     module_unload("relay3") ;
 
     print("\nTest loading of pipemod via I_PUSH\n") ;
     module_unload("pipemod") ;
-    if ((user_pipe(fds)) < 0) {
+    if ((pipe(fds)) < 0) {
 	print("pipe: %s\n", strerror(errno) );
 	xit();
     }
     module_push(fd1, "pipemod") ;
     module_test_data(fd1, fd2) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
     module_unload("pipemod") ;
 
     print("\nRepeat loading of pipemod via I_PUSH\n") ;
     module_unload("pipemod") ;
-    if ((user_pipe(fds)) < 0) {
+    if ((pipe(fds)) < 0) {
 	print("pipe: %s\n", strerror(errno) );
 	xit();
     }
     module_push(fd1, "pipemod") ;
     module_test_data(fd1, fd2) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
     module_unload("pipemod") ;
 
     print("\nTest loading of pipemod via modprobe\n") ;
-    if ((user_pipe(fds)) < 0) {
+    if ((pipe(fds)) < 0) {
 	print("pipe: %s\n", strerror(errno) );
 	xit();
     }
@@ -6289,12 +6289,12 @@ void module_test(void)
     }
     module_push(fd1, "pipemod") ;
     module_test_data(fd1, fd2) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
     module_unload("pipemod") ;
 
     print("\nRepeat loading of pipemod via modprobe\n") ;
-    if ((user_pipe(fds)) < 0) {
+    if ((pipe(fds)) < 0) {
 	print("pipe: %s\n", strerror(errno) );
 	xit();
     }
@@ -6305,8 +6305,8 @@ void module_test(void)
     }
     module_push(fd1, "pipemod") ;
     module_test_data(fd1, fd2) ;
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
     module_unload("pipemod") ;
 
 #undef fd1
@@ -6456,7 +6456,7 @@ int main(int argc, char **argv)
     register_drivers() ;
     print("Memory allocated = %ld\n", lis_mem_alloced) ;
 
-    printk_fd = user_open(NPRINTK, O_RDWR, 0) ;
+    printk_fd = open(NPRINTK, O_RDWR) ;
     if (printk_fd < 0)
     {
 	printf( NPRINTK ": %s\n", strerror(ENO(printk_fd))) ;

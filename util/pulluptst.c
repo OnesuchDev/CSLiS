@@ -60,14 +60,14 @@ void	set_debug_mask(long msk)
     int		fd ;
     int		rslt ;
 
-    fd = user_open("loop.1", 0, 0) ;
+    fd = open("loop.1", O_RDONLY) ;
     if (fd < 0)
     {
 	printf("loop.1: %s\n", strerror(-fd)) ;
 	xit() ;
     }
 
-    rslt = user_ioctl(fd, I_LIS_SDBGMSK, msk) ;
+    rslt = ioctl(fd, I_LIS_SDBGMSK, msk) ;
     if (rslt < 0)
     {
 	printf("loop.1: I_LIS_SDBGMSK: %s\n", strerror(-rslt)) ;
@@ -76,7 +76,7 @@ void	set_debug_mask(long msk)
 
     printf("\nSTREAMS debug mask set to 0x%08lx\n", msk) ;
 
-    user_close(fd) ;
+    close(fd) ;
 
 } /* set_debug_mask */
 

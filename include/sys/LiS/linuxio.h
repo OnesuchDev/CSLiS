@@ -48,32 +48,6 @@
 #define _IOW(x,y,t)     (((((int)sizeof(t))&0xFFFF)<<16)|(x<<8)|y)
 #endif
 
-
-#define user_stat	stat
-#define user_fstat	fstat
-#define user_mknod	mknod
-#define user_open(p,f,m)	open(p,f)
-#define user_close	close
-#define user_read	read
-#define user_write	write
-#define user_ioctl	ioctl
-#define user_fcntl	fcntl
-#define user_putpmsg	putpmsg
-#define user_getpmsg	getpmsg
-#define user_poll	poll
-#define user_set_ptr	set_ptr
-#define user_get_ptr	get_ptr
-#define user_print_dir	print_dir
-#define user_opendir	opendir
-#define user_readdir	readdir
-#define user_closedir	closedir
-#define user_rewinddir	rewinddir
-#define user_pipe       pipe
-#define user_isastream  isastream
-#define user_fattach    fattach
-#define user_fdetach    fdetach
-
-
 /************************************************************************
 *                         fcntl Types                                   *
 *************************************************************************

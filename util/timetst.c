@@ -245,14 +245,14 @@ void	timing_test(void)
 
     printf("\nBegin timing test\n") ;
 
-    fd1 = user_open(LOOP_1, O_RDWR, 0) ;
+    fd1 = open(LOOP_1, O_RDWR) ;
     if (fd1 < 0)
     {
 	printf("loop.1: %s\n", strerror(-fd1)) ;
 	return ;
     }
 
-    fd2 = user_open(LOOP_2, O_RDWR, 0) ;
+    fd2 = open(LOOP_2, O_RDWR) ;
     if (fd2 < 0)
     {
 	printf("loop.2: %s\n", strerror(-fd2)) ;
@@ -265,7 +265,7 @@ void	timing_test(void)
     ioc.ic_dp	  = (char *) &arg ;
 
     arg = 2 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	printf("loop.1: ioctl LOOP_SET: %s\n", strerror(-rslt)) ;
@@ -300,7 +300,7 @@ void	timing_test(void)
 	if (latency_opt)
 	    gettimeofday(tp, NULL) ;
 
-	rslt = user_write(fd1, buf, lgth) ;
+	rslt = write(fd1, buf, lgth) ;
 
 	if (rslt != lgth)
 	{
@@ -312,7 +312,7 @@ void	timing_test(void)
 	    break ;
 	}
 
-	rslt = user_read(fd2, rdbuf, lgth);
+	rslt = read(fd2, rdbuf, lgth);
 
 	if (rslt != lgth)
 	{
@@ -344,7 +344,7 @@ void	timing_test(void)
 
     ioc.ic_cmd 	  = LOOP_PUTNXT ;		/* use putnxt rather then svcq */
     ioc.ic_len	  = 0 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	printf("loop.1: ioctl LOOP_PUTNXT: %s\n", strerror(-rslt)) ;
@@ -362,7 +362,7 @@ void	timing_test(void)
 	if (latency_opt)
 	    gettimeofday(tp, NULL) ;
 
-	rslt = user_write(fd1, buf, lgth) ;
+	rslt = write(fd1, buf, lgth) ;
 
 	if (rslt != lgth)
 	{
@@ -374,7 +374,7 @@ void	timing_test(void)
 	    break ;
 	}
 
-	rslt = user_read(fd2, rdbuf, lgth);
+	rslt = read(fd2, rdbuf, lgth);
 
 	if (rslt != lgth)
 	{
@@ -406,7 +406,7 @@ void	timing_test(void)
 
     ioc.ic_cmd 	  = LOOP_PUTNXT ;	/* use putnxt rather then svcq */
     ioc.ic_len	  = 0 ;
-    rslt = user_ioctl(fd1, I_STR, &ioc) ;
+    rslt = ioctl(fd1, I_STR, &ioc) ;
     if (rslt < 0)
     {
 	printf("loop.1: ioctl LOOP_PUTNXT: %s\n", strerror(-rslt)) ;
@@ -428,7 +428,7 @@ void	timing_test(void)
 	if (latency_opt)
 	    gettimeofday(tp, NULL) ;
 
-	rslt = user_putpmsg(fd1, &wr_ctl, &wr_dta, 0, MSG_BAND) ;
+	rslt = putpmsg(fd1, &wr_ctl, &wr_dta, 0, MSG_BAND) ;
 
 	if (rslt < 0)
 	{
@@ -440,7 +440,7 @@ void	timing_test(void)
 	rd_dta.len	= -1 ;
 	flags		= MSG_ANY ;
 
-	rslt = user_getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
+	rslt = getpmsg(fd2, &rd_ctl, &rd_dta, &rband, &flags) ;
 
 	if (rslt < 0)
 	{
@@ -472,8 +472,8 @@ void	timing_test(void)
     printf("\n") ;
 
 
-    user_close(fd1) ;
-    user_close(fd2) ;
+    close(fd1) ;
+    close(fd2) ;
 
 } /* timing_test */
 
@@ -491,24 +491,24 @@ void	set_debug_mask(unsigned long long msk)
     unsigned long	mask1 = (unsigned long)(msk & 0xFFFFFFFF) ;
     unsigned long	mask2 = (msk >> 32) ;
 
-    fd = user_open(LOOP_1, O_RDWR, 0) ;
+    fd = open(LOOP_1, O_RDWR) ;
     if (fd < 0)
     {
 	printf("loop.1: %s\n", strerror(ENO(fd))) ;
 	exit(1) ;
     }
 
-    rslt = user_ioctl(fd, I_LIS_SDBGMSK, mask1) ;
+    rslt = ioctl(fd, I_LIS_SDBGMSK, mask1) ;
     if (rslt < 0)
     {
 	printf("loop.1: I_LIS_SDBGMSK: %s\n", strerror(ENO(rslt))) ;
 	exit(1) ;
     }
 
-    rslt = user_ioctl(fd, I_LIS_SDBGMSK2, mask2) ;
+    rslt = ioctl(fd, I_LIS_SDBGMSK2, mask2) ;
     printf("\nSTREAMS debug mask set to 0x%08lx%08lx\n", mask2, mask1) ;
 
-    user_close(fd) ;
+    close(fd) ;
 
 } /* set_debug_mask */
 
