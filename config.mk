@@ -227,13 +227,6 @@ XOPTS += -DLISAUTOCONF
 endif
 
 #
-# Use the name of the "get_empty_inode" routine figured out at
-# installation time.  This is being changed to "new_inode".
-# Communicated via include/sys/LiS/genconf.h
-#
-#XOPTS += -DGET_EMPTY_INODE=$(GET_EMPTY_INODE) 
-
-#
 # Always use LiS includes when compiling
 #
 XOPTS += -I$(LIS_INCL)
