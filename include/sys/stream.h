@@ -85,9 +85,6 @@ extern "C" {
 
 /*include everything exported to usr-level from LiS internal modules */
 
-#ifndef _SHARE_H
-#include <sys/LiS/share.h>	/* some generic stuff */
-#endif
 #ifndef _MSG_H
 #include <sys/LiS/msg.h>	/* streams msgs management */
 #endif
@@ -121,6 +118,12 @@ extern "C" {
 #include <sys/LiS/strmdbg.h>	/* debugging stuff */
 #endif
 
+
+/* Bit flags
+ */
+#define F_ISSET(f,v)	((f) & (v))
+#define F_SET(f,v)	((f) |= (v))
+#define F_CLR(f,v)	((f) &= ~(v))
 
 
 /*  -------------------------------------------------------------------  */

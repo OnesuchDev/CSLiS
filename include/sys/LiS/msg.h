@@ -45,9 +45,6 @@
 #ifndef _SYS_TYPES_H
 #   include <linux/types.h>
 #endif
-#ifndef _SHARE_H
-#include <sys/LiS/share.h>
-#endif
 #ifndef _LIS_CONFIG_H
 #include <sys/strconfig.h>	/* config definitions */
 #endif

@@ -46,9 +46,6 @@
 #ifndef _LIS_CONFIG_H
 #include <sys/strconfig.h>	/* config definitions	*/
 #endif
-#ifndef _SHARE_H
-#include <sys/LiS/share.h>	/* streams shared defs	*/
-#endif
 #ifndef _STR_OPTS_H
 #include <sys/stropts.h>	/* struct str_list	*/
 #endif
