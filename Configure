@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: LGPL-2.1
 #
 
-Configure_version="7.114 2026/08/08"
+Configure_version="7.115 2026/08/22"
 
 if [ -f /proc/kallsyms ]; then
     KSYMS=/proc/kallsyms
@@ -490,11 +490,10 @@ check_ksrc()
 #
 ac_get_config()
 {
-    cp dummy.c /tmp/dummy.c
     if [ -f $KSRC/include/linux/utsrelease.h ]; then
-         echo "#include <linux/utsrelease.h>" >> /tmp/dummy.c
+         echo "#include <linux/utsrelease.h>" > /tmp/dummy.c
     elif [ -f $KBIN/include/generated/utsrelease.h ]; then
-        echo "#include <generated/utsrelease.h>" >> /tmp/dummy.c
+        echo "#include <generated/utsrelease.h>" > /tmp/dummy.c
     else
         echo "KSRC/include/linux/utsrelease.h failed: $KSRC"
     fi
@@ -666,15 +665,14 @@ get_vers_h()
 #     echo "KBIN = $KBIN" 
 
     GET_VERS_H=0
-    cp dummy.c /tmp/dummy.c
     if [ -f $KSRC/include/linux/utsrelease.h ]; then
-         echo "#include <linux/utsrelease.h>" >> /tmp/dummy.c
+         echo "#include <linux/utsrelease.h>" > /tmp/dummy.c
          GET_VERS_H=1
     elif [ -f $KBIN/include/linux/utsrelease.h ]; then
-         echo "#include <linux/utsrelease.h>" >> /tmp/dummy.c
+         echo "#include <linux/utsrelease.h>" > /tmp/dummy.c
          GET_VERS_H=1
     elif [ -f $KBIN/include/generated/utsrelease.h ]; then
-         echo "#include <generated/utsrelease.h>" >> /tmp/dummy.c
+         echo "#include <generated/utsrelease.h>" > /tmp/dummy.c
          GET_VERS_H=1
      else
          echo " ...-f $KSRC/include/linux/utsrelease.h failed"
