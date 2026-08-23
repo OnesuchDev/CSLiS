@@ -2074,7 +2074,7 @@ if [ "$(echo "$CC_VERS" | cut -d . -f1)" -ge 9 ]; then
     CC_OPT5="-Wno-address-of-packed-member"
 fi
 
-$qecho "Using \"$CC_NAME $CC_OPTIMIZE $CC_OPT2 $CC_OPT3 $CC_OPT4 $CC_OPT5\" $CC_VERS as the C compiler"
+$qecho "Using \"$CC_NAME $CC_OPTIMIZE\" $CC_VERS as the C compiler"
 
 #
 # Figure out which routine name to use for "get_empty_inode".
