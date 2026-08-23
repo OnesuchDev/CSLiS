@@ -59,10 +59,4 @@
 #define VOID void
 #endif
 
-#ifdef __KERNEL__
-/* extract values from a char pointer and advance the pointer */
-void lis_putbyte(unsigned char **p, unsigned char byte) _RP;	/* msg.c */
-#endif				/* __KERNEL__ */
-
-/*  -------------------------------------------------------------------  */
 #endif /*!_SHARE_H*/

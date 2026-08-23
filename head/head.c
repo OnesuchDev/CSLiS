@@ -456,6 +456,13 @@ struct streamtab strmhd_info = {
 /*  -------------------------------------------------------------------  */
 /*			   Local functions & macros                      */
 
+/* extract values from a char pointer and advance the pointer */
+static void lis_putbyte(unsigned char **p, unsigned char byte)
+{
+	**p = byte;
+	++*p;
+}
+
 /*  -------------------------------------------------------------------  */
 
 extern int  lis_await_qsched(stdata_t *hd, queue_t *q);

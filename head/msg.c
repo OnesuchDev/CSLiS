@@ -550,11 +550,3 @@ lis_freemsg(mblk_t *mp)
 	lis_freedb(now, 1);
     }
 }/*lis_freemsg*/
-
-/*  -------------------------------------------------------------------  */
-/* extract values from a char pointer and advance the pointer */
-void _RP lis_putbyte(unsigned char **p, unsigned char byte)
-{
-    **p = byte;
-    ++*p;
-}
