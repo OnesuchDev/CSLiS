@@ -36,6 +36,26 @@
 #include <linux/wait.h>			/* for struct wait_queue */
 #include <linux/timer.h>                /* for struct timer_list */
 #include <linux/time.h>
+#ifdef CONFIG_PCI
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
+#define ERANGE 34
+#endif
+#ifndef PCI_STD_NUM_BARS
+#define PCI_STD_NUM_BARS	6	/* Number of standard BARs */
+#endif
+#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) )
+#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > RHEL_RELEASE_VERSION(9, 5)) || \
+     (LINUX_VERSION_CODE > KERNEL_VERSION(6,10,0))) /* RHEL 9.6 or RHEL 10, SLES 16 */		
+#define _LINUX_PROPERTY_H_  // omit property.h
+#endif		
+#endif
+#include <linux/pci.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
+#include <asm/scatterlist.h>
+#else
+#include <linux/scatterlist.h>
+#endif
+#endif
 
 #if !defined(INCL_FROM_OSIF_DRIVER)
 
@@ -49,6 +69,204 @@
  * This is messy but saves many warning messages when compiling
  * with modversions.
  */
+
+#ifdef pcibios_present
+#undef pcibios_present
+#endif
+#define	pcibios_present			lis_pcibios_present
+int lis_pcibios_present(void) _RP;
+
+#ifdef pcibios_strerror
+#undef pcibios_strerror
+#endif
+#define	pcibios_strerror		lis_pcibios_strerror
+const char *lis_pcibios_strerror(int error) _RP;
+
+#ifdef CONFIG_PCI
+
+#ifdef pci_find_device
+#undef pci_find_device
+#endif
+#define	pci_find_device			lis_osif_pci_find_device
+struct pci_dev	*lis_osif_pci_find_device(unsigned int vendor,
+				 unsigned int device,
+				 struct pci_dev *from)_RP;
+
+#ifdef pci_find_slot
+#undef pci_find_slot
+#endif
+#define	pci_find_slot			lis_osif_pci_find_slot
+struct pci_dev	*lis_osif_pci_find_slot(unsigned int bus, 
+				unsigned int devfn)_RP;
+
+#ifdef pci_read_config_byte
+#undef pci_read_config_byte
+#endif
+#define	pci_read_config_byte		lis_osif_pci_read_config_byte
+int	lis_osif_pci_read_config_byte(struct pci_dev *dev, 
+				u8 where, u8 *val)_RP;
+
+#ifdef pci_read_config_word
+#undef pci_read_config_word
+#endif
+#define	pci_read_config_word		lis_osif_pci_read_config_word
+int	lis_osif_pci_read_config_word(struct pci_dev *dev, 
+				u8 where, u16 *val)_RP;
+
+#ifdef pci_read_config_dword
+#undef pci_read_config_dword
+#endif
+#define	pci_read_config_dword		lis_osif_pci_read_config_dword
+int	lis_osif_pci_read_config_dword(struct pci_dev *dev, 
+				u8 where, u32 *val)_RP;
+
+#ifdef pci_write_config_byte
+#undef pci_write_config_byte
+#endif
+#define	pci_write_config_byte		lis_osif_pci_write_config_byte
+int	lis_osif_pci_write_config_byte(struct pci_dev *dev, 
+				u8 where, u8 val)_RP;
+
+#ifdef pci_write_config_word
+#undef pci_write_config_word
+#endif
+#define	pci_write_config_word		lis_osif_pci_write_config_word
+int	lis_osif_pci_write_config_word(struct pci_dev *dev, 
+				u8 where, u16 val)_RP;
+
+#ifdef pci_write_config_dword
+#undef pci_write_config_dword
+#endif
+#define	pci_write_config_dword		lis_osif_pci_write_config_dword
+int	lis_osif_pci_write_config_dword(struct pci_dev *dev, 
+				u8 where, u32 val)_RP;
+
+#ifdef pci_set_master
+#undef pci_set_master
+#endif
+#define	pci_set_master			lis_osif_pci_set_master
+void	lis_osif_pci_set_master(struct pci_dev *dev)_RP;
+
+#ifdef pci_enable_device
+#undef pci_enable_device
+#endif
+#define pci_enable_device               lis_osif_pci_enable_device
+int     lis_osif_pci_enable_device (struct pci_dev *dev)_RP;
+
+#ifdef pci_disable_device
+#undef pci_disable_device
+#endif
+#define pci_disable_device               lis_osif_pci_disable_device
+void    lis_osif_pci_disable_device (struct pci_dev *dev)_RP;
+
+#ifdef pci_module_init
+#undef pci_module_init
+#endif
+#define pci_module_init       lis_osif_pci_module_init
+#ifdef pci_unregister_driver
+#undef pci_unregister_driver
+#endif
+#define pci_unregister_driver lis_osif_pci_unregister_driver
+int	lis_osif_pci_module_init( struct pci_driver *p )_RP;
+void	lis_osif_pci_unregister_driver( struct pci_driver *p )_RP;
+
+#ifdef pci_alloc_consistent
+#undef pci_alloc_consistent
+#endif
+#define pci_alloc_consistent lis_osif_pci_alloc_consistent
+extern void *lis_osif_pci_alloc_consistent(struct pci_dev *hwdev, size_t size,
+				dma_addr_t *dma_handle)_RP;
+
+#ifdef pci_free_consistent
+#undef pci_free_consistent
+#endif
+#define pci_free_consistent lis_osif_pci_free_consistent
+extern void lis_osif_pci_free_consistent(struct pci_dev *hwdev, size_t size,
+                                void *vaddr, dma_addr_t dma_handle)_RP;
+
+#ifdef pci_map_single
+#undef pci_map_single
+#endif
+#define pci_map_single lis_osif_pci_map_single
+extern dma_addr_t lis_osif_pci_map_single(struct pci_dev *hwdev, void *ptr,
+				size_t size, int direction)_RP;
+
+#ifdef pci_unmap_single
+#undef pci_unmap_single
+#endif
+#define pci_unmap_single lis_osif_pci_unmap_single
+extern void lis_osif_pci_unmap_single(struct pci_dev *hwdev,
+			    dma_addr_t dma_addr, size_t size, int direction)_RP;
+
+#ifdef pci_map_sg
+#undef pci_map_sg
+#endif
+#define pci_map_sg lis_osif_pci_map_sg
+extern int lis_osif_pci_map_sg(struct pci_dev *hwdev, struct scatterlist *sg,
+				int nents, int direction)_RP;
+
+#ifdef pci_unmap_sg
+#undef pci_unmap_sg
+#endif
+#define pci_unmap_sg lis_osif_pci_unmap_sg
+extern void lis_osif_pci_unmap_sg(struct pci_dev *hwdev, struct scatterlist *sg,
+				int nents, int direction)_RP;
+
+#ifdef pci_dma_sync_single
+#undef pci_dma_sync_single
+#endif
+#define pci_dma_sync_single lis_osif_pci_dma_sync_single
+extern void lis_osif_pci_dma_sync_single(struct pci_dev *hwdev,
+			dma_addr_t dma_handle, size_t size, int direction)_RP;
+
+#ifdef pci_dma_sync_sg
+#undef pci_dma_sync_sg
+#endif
+#define pci_dma_sync_sg lis_osif_pci_dma_sync_sg
+extern void lis_osif_pci_dma_sync_sg(struct pci_dev *hwdev,
+		   struct scatterlist *sg, int nelems, int direction)_RP;
+
+#ifdef pci_dma_supported
+#undef pci_dma_supported
+#endif
+#define pci_dma_supported lis_osif_pci_dma_supported
+extern int lis_osif_pci_dma_supported(struct pci_dev *hwdev, u64 mask)_RP;
+
+#ifdef pci_set_dma_mask
+#undef pci_set_dma_mask
+#endif
+#define pci_set_dma_mask lis_osif_pci_set_dma_mask
+extern int lis_osif_pci_set_dma_mask(struct pci_dev *hwdev, u64 mask)_RP;
+
+#ifdef sg_dma_address
+#undef sg_dma_address
+#endif
+#define sg_dma_address lis_osif_sg_dma_address
+extern dma_addr_t lis_osif_sg_dma_address(struct scatterlist *sg)_RP;
+
+#ifdef sg_dma_len
+#undef sg_dma_len
+#endif
+#define sg_dma_len lis_osif_sg_dma_len
+extern size_t lis_osif_sg_dma_len(struct scatterlist *sg)_RP;
+
+#ifdef pci_map_page
+#undef pci_map_page
+#endif
+#define pci_map_page lis_osif_pci_map_page
+extern dma_addr_t lis_osif_pci_map_page(struct pci_dev *hwdev,
+				struct page *page, unsigned long offset,
+				size_t size, int direction)_RP;
+
+#ifdef pci_unmap_page
+#undef pci_unmap_page
+#endif
+#define pci_unmap_page lis_osif_pci_unmap_page
+extern void lis_osif_pci_unmap_page(struct pci_dev *hwdev,
+				dma_addr_t dma_address, size_t size,
+				int direction)_RP;
+
+#endif /* CONFIG_PCI */
 
 #ifdef request_irq
 #undef request_irq
