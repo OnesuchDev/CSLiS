@@ -45,25 +45,6 @@
 #ifndef _SHARE_H
 #define _SHARE_H 1
 
-/*  -------------------------------------------------------------------  */
-/*				 Dependencies                            */
-/* We put here every linux kernel specific include to 
- * help developing internal code
- */
-
-
-
-/*  -------------------------------------------------------------------  */
-/*			Exported functions & macros                      */
-
-#define lis_min(a,b)	(((a)<(b))?(a):(b))
-#define lis_max(a,b)	(((a)>(b))?(a):(b))
-#ifndef min
-#define	min		lis_min
-#define	max		lis_max
-#endif
-/*  -------------------------------------------------------------------  */
-
 /* Bit flags
  */
 #define F_ISSET(f,v)	((f) & (v))
