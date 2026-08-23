@@ -1763,14 +1763,12 @@ else
 
     parse_kver $KVER
 fi
-#    echo "KVER_MAJOR is $KVER_MAJOR, KVER_MINOR is $KVER_MINOR"
-if [ $KVER_MAJOR -lt 2 ]; then
-    if [ $KVER_MAJOR -lt 3 -a $KVER_MINOR -lt 3 ]; then
+if [ $KVER_MAJOR -lt 2 ] || [ $KVER_MAJOR -eq 2 -a $KVER_MINOR -lt 6 ] || \
+        [ $KVER_MAJOR -eq 2 -a $KVER_MINOR -eq 6 -a $KVER_PATCHNO -lt 32 ]; then
         echo
-        echo "LiS is no longer compatible with Linux 1.x/2.0/2.2 kernels."
+        echo "LiS is no longer compatible with kernels older than Linux 2.6.32."
         echo
         exit 1
-    fi
 fi
 
 #
