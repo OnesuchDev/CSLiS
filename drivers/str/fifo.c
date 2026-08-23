@@ -54,10 +54,6 @@
 #include <sys/lislocks.h>	/* semaphores */
 
 #include <linux/list.h>
-#ifdef LIS_OBJNAME  /* This must be defined before including module.h on Linux 6.8 */
-#define _LINUX_IF_H
-#define IFNAMSIZ        16
-#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 #include <sys/osif.h>
 #endif

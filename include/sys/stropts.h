@@ -65,12 +65,10 @@ extern "C" {
 /*  *******************************************************************  */
 /*                               Dependencies                            */
 
-#ifndef _SYS_TYPES_H
 #if defined(__KERNEL__)
 #include <linux/types.h>
 #else
 #include <sys/types.h>
-#endif
 #endif
 #ifndef _LIS_CONFIG_H
 #include <sys/strconfig.h>

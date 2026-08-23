@@ -28,20 +28,12 @@
  *  MA 02139, USA.
  */
 
-#ifdef LIS_OBJNAME  /* This must be defined before including module.h on Linux 6.8 */
-#define _LINUX_IF_H
-#define IFNAMSIZ        16
-#endif  
 #include <sys/LiS/module.h>	/* should be first */
 
 #include <sys/LiS/config.h>
 
 #include <sys/stream.h>
 #include <sys/stropts.h>
-#if LINUX_VERSION_CODE > KERNEL_VERSION(6,0,0)
-#define _LINUX_IF_H
-#define IFNAMSIZ        16
-#endif
 #include <linux/errno.h>
 #include <sys/cmn_err.h>
 #include <sys/osif.h>

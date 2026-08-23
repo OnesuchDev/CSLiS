@@ -51,11 +51,6 @@
 #include <sys/LiS/linux-mdep.h>
 #include <sys/lislocks.h>
 #include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
-#define _LINUX_IF_H
-#define	IFNAMSIZ	16
-#define __iovec_defined 1
-#endif
 #include <linux/module.h>
 #include <sys/LiS/modcnt.h>             /* after linux-mdep.h & module.h */
 #include <linux/init.h>
@@ -96,7 +91,7 @@ void lis_wake_up_interruptible(OSIF_WAIT_Q_ARG) _RP;
 void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
 #endif
 #include <sys/cmn_err.h>
-#include <sys/poll.h>
+#include <linux/poll.h>
 #include <linux/types.h>
 #include <linux/mm.h>
 #include <linux/file.h>

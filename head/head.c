@@ -247,16 +247,8 @@ C) Open vs Close
 /* LiS implementation modules used */
 
 #include <sys/stream.h>
-#ifdef LIS_OBJNAME  /* This must be defined before including module.h on Linux 6.8 */
-#define _LINUX_IF_H
-#define IFNAMSIZ        16
-#endif
-#include <sys/poll.h>
-#if !defined(ERANGE)
-#undef _ERRNO_H
-#define __need_Emath 1
-#include <errnos.h>
-#endif
+#include <linux/poll.h>
+#include <linux/errno.h>
 #include <sys/lismem.h>			/* for lis_free_all_pages */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0)
 #include <sys/osif.h>

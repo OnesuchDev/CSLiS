@@ -39,15 +39,10 @@
 #define CONFIG_MODULES  1
 #define EXPORT_SYMTAB   1
 #define __NO_VERSION__	1	/* 2.2 kernel needs this */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
-#define _LINUX_IF_H
-#define	IFNAMSIZ	16
-#define __iovec_defined 1
-#endif
 #include <linux/module.h>
 
 #include <sys/stream.h>
-#include <sys/poll.h>
+#include <linux/poll.h>
 #include <sys/lislocks.h>
 #include <sys/lismem.h>
 #include <sys/lispci.h>

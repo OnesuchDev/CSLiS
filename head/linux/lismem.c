@@ -30,11 +30,6 @@
 
 #include <sys/stream.h>		/* gets all the right LiS stuff included */
 #include <sys/lismem.h>		/* LiS mem header file */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
-#define _LINUX_IF_H
-#define	IFNAMSIZ	16
-#define __iovec_defined 1
-#endif
 #include <sys/osif.h>
 #include <sys/lislocks.h>	/* for spin locks */
 

@@ -37,11 +37,6 @@
  *  MA 02139, USA.
  */
 
-#ifdef LIS_OBJNAME  /* This must be defined before including module.h on Linux 6.8 */
-#define _LINUX_IF_H
-#define IFNAMSIZ        16
-#endif 
-
 #include <sys/LiS/module.h>	/* must be VERY first include */
 
 #include <sys/LiS/config.h>

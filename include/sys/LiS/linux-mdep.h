@@ -46,6 +46,14 @@
 #ifdef __KERNEL__
 
 /*
+ * Somehow, <sys/socket.h> ends up included in the kernel and clashes with
+ * <linux/socket.h>.
+ */
+#ifndef _SYS_SOCKET_H
+#define _SYS_SOCKET_H   1
+#endif
+
+/*
  * We want to discard the kernel's definition of module_info since
  * it clashes with a standard STREAMS usage.
  */
@@ -153,8 +161,7 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 
 #include <linux/types.h>        /* common system types */
 #include <linux/spinlock.h>
-#define	__need_sigset_t	1
-#include <signal.h>
+#include <linux/signal.h>
 #define timespec time_h_timespec
 #include <linux/time.h>
 #undef timespec
@@ -187,7 +194,7 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 #include <linux/stat.h>		/* S_ISCHR */
 #include <linux/errno.h>	      /* for errno */
 #include <linux/signal.h>	      /* for signal numbers */
-#include <sys/poll.h>		/* ends up being linux/poll.h */
+#include <linux/poll.h>
 #include <linux/file.h>
 #if LINUX_VERSION_CODE > KERNEL_VERSION(4,17,0)
 #include <linux/cred.h>
