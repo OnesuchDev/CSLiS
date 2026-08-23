@@ -51,20 +51,10 @@
 #endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
-#define _LINUX_IF_H
-#define IFNAMSIZ        16
 #define PCI_DMA_BIDIRECTIONAL	DMA_BIDIRECTIONAL
 #define PCI_DMA_TODEVICE	DMA_TO_DEVICE
 #define PCI_DMA_FROMDEVICE	DMA_FROM_DEVICE
 #define PCI_DMA_NONE		DMA_NONE
-#define __iovec_defined 1
-#endif
-
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) )
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > RHEL_RELEASE_VERSION(9, 5)) || \
-     (LINUX_VERSION_CODE > KERNEL_VERSION(6,10,0))) /* RHEL 9.6 or RHEL 10, SLES 16 */
-#define _LINUX_PROPERTY_H_  // omit property.h
-#endif
 #endif
 
 #include <linux/pci.h>		/* PCI BIOS functions */
@@ -89,9 +79,7 @@
 
 #include <linux/delay.h>
 #include <linux/time.h>
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1))  //For RHEL 9 update 12-2022
-#include <stdarg.h>                    /* for va_list */
-#endif
+#include <sys/LiS/stdarg.h>             /* for va_list */
 
 #define	INCL_FROM_OSIF_DRIVER		/* do not change routine names */
 #include <sys/osif.h>

@@ -34,10 +34,11 @@
 #ifndef	DKI_H
 #define	DKI_H		1
 
-#ifndef _SYS_TYPES_H
+#if defined(__KERNEL__)
+#include <linux/types.h>
+#else
 #include <sys/types.h>
 #endif
-
 
 #ifndef NULL
 #define	NULL		( (void *) 0 )

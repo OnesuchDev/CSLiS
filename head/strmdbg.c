@@ -30,16 +30,9 @@
  */
 
 #include <sys/stream.h>
-#include <sys/poll.h>
+#include <linux/poll.h>
 #include <sys/lislocks.h>
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1))  //For RHEL 9 update 12-2022
-#include <stdarg.h>                    /* for va_list */
-#endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
-#define _LINUX_IF_H
-#define	IFNAMSIZ	16
-#define __iovec_defined 1
-#endif
+#include <sys/LiS/stdarg.h>
 #include <sys/osif.h>
 #include <sys/lismem.h>
 

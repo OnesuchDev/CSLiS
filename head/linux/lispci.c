@@ -35,14 +35,6 @@
 #include <sys/lispci.h>		/* LiS PCI header file */
 #include <sys/lismem.h>		/* mainly needed for 2.2 kernels */
 
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) )
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > RHEL_RELEASE_VERSION(9, 5)) || \
-     (LINUX_VERSION_CODE > KERNEL_VERSION(6,10,0))) /* RHEL 9.6 or RHEL 10, SLES 16 */
-#define _LINUX_PROPERTY_H_  // omit property.h
-#endif
-
-#endif
-
 #include <linux/pci.h>		/* kernel PCI header file */
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)

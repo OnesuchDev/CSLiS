@@ -30,24 +30,14 @@
 #define RHEL_RELEASE_VERSION(a, b) (((a) << 8) + (b))
 #endif
 
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1))  //For RHEL 9 update 12-2022
-#include <stdarg.h>                    /* for va_list */
-#endif
+#include <sys/LiS/stdarg.h>                    /* for va_list */
 #include <linux/wait.h>			/* for struct wait_queue */
 #include <linux/timer.h>                /* for struct timer_list */
 #include <linux/time.h>
+#include <linux/errno.h>
 #ifdef CONFIG_PCI
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
-#define ERANGE 34
-#endif
 #ifndef PCI_STD_NUM_BARS
 #define PCI_STD_NUM_BARS	6	/* Number of standard BARs */
-#endif
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) )
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > RHEL_RELEASE_VERSION(9, 5)) || \
-     (LINUX_VERSION_CODE > KERNEL_VERSION(6,10,0))) /* RHEL 9.6 or RHEL 10, SLES 16 */		
-#define _LINUX_PROPERTY_H_  // omit property.h
-#endif		
 #endif
 #include <linux/pci.h>
 #if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)

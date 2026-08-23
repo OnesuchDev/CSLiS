@@ -39,15 +39,8 @@
 /*				 Dependencies                            */
 
 #include <sys/stream.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
-#define _LINUX_IF_H
-#define	IFNAMSIZ	16
-#define __iovec_defined 1
-#endif
 #include <sys/osif.h>
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 1))  //For RHEL 9 update 12-2022
-#include <stdarg.h>                    /* for va_list */
-#endif
+#include <sys/LiS/stdarg.h>                    /* for va_list */
 
 /*  -------------------------------------------------------------------  */
 /* Prototypes */
