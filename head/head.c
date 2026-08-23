@@ -1712,7 +1712,7 @@ copyout_msgpart( struct file *f, mblk_t *m,
 	if (maxlen < 0)					/* no place for it */
 	    break ;					/* stop looking */
 
-	chunk=lis_min(maxlen,lis_mblksize(m));
+	chunk=min(maxlen,lis_mblksize(m));
 	if (chunk > 0 && (err=lis_copyout(f,m->b_rptr,sb->buf+rtnlen,chunk))<0)
 	    return(err) ;
 
@@ -3459,7 +3459,7 @@ copyout_blks(struct file *f, char *ubuff, long count, mblk_t *mp)
 	mp->b_cont = NULL ;			/* unchain this buffer */
 	if (err == 0)
 	{
-	    len=lis_min(count,lis_mblksize(mp));	/* size of current bfr */
+	    len=min(count,lis_mblksize(mp));	/* size of current bfr */
 	    err = lis_copyout(f,mp->b_rptr,ubuff,len); /* cpy out current bfr */
 	    count -=len;
 	    ubuff +=len;
@@ -3492,7 +3492,7 @@ memcopyout_blks(struct file *f, char *ibuff, long count, mblk_t *mp)
     {
         mb=mp->b_cont;                          /* next buffer in chain */
         mp->b_cont = NULL ;                     /* unchain this buffer */
-        len=lis_min(count,lis_mblksize(mp));        /* size of current bfr */
+        len=min(count,lis_mblksize(mp));        /* size of current bfr */
         memcpy(ibuff,mp->b_rptr,len);              /* cpy out current bfr */
         count -=len;
         ibuff +=len;
@@ -4983,7 +4983,7 @@ lis_strwrite(struct file *fp, const char *ubuff, size_t ulen, loff_t *op)
 	 */
 	lis_down(&hd->sd_write_sem) ;
 	held=hd->sd_wmsg;
-	chunk=lis_min((int)hd->sd_maxpsz,ulen-written);
+	chunk=min((size_t)hd->sd_maxpsz,ulen-written);
 	newmsg = (held==NULL);
 	if ( held == NULL && 
 	     (held=hd->sd_wmsg=allocb(chunk+hd->sd_wroff,BPRI_RETRY))==NULL)
@@ -5325,7 +5325,7 @@ lis_strread(struct file *fp, char *ubuff, size_t ulen, loff_t *op)
 
 		if (nbytes > 0)			/* safety check */
 		{
-		    chunk=lis_min(ulen-count,nbytes);
+		    chunk=min(ulen-count,nbytes);
 		    if ((err = lis_copyout(fp,mp->b_rptr,ubuff,chunk)) < 0)
 			break ;			/* stop reading */
 

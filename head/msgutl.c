@@ -425,7 +425,7 @@ lis_pullupmsg(mblk_t *mp, int length)
     	n = tmpbp->b_wptr - tmpbp->b_rptr;
 	if (n > 0)
 	{				/* same type as result msg */
-	    nbytes = lis_min(n, length);
+	    nbytes = min(n, length);
 	    memcpy(newbp->b_wptr, tmpbp->b_rptr, nbytes);
 	    tmpbp->b_rptr += nbytes;
 	    newbp->b_wptr += nbytes;
