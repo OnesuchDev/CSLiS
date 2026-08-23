@@ -286,14 +286,6 @@ extern void lis_safe_putmsg(queue_t *q, mblk_t *mp, char *f, int l)_RP;
 
 /*  -------------------------------------------------------------------  */
 
-#ifdef __KERNEL__
-extern int lis_init_stream_subsystem(int memlimit);
-/* void lis_scantmout_handler(unsigned long arg); */
-/* void lis_runqueues(void) ; */
-#endif /* __KERNEL_ */
-
-/*  -------------------------------------------------------------------  */
-
 
 #ifdef __cplusplus
 }
