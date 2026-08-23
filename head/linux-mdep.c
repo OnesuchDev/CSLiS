@@ -3064,7 +3064,7 @@ int lis_recvfd( stdata_t *recvhd, strrecvfd_t *recv, struct file *fp )
     int error;
     lis_flags_t  psw;
 
-    lis_bzero( recv, sizeof(strrecvfd_t) );
+    memset( recv, 0, sizeof(strrecvfd_t) );
 
     error = -EBADF;
     if (!recvhd || !(recvhd->magic == STDATA_MAGIC))

@@ -189,7 +189,7 @@ initb(struct mdbblock *blk, char *buff, int size, struct free_rtn *frtn)
     blk->datblk.d_dblock.db_ref = (uchar)1;
     blk->datblk.d_dblock.db_type = (uchar)M_DATA;
     if (LIS_DEBUG_CLEAN_MSG)
-	lis_bzero(blk->datblk.d_dblock.db_base, blk->datblk.d_dblock.db_size) ;
+	memset(blk->datblk.d_dblock.db_base, 0, blk->datblk.d_dblock.db_size) ;
 }/*initb*/
 
 /*  -------------------------------------------------------------------  */

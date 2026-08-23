@@ -62,12 +62,6 @@
 #ifdef __KERNEL__
 /* extract values from a char pointer and advance the pointer */
 void lis_putbyte(unsigned char **p, unsigned char byte) _RP;	/* msg.c */
-
-#if 0
-void	lis_bzero(void *ptr, int cnt) ;				/* head.c */
-#else
-#define lis_bzero(ptr, cnt) memset(ptr, 0, cnt);
-#endif
 #endif				/* __KERNEL__ */
 
 /*  -------------------------------------------------------------------  */
