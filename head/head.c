@@ -1349,7 +1349,7 @@ lis_alloc_stdata(void)
 	return(NULL) ;
     }
 
-    lis_bzero(head, sizeof(*head)) ;	/* clear to zero */
+    memset(head, 0, sizeof(*head)) ;	/* clear to zero */
     head->magic=STDATA_MAGIC;
 
     lis_spin_lock_init(&head->sd_lock, "LiS_Head_Lock") ;
