@@ -57,7 +57,7 @@ extern "C" {
 /*  -------------------------------------------------------------------  */
 /*                               Dependencies                            */
 
-/* This are std defines to allow you to include only `stream.h' and run
+/* These are std defines to allow you to include only `stream.h' and run
  * miles w/o including anything else from LiS. */
 
 /* plain usr API */
@@ -129,7 +129,7 @@ extern "C" {
 /*  -------------------------------------------------------------------  */
 /*                               Entry points                            */
 
-/* This are just definitions to the appropriate functions exported
+/* These are just definitions to the appropriate functions exported
  * from any of the <sys/LiS/...> stuff
  * We shouldn't have exported symbols starting w/ other than `lis' to
  * avoid kernel namespace pollution. 
