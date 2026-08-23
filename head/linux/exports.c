@@ -191,7 +191,6 @@ EXPORT_SYMBOL(lis_print_queue);
 EXPORT_SYMBOL(lis_pullupmsg);
 EXPORT_SYMBOL(lis_putbq);
 EXPORT_SYMBOL(lis_putbqf);
-EXPORT_SYMBOL(lis_putbyte);
 EXPORT_SYMBOL(lis_putctl);
 EXPORT_SYMBOL(lis_putctl1);
 EXPORT_SYMBOL(lis_putnextctl);
