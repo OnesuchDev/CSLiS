@@ -488,7 +488,7 @@ void	lis_unfreezestr(queue_t *q) _RP;
  *	flow controlled; 1 otherwise.
  *
  * test for flow cntl in band
- * returns STR_OK if msg can be put(), STR_ERR (0) if not.
+ * returns 1 if msg can be put(), 0 if not.
  *
  */
 extern int lis_bcanput(queue_t *q, unsigned char band)_RP;
@@ -500,7 +500,7 @@ extern int lis_bcanput(queue_t *q, unsigned char band)_RP;
  *	This is equivalent to lis_bcanput(q->q_next, band).  It is
  *	a routine in AT&T's MP DKI.
  *
- * returns STR_OK if msg can be put(), STR_ERR (0) if not.
+ * returns 1 if msg can be put(), 0 if not.
  *
  */
 extern int lis_bcanputnext(queue_t *q, unsigned char band)_RP;
@@ -510,7 +510,7 @@ extern int lis_bcanputnext(queue_t *q, unsigned char band)_RP;
  *	until a service routine is found.  Return true if there is some
  *	non-zero qband in that queue that can be written into.
  *
- * returns STR_OK if msg can be put(), STR_ERR (0) if not.
+ * returns 1 if msg can be put(), 0 if not.
  *
  */
 extern int lis_bcanputnext_anyband(queue_t *q)_RP;
