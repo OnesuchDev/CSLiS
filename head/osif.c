@@ -844,6 +844,14 @@ char *lis_strncpy (char *s1, const char *s2, size_t n)
 
 /* End code from glibc */
 
+/*
+ * Prototype in dki.h (with other timer stuff), not osif.h
+ */
+unsigned _RP lis_usectohz(unsigned usec)
+{
+    return( usec / (1000000/HZ) ) ;
+}
+
 /************************************************************************
 *                        Wrapped Functions                              *
 ************************************************************************/
