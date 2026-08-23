@@ -659,33 +659,6 @@ int _RP lis_clone_major(void)
 }
 
 /*  -------------------------------------------------------------------  */
-/*                              str_mux_cycle				 */
-
-#if 0
-	This whole mux-cycle business, as I see it, is completely
-	artificial.  In order to construct a cycle you would have
-	to do something like the following:
-
-	    ioctl(fd2, I_LINK, fd3) ;		2-->3
-	    ioctl(fd1, I_LINK, fd2) ;		1-->2-->3
-	    ioctl(fd3, I_LINK, fd1) ;		3-->1-->2-->3 (cycle)
-
-	However, you can''t do this because the third ioctl will
-	fail.  fd3 has its STPLEX flag set so the ioctl is disallowed.
-
-	--DMG
-
-/* returns non-zero if the given link leads to cyclic graph
- */
-static int str_mux_cycle(stdata_t *from, stdata_t *to)
-{
-    (void)from;
-    (void)to;
-    return(0);			/* no graph detection */
-}
-#endif
-
-/*  -------------------------------------------------------------------  */
 /*
  * new_muxid
  *

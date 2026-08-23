@@ -37,15 +37,6 @@
 
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
-
-#if 0
-#include <sys/strport.h>
-#include <sys/strconfig.h>	/* config definitions	*/
-#include <sys/stropts.h>	/* struct str_list	*/
-#include <sys/LiS/queue.h>	/* streams queues	*/
-#include <sys/LiS/mod.h>	/* module interface	*/
-#endif
-
 #include <sys/stream.h>
 #include <linux/sched.h>
 #include <linux/ioport.h>
