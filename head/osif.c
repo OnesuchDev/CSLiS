@@ -3,7 +3,8 @@
 *************************************************************************
 *									*
 * The routines in this file provide a filtered interface to certain	*
-* operating system routines that drivers are most likely to use.	*
+* operating system routines.  These are routines that drivers are	*
+* most likely to use such as PCI BIOS calls and mapping addresses.	*
 *									*
 * This code loads as a loadable module, but it has no open routine.	*
 *									*
@@ -45,9 +46,17 @@
 #undef STR				/* collides with irq.h */
 #endif
 
+#ifndef PCI_STD_NUM_BARS
+#define PCI_STD_NUM_BARS	6	/* Number of standard BARs */
+#endif
+
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
 #define _LINUX_IF_H
 #define IFNAMSIZ        16
+#define PCI_DMA_BIDIRECTIONAL	DMA_BIDIRECTIONAL
+#define PCI_DMA_TODEVICE	DMA_TO_DEVICE
+#define PCI_DMA_FROMDEVICE	DMA_FROM_DEVICE
+#define PCI_DMA_NONE		DMA_NONE
 #define __iovec_defined 1
 #endif
 
@@ -58,6 +67,7 @@
 #endif
 #endif
 
+#include <linux/pci.h>		/* PCI BIOS functions */
 #include <linux/sched.h>
 #include <linux/interrupt.h>            /* request_irq, etc. */
 #include <linux/ioport.h>		/* request_region */
@@ -87,7 +97,293 @@
 #include <sys/osif.h>
 
 /* Prototypes */
+int _RP lis_pcibios_present(void);
+const char * _RP lis_pcibios_strerror(int error);
+struct pci_dev  * _RP lis_osif_pci_find_device(unsigned int vendor,
+				 unsigned int device,
+                                 struct pci_dev *from);
+struct pci_dev  * _RP lis_osif_pci_find_slot(unsigned int bus,
+                                             unsigned int devfn);
+int      _RP lis_osif_pci_read_config_byte(struct pci_dev *dev,
+                                           u8 where, u8 *val);
+int      _RP lis_osif_pci_read_config_word(struct pci_dev *dev,
+					u8 where, u16 *val);
+int      _RP lis_osif_pci_read_config_dword(struct pci_dev *dev,
+					u8 where, u32 *val);
+int      _RP lis_osif_pci_write_config_byte(struct pci_dev *dev,
+					u8 where, u8 val);
+int      _RP lis_osif_pci_write_config_word(struct pci_dev *dev,
+					u8 where, u16 val);
+int      _RP lis_osif_pci_write_config_dword(struct pci_dev *dev,
+                                             u8 where, u32 val);
+void     _RP lis_osif_pci_set_master(struct pci_dev *dev);
+int  _RP lis_osif_pci_enable_device (struct pci_dev *dev);
+void  _RP lis_osif_pci_disable_device (struct pci_dev *dev);
+int  _RP lis_osif_pci_module_init( struct pci_driver *p );
+void  _RP lis_osif_pci_unregister_driver( struct pci_driver *p );
+dma_addr_t  _RP lis_osif_sg_dma_address(struct scatterlist *sg);
+size_t  _RP lis_osif_sg_dma_len(struct scatterlist *sg);
 void lis_free_devid_list(void);
+
+/************************************************************************
+*                       PCI BIOS Functions                              *
+*************************************************************************
+*									*
+* These are filtered calls to the kernel's PCI BIOS routines.		*
+* Whether the kernel supports PCI or not is based on CONFIG_PCI from    *
+* autoconf.h.                                                           *
+*									*
+************************************************************************/
+
+int _RP lis_pcibios_present(void)
+{
+#ifdef CONFIG_PCI
+    /* reasonable guess since CONFIG_PCI was defined */
+    return(1);
+#else
+    return(-ENOSYS) ;
+#endif
+}
+
+const char * _RP lis_pcibios_strerror(int error)
+{
+    switch (error)
+    {
+    case PCIBIOS_SUCCESSFUL:		return("PCIBIOS_SUCCESSFUL") ;
+    case PCIBIOS_FUNC_NOT_SUPPORTED:	return("PCIBIOS_FUNC_NOT_SUPPORTED") ;
+    case PCIBIOS_BAD_VENDOR_ID:		return("PCIBIOS_BAD_VENDOR_ID") ;
+    case PCIBIOS_DEVICE_NOT_FOUND:	return("PCIBIOS_DEVICE_NOT_FOUND") ;
+    case PCIBIOS_BAD_REGISTER_NUMBER:	return("PCIBIOS_BAD_REGISTER_NUMBER") ;
+    case PCIBIOS_SET_FAILED:		return("PCIBIOS_SET_FAILED") ;
+    case PCIBIOS_BUFFER_TOO_SMALL:	return("PCIBIOS_BUFFER_TOO_SMALL") ;
+    }
+
+    {
+	static char msg[100] ;	/* not very re-entrant */
+	sprintf(msg, "PCIBIOS Error #%d", error) ;
+	return(msg) ;
+    }
+}
+
+/*
+ * End of old PCI BIOS routines
+ */
+
+
+#if defined(CONFIG_PCI)
+
+struct pci_dev  * _RP lis_osif_pci_find_device(unsigned int vendor,
+				 unsigned int device,
+                                 struct pci_dev *from)
+{
+struct pci_dev * temp_dev;
+    temp_dev = pci_get_device(vendor, device, from);
+    if (temp_dev)
+       pci_dev_put(temp_dev);
+    return(temp_dev) ;
+}
+
+struct pci_dev  * _RP lis_osif_pci_find_slot(unsigned int bus, 
+					unsigned int devfn)
+{
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
+    return(pci_get_slot((struct pci_bus *)bus, devfn)) ;
+#else
+    return(NULL);
+#endif
+}
+
+int      _RP lis_osif_pci_read_config_byte(struct pci_dev *dev, 
+					u8 where, u8 *val)
+{
+    return(pci_read_config_byte(dev, where, val)) ;
+}
+
+int      _RP lis_osif_pci_read_config_word(struct pci_dev *dev, 
+					u8 where, u16 *val)
+{
+    return(pci_read_config_word(dev, where, val)) ;
+}
+
+int      _RP lis_osif_pci_read_config_dword(struct pci_dev *dev, 
+					u8 where, u32 *val)
+{
+    return(pci_read_config_dword(dev, where, val)) ;
+}
+
+int      _RP lis_osif_pci_write_config_byte(struct pci_dev *dev, 
+					u8 where, u8 val)
+{
+    return(pci_write_config_byte(dev, where, val)) ;
+}
+
+int      _RP lis_osif_pci_write_config_word(struct pci_dev *dev, 
+					u8 where, u16 val)
+{
+    return(pci_write_config_word(dev, where, val)) ;
+}
+
+int      _RP lis_osif_pci_write_config_dword(struct pci_dev *dev, 
+					u8 where, u32 val)
+{
+    return(pci_write_config_dword(dev, where, val)) ;
+}
+
+void     _RP lis_osif_pci_set_master(struct pci_dev *dev)
+{
+    pci_set_master(dev) ;
+}
+
+int  _RP lis_osif_pci_enable_device (struct pci_dev *dev)
+{
+    return (pci_enable_device (dev));
+}
+
+void  _RP lis_osif_pci_disable_device (struct pci_dev *dev)
+{
+    pci_disable_device (dev);
+}
+
+int  _RP lis_osif_pci_module_init( struct pci_driver *p )
+{
+    return pci_register_driver( p );
+}
+
+void  _RP lis_osif_pci_unregister_driver( struct pci_driver *p )
+{
+    pci_unregister_driver( p );
+}
+#endif          /* CONFIG_PCI */
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+
+	 /***************************************
+	 *        PCI DMA Mapping Fcns		*
+	 ***************************************/
+
+void * _RP lis_osif_pci_alloc_consistent(struct pci_dev *hwdev, size_t size,
+	                                  dma_addr_t *dma_handle)
+{
+#ifdef CONFIG_PCI
+    return(pci_alloc_consistent(hwdev, size, dma_handle));
+#else
+    return 0;
+#endif
+}
+
+void  _RP lis_osif_pci_free_consistent(struct pci_dev *hwdev, size_t size,
+	                                void *vaddr, dma_addr_t dma_handle)
+{
+#ifdef CONFIG_PCI
+    pci_free_consistent(hwdev, size, vaddr, dma_handle);
+#else
+    return;
+#endif
+}
+#endif /* end kernel 6.0.0. check */
+
+#ifdef CONFIG_PCI
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+dma_addr_t  _RP lis_osif_pci_map_single(struct pci_dev *hwdev, void *ptr,
+	                                        size_t size, int direction)
+{
+    return(pci_map_single(hwdev, ptr, size, direction)) ;
+}
+
+void  _RP lis_osif_pci_unmap_single(struct pci_dev *hwdev,
+			    dma_addr_t dma_addr, size_t size, int direction)
+{
+    pci_unmap_single(hwdev, dma_addr, size, direction) ;
+}
+
+int  _RP lis_osif_pci_map_sg(struct pci_dev *hwdev, struct scatterlist *sg,
+	                             int nents, int direction)
+{
+    return(pci_map_sg(hwdev, sg, nents, direction)) ;
+}
+
+void  _RP lis_osif_pci_unmap_sg(struct pci_dev *hwdev, struct scatterlist *sg,
+	                                int nents, int direction)
+{
+    pci_unmap_sg(hwdev, sg, nents, direction) ;
+}
+
+void  _RP lis_osif_pci_dma_sync_single(struct pci_dev *hwdev,
+			   dma_addr_t dma_handle, size_t size, int direction)
+{
+    if ((direction == PCI_DMA_BIDIRECTIONAL) || 
+	(direction == PCI_DMA_TODEVICE))
+    {
+	pci_dma_sync_single_for_device(hwdev, dma_handle, size, direction) ;
+    }
+    if ((direction == PCI_DMA_BIDIRECTIONAL) ||
+	(direction == PCI_DMA_FROMDEVICE))
+    {
+	pci_dma_sync_single_for_cpu(hwdev, dma_handle, size, direction) ;
+    }
+}
+
+void  _RP lis_osif_pci_dma_sync_sg(struct pci_dev *hwdev,
+			   struct scatterlist *sg, int nelems, int direction)
+{
+    if ((direction == PCI_DMA_BIDIRECTIONAL) || 
+	(direction == PCI_DMA_TODEVICE))
+    {
+	pci_dma_sync_sg_for_device(hwdev, sg, nelems, direction) ;
+    }
+    if ((direction == PCI_DMA_BIDIRECTIONAL) ||
+	(direction == PCI_DMA_FROMDEVICE))
+    {
+	pci_dma_sync_sg_for_cpu(hwdev, sg, nelems, direction) ;
+    }
+}
+
+int  _RP lis_osif_pci_dma_supported(struct pci_dev *hwdev, u64 mask)
+{
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
+    return(pci_set_dma_mask(hwdev, mask)) ;
+#else
+    return(pci_dma_supported(hwdev, mask)) ;
+#endif
+}
+
+int  _RP lis_osif_pci_set_dma_mask(struct pci_dev *hwdev, u64 mask)
+{
+    return(pci_set_dma_mask(hwdev, mask)) ;
+}
+
+#endif /* end kernel 6.0.0. check */
+
+dma_addr_t  _RP lis_osif_sg_dma_address(struct scatterlist *sg)
+{
+    return(sg_dma_address(sg)) ;
+}
+
+size_t  _RP lis_osif_sg_dma_len(struct scatterlist *sg)
+{
+    return(sg_dma_len(sg)) ;
+}
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
+
+dma_addr_t  _RP lis_osif_pci_map_page(struct pci_dev *hwdev,
+				struct page *page, unsigned long offset,
+				size_t size, int direction)
+{
+    return(pci_map_page(hwdev, page, offset, size, direction)) ;
+}
+
+void  _RP lis_osif_pci_unmap_page(struct pci_dev *hwdev,
+				dma_addr_t dma_address, size_t size,
+				int direction)
+{
+    pci_unmap_page(hwdev, dma_address, size, direction) ;
+}
+
+#endif                                  /* 2.4.13 */
+
+#endif          /* CONFIG_PCI */
 
 /************************************************************************
 *                        IRQ Routines                                   *
