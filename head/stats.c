@@ -47,7 +47,7 @@
 /*  -------------------------------------------------------------------  */
 /*				  Glob. Vars                             */
 
-/* This are the stats 
+/* These are the stats 
  */
 lis_atomic_t lis_strstats[STRMAXSTAT][4] ;
 
