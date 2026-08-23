@@ -31,15 +31,9 @@
 *									*
 ************************************************************************/
 
-#ident "@(#) CSLiS lispci.c 7.113 2025-12-11 15:30:00 "
-
 #include <sys/stream.h>		/* gets all the right LiS stuff included */
 #include <sys/lispci.h>		/* LiS PCI header file */
 #include <sys/lismem.h>		/* mainly needed for 2.2 kernels */
-
-# ifdef RH_71_KLUDGE			/* boogered up incls in 2.4.2 */
-#  undef CONFIG_HIGHMEM			/* b_page has semi-circular reference */
-# endif
 
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) )
 #if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE > RHEL_RELEASE_VERSION(9, 5)) || \
