@@ -85,8 +85,6 @@ enum { STR_ERR = 0, STR_OK = 1 };
 
 #ifdef __KERNEL__
 /* extract values from a char pointer and advance the pointer */
-int lis_getint(unsigned char **p) _RP;				/* msg.c */
-
 void lis_putbyte(unsigned char **p, unsigned char byte) _RP;	/* msg.c */
 
 #if 0
