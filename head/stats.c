@@ -39,7 +39,6 @@
 
 #include <sys/strport.h>
 #include <sys/strconfig.h>	/* config definitions */
-#include <sys/LiS/share.h>	/* streams shared defs*/
 #include <sys/LiS/stats.h>	/* module interface */
 
 /*  -------------------------------------------------------------------  */

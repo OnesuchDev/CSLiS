@@ -47,6 +47,16 @@
 
 #include <sys/LiS/linux-mdep.h>
 
+#ifdef __KERNEL__
+#ifndef NULL
+#define NULL ((void*)0)
+#endif
+
+#ifndef VOID
+#define VOID void
+#endif
+#endif
+
 /*
  * INLINE and STATIC
  */

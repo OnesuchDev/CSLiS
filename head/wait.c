@@ -39,7 +39,6 @@
 
 #include <sys/strport.h>
 #include <sys/strconfig.h>	/* config definitions */
-#include <sys/LiS/share.h>	/* streams shared defs*/
 #include <sys/LiS/wait.h>	/* interface */
 #include <sys/LiS/head.h>	/* stream head */
 #include <sys/LiS/queue.h>	/* streams queues */

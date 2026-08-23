@@ -55,7 +55,6 @@
 /*				 Dependencies                            */
 
 #include <sys/strconfig.h>	/* config definitions */
-#include <sys/LiS/share.h>	/* generid defs */
 /*  -------------------------------------------------------------------  */
 /*				    Types                                */
 /* Stream event info
