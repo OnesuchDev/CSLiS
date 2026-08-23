@@ -553,14 +553,6 @@ lis_freemsg(mblk_t *mp)
 
 /*  -------------------------------------------------------------------  */
 /* extract values from a char pointer and advance the pointer */
-int _RP lis_getint(unsigned char **p)
-{
-    int result = *((int*)(*p));
-    *p += sizeof(int);
-    return(result);
-}
-
-/*  -------------------------------------------------------------------  */
 void _RP lis_putbyte(unsigned char **p, unsigned char byte)
 {
     **p = byte;

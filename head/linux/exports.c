@@ -140,7 +140,6 @@ EXPORT_SYMBOL(lis_freezestr);
 EXPORT_SYMBOL(lis_get_free_pages_atomic_fcn);
 EXPORT_SYMBOL(lis_get_free_pages_fcn);
 EXPORT_SYMBOL(lis_get_free_pages_kernel_fcn);
-EXPORT_SYMBOL(lis_getint);
 EXPORT_SYMBOL(lis_getq);
 EXPORT_SYMBOL(lis_gettimeofday);
 #if 0 && defined(CONFIG_DEV)
