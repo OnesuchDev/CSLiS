@@ -4368,18 +4368,10 @@ retry_from_start:			/* retry point for open/close races */
      * We now have the head to use and are protected against further
      * opens on this {maj,min} until we are finished.
      */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    creds.cr_uid  = (uid_t) current_euid();
-    creds.cr_gid  = (gid_t) current_egid();
-    creds.cr_ruid = (uid_t) current_uid();
-    creds.cr_rgid = (gid_t) current_gid();
-
-#else
-    creds.cr_uid  = (kuid_t) current_euid();
-    creds.cr_gid  = (kgid_t) current_egid();
-    creds.cr_ruid = (kuid_t) current_uid();
-    creds.cr_rgid = (kgid_t) current_gid();
-#endif
+    creds.cr_uid  = __kuid_val(current_euid());
+    creds.cr_gid  = __kgid_val(current_egid());
+    creds.cr_ruid = __kuid_val(current_uid());
+    creds.cr_rgid = __kgid_val(current_gid());
 
     SET_FILE_STR(f, head);		/* point file to strm hd */
 
@@ -6193,18 +6185,10 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
     K_ATOMIC_INC(&lis_in_syscall) ;		/* processing a system call */
     lis_head_get(hd) ;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    creds.cr_uid  = (uid_t) current_euid();
-    creds.cr_gid  = (gid_t) current_egid();
-    creds.cr_ruid = (uid_t) current_uid();
-    creds.cr_rgid = (gid_t) current_gid();
-
-#else
-    creds.cr_uid  = (kuid_t) current_euid();
-    creds.cr_gid  = (kgid_t) current_egid();
-    creds.cr_ruid = (kuid_t) current_uid();
-    creds.cr_rgid = (kgid_t) current_gid();
-#endif
+    creds.cr_uid  = __kuid_val(current_euid());
+    creds.cr_gid  = __kgid_val(current_egid());
+    creds.cr_ruid = __kuid_val(current_uid());
+    creds.cr_rgid = __kgid_val(current_gid());
 
     if (F_ISSET(hd->sd_flag,STPLEX))
     {
@@ -7919,18 +7903,10 @@ lis_strclose(struct inode *i, struct file *f)
 	RTNX;
     }    
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    creds.cr_uid  = (uid_t) current_euid();
-    creds.cr_gid  = (gid_t) current_egid();
-    creds.cr_ruid = (uid_t) current_uid();
-    creds.cr_rgid = (gid_t) current_gid();
-
-#else
-    creds.cr_uid  = (kuid_t) current_euid();
-    creds.cr_gid  = (kgid_t) current_egid();
-    creds.cr_ruid = (kuid_t) current_uid();
-    creds.cr_rgid = (kgid_t) current_gid();
-#endif
+    creds.cr_uid  = __kuid_val(current_euid());
+    creds.cr_gid  = __kgid_val(current_egid());
+    creds.cr_ruid = __kuid_val(current_uid());
+    creds.cr_rgid = __kgid_val(current_gid());
 
     K_ATOMIC_INC(&lis_in_syscall) ;		/* processing a system call */
     lis_doclose(i, f, head, &creds) ;		/* close processing */

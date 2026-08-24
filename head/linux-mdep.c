@@ -1370,10 +1370,10 @@ void lis_super_umount_begin( struct super_block *sb )
 	if (mount)
 	    MNTPUT(mount);
 
-	creds.cr_uid  = current_euid();
-	creds.cr_gid  = current_egid();
-	creds.cr_ruid = current_uid();
-	creds.cr_rgid = current_gid();
+        creds.cr_uid  = __kuid_val(current_euid());
+        creds.cr_gid  = __kgid_val(current_egid());
+        creds.cr_ruid = __kuid_val(current_uid());
+        creds.cr_rgid = __kgid_val(current_gid());
 	/*
 	 *  clear the STRATTACH flag if no other fattaches for this stream
 	 */
@@ -2858,13 +2858,8 @@ int lis_sendfd( stdata_t *sendhd, unsigned int fd, struct file *fp )
     mp->b_datap->db_type = M_PASSFP;
     sendfd = (strrecvfd_t *) mp->b_rptr;
     sendfd->f.fp  = fp;
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0))
-    sendfd->uid   = current_euid();
-    sendfd->gid   = current_egid();
-#else
-      sendfd->uid  = __kuid_val(current_euid());
-      sendfd->gid  = __kgid_val(current_egid());
-#endif
+    sendfd->uid  = __kuid_val(current_euid());
+    sendfd->gid  = __kgid_val(current_egid());
     sendfd->r.fp  = (FILE_INODE(fp) == recvhd->sd_inode ? oldfp : NULL);
     sendfd->r.hd  = recvhd;
     mp->b_wptr = mp->b_rptr + sizeof(strrecvfd_t);
@@ -4381,13 +4376,8 @@ int mount_permission(char * path)
 	struct inode *inode   = (dentry ? dentry->d_inode : NULL);
 
 	/* check process euid == inode uid */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-        if (!error && (current_euid()!= inode->i_uid))
-	    error = -EPERM;  /* Solaris uses this for 'Not owner' */
-#else
         if (!error && !(uid_eq(current_euid(),inode->i_uid)))
             error = -EPERM;  /* Solaris uses this for 'Not owner' */
-#endif	
 	/* check permission(s) */
 	if (!error)
         {

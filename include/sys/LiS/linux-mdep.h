@@ -256,21 +256,27 @@ typedef int     o_uid_t;
 typedef int     o_gid_t;
 typedef unsigned   char uchar;
 #ifdef __KERNEL__
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
 typedef struct /* cred - FIXME - collides with Linux */ {
         uid_t   cr_uid;                 /* effective user id */
         gid_t   cr_gid;                 /* effective group id */
         uid_t   cr_ruid;                /* real user id */
         gid_t   cr_rgid;                /* real group id */
 } cred_t;
-#else
-typedef struct /* cred - FIXME - collides with Linux */ {
-        kuid_t   cr_uid;                 /* effective user id */
-        kgid_t   cr_gid;                 /* effective group id */
-        kuid_t   cr_ruid;                /* real user id */
-        kgid_t   cr_rgid;                /* real group id */
-} cred_t;
-#endif
+
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 5, 0) && !defined(KUIDT_INIT)
+/* The kernel does not have kuid_t/kgid_t; define them and related functions */
+
+typedef uid_t kuid_t;
+typedef gid_t kgid_t;
+
+#define __kuid_val(uid) (uid)
+#define __kgid_val(gid) (gid)
+
+#define uid_eq(a, b) ((a) == (b))
+
+#endif /* ! KUIDT_INIT */
+
 #endif
 
 /*  -------------------------------------------------------------------  */
