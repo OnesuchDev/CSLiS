@@ -54,9 +54,7 @@
 #include <sys/lislocks.h>	/* semaphores */
 
 #include <linux/list.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 #include <sys/osif.h>
-#endif
 
 /* Prototypes */
 void fifo_init(void);

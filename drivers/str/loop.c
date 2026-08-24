@@ -42,9 +42,7 @@
 #include <sys/stream.h>
 #include <sys/stropts.h>
 #include <linux/stat.h>		/* for S_IFCHR */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 #include <sys/osif.h>
-#endif
 
 /* Prototypes */
 void sloop_init(void);

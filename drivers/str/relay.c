@@ -41,9 +41,7 @@
 #include <sys/LiS/module.h>	/* first ... */
 
 #include <sys/stream.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 #include <sys/osif.h>
-#endif
 
 /*  -------------------------------------------------------------------  */
 /*			  Module definition structs                      */

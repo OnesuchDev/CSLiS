@@ -44,9 +44,7 @@
  */
 
 #include <sys/stream.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 #include <sys/osif.h>
-#endif
 
 void _RP clone_init(void);
 

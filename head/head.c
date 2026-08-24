@@ -250,9 +250,7 @@ C) Open vs Close
 #include <linux/poll.h>
 #include <linux/errno.h>
 #include <sys/lismem.h>			/* for lis_free_all_pages */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0)
 #include <sys/osif.h>
-#endif
 #include <sys/cmn_err.h>
 
 #include <sys/LiS/modcnt.h>		/* for LIS_MODGET/LIS_MODPUT */

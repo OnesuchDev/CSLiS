@@ -33,9 +33,7 @@
  */
 
 #include <sys/stream.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0)
 #include <sys/osif.h>
-#endif
 
 lis_spin_lock_t	  lis_tlist_lock ;
 
