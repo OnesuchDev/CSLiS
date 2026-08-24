@@ -547,10 +547,11 @@ ifneq ($(CONFIG),)
 	-$(Q)rm -f $(CONFIG)
 endif
 	-$(Q)find . -name \.config_mk -exec rm -f {} \;
-	-$(Q)rm -f /tmp/kver kconfig
+	-$(Q)find . -name ".depend.*" -exec rm -f {} \;
+	-$(Q)find . -name \.compiler -exec rm -f {} \;
+	-$(Q)rm -f /tmp/kver /tmp/kconfig /tmp/dummy\.c "/tmp/modprobe.*"
 	-$(Q)find . \( -name "*.o" -o -name "*~" \) $(Q_PRINT) -exec rm -f {} \;
 endif	# .config_mk
-	-$(Q)rm -f libc/linux/.depend
 	cd km26 && $(MAKE) clean
 	$(nothing)
 
