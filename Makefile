@@ -191,7 +191,6 @@ ifneq ($(pkgdatadir),)
 	$(Q)cat $(CONFIG) | \
 	    sed "s:CONFIG=$(SRCDIR):CONFIG=$(pkgdatadir)/$(KVER):g" | \
 	    sed "s:SRCDIR=$(SRCDIR):SRCDIR=$(pkgsrcdir):g" | \
-	    sed "s:GENCONF=$(SRCDIR)/include:GENCONF=$(pkgincludedir):g" | \
 	    sed "s:$(SRCDIR):$(pkgdatadir):g" > \
 		$(DESTDIR)$(pkgdatadir)/linux-$(KVER)/config.in
 	$(Q)install config.mk $(DESTDIR)$(pkgdatadir)/config.mk
@@ -546,9 +545,6 @@ ifneq ($(wildcard .config_mk),)
 	-$(Q)rm -f include/sys/modversions.h
 ifneq ($(CONFIG),)
 	-$(Q)rm -f $(CONFIG)
-endif
-ifneq ($(GENCONF),)
-	-$(Q)rm -f $(GENCONF)
 endif
 	-$(Q)find . -name \.config_mk -exec rm -f {} \;
 	-$(Q)rm -f /tmp/kver kconfig

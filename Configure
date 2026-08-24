@@ -2098,13 +2098,6 @@ fi
 #
 check_kbuild
 
-
-# identify GENCONF so we can create it here - it's a kosher config-time
-# output (captures config info, lives inside the source tree, and building
-# it from the top Makefile tends to make things circularly dependent)
-#
-GENCONF=${GENCONF:-${SRCDIR}/include/sys/LiS/genconf.h}
-
 # create in each Makefile-containing directory a .config_mk file which can be
 # included locally.  It in turn will include configuration-related make
 # files or variables.  This allows any such directory to be made without
@@ -2170,7 +2163,6 @@ echo "" >>$CONFIG
 cfg_out_str CONFIG_OPTS "$CONFIG_OPTS"
 cfg_out CONFIG $CONFIG
 cfg_out SRCDIR $SRCDIR
-cfg_out GENCONF $GENCONF
 cfg_out CONFIG_STREAMS $CONFIG_STREAMS
 cfg_out NO32OVER64BUILD $NO32OVER64BUILD
 cfg_out SPLITUSERKERNEL $SPLITUSERKERNEL
@@ -2256,11 +2248,6 @@ cfg_out pkgsrcdir ${pkgsrcdir}
 cfg_out mandir ${mandir}
 cfg_out modsubdir ${modsubdir}
 cfg_out_str MAKE_DIRS "$MAKE_DIRS"
-
-# we know CONFIG now exists - create GENCONF; the script needs SRCDIR &
-# CONFIG, & reads the just-created CONFIG
-#
-SRCDIR=${SRCDIR} CONFIG=${CONFIG} ${SRCDIR}/mkgenconf
 
 if [ "$MAKE_INVOKED" != "y" ]; then
     $qecho
