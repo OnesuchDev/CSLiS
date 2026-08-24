@@ -50,7 +50,7 @@
 #define PCI_STD_NUM_BARS	6	/* Number of standard BARs */
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
+#ifndef PCI_DMA_BIDIRECTIONAL /* these are not defined on modern kernels */
 #define PCI_DMA_BIDIRECTIONAL	DMA_BIDIRECTIONAL
 #define PCI_DMA_TODEVICE	DMA_TO_DEVICE
 #define PCI_DMA_FROMDEVICE	DMA_FROM_DEVICE
