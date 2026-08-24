@@ -2176,22 +2176,14 @@ void	write_test(void)
 
     print("\nTesting write zero bytes w/o SNDZERO option\n") ;
     rslt = write(fd1, buf, 0) ;
-#if 1
     if (rslt == 0)
-	print("loop.1: *** write zero bytes returned zero.  Should it?\n") ;
-    else
-	print("loop.1: *** write zero bytes returned %d.  Should it?\n", rslt) ;
-#else
-    if (rslt < 0)
-	print("loop.1: write zero bytes: %s: expected error\n",
-		    strerror(ENO(rslt))) ;
+	print("loop.1: write zero bytes returned zero\n");
     else
     {
-	print("loop.1: write zero bytes: returned %d instead of error\n",
+	print("loop.1: write zero bytes: returned %d instead of 0\n",
 		rslt) ;
 	xit() ;
     }
-#endif
 
     print("\nTesting write zero bytes with SNDZERO option\n") ;
     rslt = ioctl(fd1, I_SWROPT, SNDZERO) ;
