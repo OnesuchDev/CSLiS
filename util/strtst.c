@@ -168,29 +168,6 @@ static char *now(void)
 }
 
 /************************************************************************
-*                         msg_to_syslog                                 *
-*************************************************************************
-*									*
-* Print the given message to syslog.					*
-*									*
-************************************************************************/
-#if 0				/* superceded by printk mechanism */
-void
-msg_to_syslog(char *msg)
-{
-    static int		initialized ;
-
-    if (!initialized)
-    {
-	openlog("strtst", LOG_NDELAY, LOG_SYSLOG) ;
-	initialized = 1 ;
-    }
-
-    syslog(LOG_WARNING, msg) ;
-
-} /* msg_to_syslog */
-#endif
-/************************************************************************
 *                           print                                       *
 *************************************************************************
 *									*
