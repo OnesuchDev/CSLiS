@@ -2289,9 +2289,9 @@ void	write_test(void)
 
 #if 0
 
-Can''t easily do this test.  It requires the writer to block and the
+/* Can't easily do this test.  It requires the writer to block and the
 reader to relieve the flow control.  In a single process we will
-hang on the write and never get control back to do the read.
+hang on the write and never get control back to do the read. */
 
 	    /********************************
 	    *         Flow Control	    * 
