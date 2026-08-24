@@ -181,7 +181,7 @@ XOPTS += -D_PPC_LIS_ -D_PPC64_LIS_ -m64 -msoft-float -pipe -mminimal-toc -mtrace
 endif
 ifeq ($(ARCH),x86_64)
 #also need -mcmodel=kernel, but only on kernel modules
-XOPTS += -D_X86_64_LIS_ -mno-red-zone -pipe -fno-reorder-blocks -Wno-sign-compare
+XOPTS += -D_X86_64_LIS_ -mno-red-zone -pipe -fno-reorder-blocks
 endif
 # For s390 & s390x architecture we need some bypasses
 ifeq ($(ARCH),s390)
