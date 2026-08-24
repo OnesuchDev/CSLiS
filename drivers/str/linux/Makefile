@@ -30,7 +30,7 @@ ifeq ($(ARCH),s390x)
 OPT += -fno-stack-protector
 endif
 
-CC += -DLiS $(CCREGPARM) $(CCREGPARM2) $(OPT) $(XOPTS)
+CC += -DLiS $(CCREGPARM) $(CCREGPARM2) -DSTREAMS_REGPARM=$(STREAMS_REGPARM) $(OPT) $(XOPTS)
 
 
 # Object names known to all targets
