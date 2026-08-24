@@ -168,9 +168,7 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 #endif
 #include <linux/wait.h>
 #include <linux/kernel.h>
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0))
 #include <linux/interrupt.h>
-#endif
 #include <linux/major.h>
 #include <linux/fs.h>		/* inodes,... */
 #include <linux/fcntl.h>	/* inodes,... */
@@ -190,6 +188,10 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 #include <sys/LiS/genconf.h>	/* generated configs from installation */
 #include <sys/LiS/config.h>
 /* #include <sys/lislocks.h>	needs lis_atomic_t, below */
+
+#ifndef DECLARE_TASKLET_OLD
+#define DECLARE_TASKLET_OLD(n, f) DECLARE_TASKLET((n), (f), 0)
+#endif
 
 /*
  * Kernel loadable module support

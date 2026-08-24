@@ -2892,24 +2892,7 @@ void lis_tq_free_passfp( unsigned long arg )
  */
 void lis_free_passfp( mblk_t *mp )
 {
-
-#if (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE < RHEL_RELEASE_VERSION(9, 5)) /* Red Hat version check */
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,0)  
-        static DECLARE_TASKLET(lis_tq, lis_tq_free_passfp,0);
-#else
-        static DECLARE_TASKLET_OLD(lis_tq, lis_tq_free_passfp);
-#endif
-
-#else  /* not Red Hat and level less than 9.4 */	
-       
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,4,0)	
-    	static DECLARE_TASKLET(lis_tq, lis_tq_free_passfp,0);
-#else
-        static DECLARE_TASKLET_OLD(lis_tq, lis_tq_free_passfp);
-#endif
-
-#endif  /* End of Red Have version check */	
+    static DECLARE_TASKLET_OLD(lis_tq, lis_tq_free_passfp);
     int				 emptyq ;
     lis_flags_t 	         psw;
     strrecvfd_t			*sent;
