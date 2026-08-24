@@ -35,12 +35,7 @@
 #include <sys/sysmacros.h>
 #include <sys/ioctl.h>
 #include <errno.h>
-#include <linux/version.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,18,0)
 #include <limits.h>
-#else
-#include <sys/LiS/lislimits.h>
-#endif
 
 static int verbose = 1;
 
