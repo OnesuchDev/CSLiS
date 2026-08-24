@@ -38,12 +38,7 @@
  * 
  */
 
-#include <linux/version.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,18,0)
 #include <limits.h>
-#else
-#include <sys/LiS/lislimits.h>
-#endif
 #include <stdio.h>
 #include <ctype.h>
 #include <stdarg.h>

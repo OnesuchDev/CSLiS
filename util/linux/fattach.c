@@ -30,12 +30,7 @@
 #include <memory.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <linux/version.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,18,0)
 #include <limits.h>
-#else
-#include <sys/LiS/lislimits.h>
-#endif
 #include <stropts.h>
 #include <sys/types.h>
 #include <sys/stat.h>
