@@ -4610,7 +4610,7 @@ MODULE_INFO(vermagic, VERMAGIC_STRING);
 
 void lis_init_msg(void)
 {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0) 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,16,0)
         lis_msgb_cachep =
             kmem_cache_create("LiS-msgb", sizeof(struct mdbblock),
                                 0, SLAB_HWCACHE_ALIGN, NULL);
@@ -4705,7 +4705,7 @@ void lis_cache_destroy(struct kmem_cache *p, lis_atomic_t *c, char *label)
 
 void lis_init_queues(void)
 {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0) 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,16,0)
       lis_queue_cachep =
           kmem_cache_create("LiS-queue", sizeof(queue_t)*2, 0,
                             SLAB_HWCACHE_ALIGN, NULL);
@@ -4764,7 +4764,7 @@ int lis_timer_size ;
 
 void lis_init_timers(int size)
 {
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0)  
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,16,0)
     lis_timer_cachep = kmem_cache_create("lis_timer_cachep",
                                          size,
                                          0, SLAB_HWCACHE_ALIGN, NULL);
