@@ -19,7 +19,6 @@
 
 #include <sys/LiS/genconf.h>
 #include <linux/version.h>
-#include <linux/version.h>
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)
 #include <linux/autoconf.h>
 #else
