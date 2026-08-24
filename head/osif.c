@@ -71,11 +71,7 @@
 #include <asm/irq_regs.h>		/* get_irq_regs */
 #include <asm/atomic.h>			/* the real kernel routines */
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
-#include <asm/scatterlist.h>
-#else
 #include <linux/scatterlist.h>
-#endif
 
 #include <linux/delay.h>
 #include <linux/time.h>
