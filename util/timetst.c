@@ -286,7 +286,7 @@ void	timing_test(void)
     					 */
     init_hist(hist) ;
     time_on = time(NULL) ;
-#if 1
+
     for (i = 0; i < iter_cnt; i++)
     {
 	if (latency_opt)
@@ -324,7 +324,7 @@ void	timing_test(void)
 	    enter_hist(hist, interval) ;
 	}
     }
-#endif
+
     et = (time(NULL) - time_on) * 1000000 ;	/* time in usecs */
 
     printf("%ld micro-secs\n", et/iter_cnt) ;

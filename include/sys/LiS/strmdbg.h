@@ -108,9 +108,6 @@ extern unsigned long	lis_debug_mask2 ;
 /*
  * Shorthand macros
  */
-
-#if 1
-
 #define LIS_DEBUG_OPEN		(lis_debug_mask & LIS_DEBUG_OPEN_BIT)
 #define LIS_DEBUG_CLOSE		(lis_debug_mask & LIS_DEBUG_CLOSE_BIT)
 #define LIS_DEBUG_READ		(lis_debug_mask & LIS_DEBUG_READ_BIT)
@@ -156,57 +153,6 @@ extern unsigned long	lis_debug_mask2 ;
 			    (lis_debug_mask2 & LIS_DEBUG_LOCK_CONTENTION_BIT)
 #define LIS_DEBUG_REFCNTS	(lis_debug_mask2 & LIS_DEBUG_REFCNTS_BIT)
 #define LIS_DEBUG_SEMTIME	(lis_debug_mask2 & LIS_DEBUG_SEMTIME_BIT)
-
-#else /* !CONFIG_DEV */
-
-#define LIS_DEBUG_OPEN		0
-#define LIS_DEBUG_CLOSE		0
-#define LIS_DEBUG_READ		0
-#define LIS_DEBUG_WRITE		0
-
-#define LIS_DEBUG_IOCTL		0
-#define LIS_DEBUG_PUTNEXT	0
-#define LIS_DEBUG_STRRPUT	0
-#define LIS_DEBUG_SIG		0
-
-#define LIS_DEBUG_PUTMSG	0
-#define LIS_DEBUG_GETMSG	0
-#define LIS_DEBUG_POLL		0
-#define LIS_DEBUG_LINK		0
-
-#define LIS_DEBUG_MEM_LEAK	0
-#define LIS_DEBUG_FLUSH		0
-#define LIS_DEBUG_FATTACH	0
-
-#define LIS_DEBUG_SAFE		0
-#define LIS_DEBUG_TRCE_MSG	0
-#define LIS_DEBUG_CLEAN_MSG	0
-#define LIS_DEBUG_SPL_TRACE	0
-
-#define LIS_DEBUG_ALLOC 	0
-#define LIS_DEBUG_FREEMSG 	0
-#define LIS_DEBUG_MALLOC	0
-#define LIS_DEBUG_MONITOR_MEM	0
-
-#define LIS_DEBUG_DMP_QUEUE	0
-#define LIS_DEBUG_DMP_MBLK	0
-#define LIS_DEBUG_DMP_DBLK	0
-#define LIS_DEBUG_DMP_STRHD	0
-
-#define LIS_DEBUG_VOPEN		0
-#define LIS_DEBUG_VCLOSE	0
-#define LIS_DEBUG_ADDRS		0
-
-
-#define LIS_DEBUG_SNDFD		0
-#define LIS_DEBUG_CACHE		0
-#define LIS_DEBUG_LOCK_CONTENTION \
-			    (lis_debug_mask2 & LIS_DEBUG_LOCK_CONTENTION_BIT)
-#define LIS_DEBUG_SEMTIME	(lis_debug_mask2 & LIS_DEBUG_SEMTIME_BIT)
-
-#define LIS_DEBUG_REFCNTS	0
-
-#endif /* !CONFIG_DEV */
 
 /*
  * Some routines to assist in debug printing
