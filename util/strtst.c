@@ -22,8 +22,6 @@
  * 
  */
 
-#define	inline			/* make disappear */
-
 #define _REENTRANT
 #define _THREAD_SAFE
 #define _XOPEN_SOURCE	500		/* single unix spec */
