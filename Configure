@@ -1102,34 +1102,39 @@ get_ipv6_module()
 #
 get_regparm()
 {
-    CCREGPARM=
+    CCREGPARM=""
+    # necessary because config variables cannot contain spaces
+    CCREGPARM2="-DCCREGPARM=0"
     if [ -f $KSRC/drivers/base/firmware_class.ko ] && \
             strings $KSRC/drivers/base/firmware_class.ko | grep vermagic | \
             grep REGPARM
     then
         CCREGPARM="-mregparm=3"
+        CCREGPARM2="-DCCREGPARM=3"
     elif [ -f $KSRC/include/linux/autoconf.h  -o \
             -f $KSRC/include/generated/autoconf.h ]; then
         regparm_defined=`ac_get_config CONFIG_REGPARM`
         if [ "$regparm_defined..." = "y..." ]; then
             CCREGPARM="-mregparm=3"
+            CCREGPARM2="-DCCREGPARM=3"
         elif [ -f $KSRC/arch/x86/Makefile_32 ] && \
             [ "$MACHINE" = "i686" ] && \
             grep regparm $KSRC/arch/x86/Makefile_32; then
-                    CCREGPARM="-mregparm=3"
-        elif [ -f $KSRC/arch/x86/Makefile ] && \
+                CCREGPARM="-mregparm=3"
+                CCREGPARM2="-DCCREGPARM=3"
+            elif [ -f $KSRC/arch/x86/Makefile ] && \
                 [ "$MACHINE" = "i686" ] && \
                 grep regparm $KSRC/arch/x86/Makefile; then
                     CCREGPARM="-mregparm=3"
+                    CCREGPARM2="-DCCREGPARM=3"
         elif [ -f $KSRC/arch/i386/Makefile ] && \
                 [ "$MACHINE" = "i686" ] && \
                 grep regparm $KSRC/arch/i386/Makefile; then
                     CCREGPARM="-mregparm=3"
+                    CCREGPARM2="-DCCREGPARM=3"
         else
-                    CCREGPARM="-Dccregparm=0"
+                    CCREGPARM2="-DCCREGPARM=0"
         fi
-    else
-        CCREGPARM="-Dccregparm=0"
     fi
     if [ "$CCREGPARM" = "-mregparm=3" ]; then
         echo "Kernel compiled using register passing for parameters"
@@ -1137,6 +1142,7 @@ get_regparm()
         echo "Kernel compiled using stack passing for parameters"
     fi
     export CCREGPARM
+    export CCREGPARM2
 }
 
 
@@ -2225,6 +2231,7 @@ cfg_out MODULE_INIT_TOOLS $MODULE_INIT_TOOLS
 cfg_out KSYMVERS $KSYMVERS
 cfg_out MAKEDIRTYPE $MAKEDIRTYPE
 cfg_out CCREGPARM "$CCREGPARM"
+cfg_out CCREGPARM2 "$CCREGPARM2"
 cfg_out STREAMS_REGPARM "$STREAMS_REGPARM"
 cfg_out LIS_OLD_CONSTS $LIS_OLD_CONSTS
 cfg_out SOLARIS_STYLE_CMN_ERR $SOLARIS_STYLE_CMN_ERR
