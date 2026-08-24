@@ -133,7 +133,6 @@ DRVROBJ = $(DRVRDIR)/$(LIS_TARG)
 # can enable these options if you like just to see if they cause you
 # any problems.
 #
-PROBLEMS = -Wpointer-arith
 PROBLEMS = 
 # Added -D__KERNGLUE__ to keep RHEL4 happy
 XOPTS = -Wall -Wstrict-prototypes $(PROBLEMS) -D__KERNGLUE__
