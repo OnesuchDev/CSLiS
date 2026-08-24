@@ -262,7 +262,18 @@ typedef gid_t kgid_t;
 
 #define uid_eq(a, b) ((a) == (b))
 
-#endif /* ! KUIDT_INIT */
+#define KUIDT_INIT(value) ((kuid_t) value )
+#define KGIDT_INIT(value) ((kgid_t) value )
+
+#endif /* kernel < 3.5 && ! KUIDT_INIT */
+
+/* Older kernels do not have these defined */
+#ifndef GLOBAL_ROOT_UID
+#define GLOBAL_ROOT_UID KUIDT_INIT(0)
+#endif
+#ifndef GLOBAL_ROOT_GID
+#define GLOBAL_ROOT_GID KGIDT_INIT(0)
+#endif
 
 #endif
 
