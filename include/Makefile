@@ -9,6 +9,7 @@ default:
 
 install:
 	$(Q_ECHO) $(qtag_INSTALL)$(relpwd)
+	$(Q)rm -rf $(DESTDIR)$(pkgincludedir)
 	$(Q)find . -type d $(Q_PRINT) \
 		-exec install -d $(DESTDIR)$(pkgincludedir)/{} \
 			>/dev/null \;
@@ -25,7 +26,7 @@ ifneq ($(pkglibdir),$(pkgdatatdir))
 endif
 
 uninstall:
-	$(nothing)
+	$(Q)rm -rf $(DESTDIR)$(pkgincludedir)
 
 clean:
 	$(nothing)
