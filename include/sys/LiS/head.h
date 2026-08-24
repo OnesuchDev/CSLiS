@@ -350,8 +350,7 @@ extern int lis_iocseq; 		/* ioctl id */
  * -- see "The design of the unix operating system" (Bach)
  */
 extern int lis_stropen( struct inode *, struct file *);
-extern int lis_strioctl(struct inode *, struct file *,
-			unsigned int, unsigned long);
+extern long lis_strioctl(struct file *f, unsigned int, unsigned long);
 extern int lis_strputpmsg(struct inode *, struct file *,
 			void *, void *, int, int);
 extern int lis_strgetpmsg(struct inode *, struct file *,

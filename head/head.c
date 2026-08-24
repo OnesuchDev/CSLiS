@@ -256,7 +256,7 @@ int	lis_i_link(struct inode	*i,
 	       cred_t	*creds);
 int lis_check_ino(struct inode *i, char *msg);
 void lis_process_rput(stdata_t *shead, queue_t *q, mblk_t *mp);
-long lis_unlocked_ioctl (struct file *f, unsigned int cmd, unsigned long arg);
+long lis_strioctl (struct file *f, unsigned int cmd, unsigned long arg);
 unsigned lis_poll_bits(stdata_t *hd);
 void    _RP lis_wakeup_flush(caddr_t arg);
 void lis_terminate_final(void);
@@ -6131,7 +6131,7 @@ err_return_point:				/* return "err" */
  * stream is outstanding at a time.  This helps to minimize the 
  * locking of the stream head structure.
  */
-long lis_unlocked_ioctl (struct file *f, unsigned int cmd, unsigned long arg)
+long lis_strioctl (struct file *f, unsigned int cmd, unsigned long arg)
 {
     struct inode  *i = FILE_INODE(f);
     stdata_t *hd;
@@ -6144,7 +6144,7 @@ long lis_unlocked_ioctl (struct file *f, unsigned int cmd, unsigned long arg)
 #define RTN(v)	do { err=(v); goto return_point; } while (0)
 
     if (LIS_DEBUG_IOCTL && LIS_DEBUG_ADDRS)
-        printk("lis_unlocked_ioctl(i@0x%p/%d,f@0x%p/%li,cmd=0x%x,arg=0x%lx)"
+        printk("lis_strioctl(i@0x%p/%d,f@0x%p/%li,cmd=0x%x,arg=0x%lx)"
 	       " << i_rdev=0x%x\n",
 	       i, (i?I_COUNT(i):0),
 	       f, (f?F_COUNT(f):0),
