@@ -3606,10 +3606,6 @@ int	lis_thread_func(void *argp)
     void		*func_arg ;
     struct cred         *loccred = prepare_creds();
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    daemonize("%s", arg->name) ;	/* make me a daemon */
-#endif
-
     loccred->uid = GLOBAL_ROOT_UID;     /* become root */
     loccred->euid = GLOBAL_ROOT_UID;    /* become root */
     commit_creds(loccred);
@@ -3629,9 +3625,7 @@ int	lis_thread_func(void *argp)
 pid_t	_RP lis_thread_start(int (*fcn)(void *), void *arg, const char *name)
 {
     arg_t	*argp ;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
     struct task_struct *tsk;
-#endif
 
     argp = ALLOCF(sizeof(*argp), "Thread ") ;
     if (argp == NULL)
@@ -3647,12 +3641,8 @@ pid_t	_RP lis_thread_start(int (*fcn)(void *), void *arg, const char *name)
     argp->func = fcn ;
     argp->func_arg = arg ;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    return(kernel_thread(lis_thread_func, (void *) argp, 0)) ;
-#else  /* kernel_thread replaced by kthread() calls */
     tsk  = kthread_run( lis_thread_func, (void *) argp, "%s", name );
     return (tsk->pid);
-#endif
 }
 
 int _RP
