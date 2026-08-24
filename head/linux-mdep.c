@@ -100,12 +100,28 @@
 #include <linux/sched.h> // kernel_thread
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
 #include <linux/sched/signal.h>  // new place for sighand->siglock def
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,18,0)
-#define CURRENT_TIME    (current_kernel_time64()) //64 bit timer for 4.18.0 kernels and higher
+#endif
+
+/*
+ * struct timespec64 is defined on some kernels older than 4.18 that don't use
+ * it in struct inode, and we don't want to use 64-bit time at all in that case.
+ */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,18,0)
+#define kcompat_timespec64 timespec
+#define ktime_get_coarse_real_ts64(p) (*(p) = current_kernel_time())
 #else
-#define CURRENT_TIME	(current_kernel_time()) //recover old definition
+#define kcompat_timespec64 timespec64
 #endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,7,0)
+#define inode_set_atime_to_ts(i, t) ((i)->i_atime = (t))
+#define inode_set_mtime_to_ts(i, t) ((i)->i_mtime = (t))
 #endif
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6,6,0)
+/* 6.6 has only the ctime accessor */
+#define inode_set_ctime_to_ts(i, t) ((i)->i_ctime = (t))
+#endif
+
 #include <linux/kthread.h>
 #endif
 
@@ -1146,6 +1162,7 @@ static
 int lis_fs_kern_mount_sb( struct super_block *sb, void *ptr, int silent )
 {
     struct inode *isb = lis_get_new_inode(sb) ;
+    struct kcompat_timespec64 i_ttime;
 
     if (isb == NULL)
       return(-ENOMEM) ;
@@ -1158,29 +1175,10 @@ int lis_fs_kern_mount_sb( struct super_block *sb, void *ptr, int silent )
     isb->i_uid   = GLOBAL_ROOT_UID;
     isb->i_gid   = GLOBAL_ROOT_GID;
 #endif
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)    
-    isb->i_atime = CURRENT_TIME ;
-    isb->i_mtime = CURRENT_TIME ;
-    isb->i_ctime = CURRENT_TIME ;
-#else
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(6,4,0)    
-    ktime_get_coarse_real_ts64(&isb->i_atime);
-    ktime_get_coarse_real_ts64(&isb->i_mtime);
-    ktime_get_coarse_real_ts64(&isb->i_ctime);
-#else
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(6,7,0)    
-    ktime_get_coarse_real_ts64(&isb->__i_atime);
-    ktime_get_coarse_real_ts64(&isb->__i_mtime);
-    ktime_get_coarse_real_ts64(&isb->__i_ctime);
-#else
-    struct timespec64       i_ttime;
     ktime_get_coarse_real_ts64(&i_ttime);
     inode_set_atime_to_ts(isb, i_ttime);
     inode_set_mtime_to_ts(isb, i_ttime);
     inode_set_ctime_to_ts(isb, i_ttime);
-#endif    
-#endif
-#endif    
     isb->i_op    = &lis_streams_iops;
     isb->i_rdev  = makedevice(lis_major, 0);	/* LiS dev_t */
     
@@ -1588,6 +1586,7 @@ lis_new_inode( struct file *f, dev_t dev )
     struct dentry *newd = NULL;
     struct qstr    dname ;
     struct vfsmount *oldmnt = FILE_MNT(f);
+    struct kcompat_timespec64 i_ttime;
 
     if (!old)
     {						/* param checking */
@@ -1636,27 +1635,10 @@ lis_new_inode( struct file *f, dev_t dev )
 	 */
 	new->i_uid   = current_fsuid();
 	new->i_gid   = current_fsgid();
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
-        new->i_atime = new->i_mtime = new->i_ctime = CURRENT_TIME;
-#else
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(6,4,0)	
-        ktime_get_coarse_real_ts64(&new->i_atime);
-        ktime_get_coarse_real_ts64(&new->i_mtime);
-        ktime_get_coarse_real_ts64(&new->i_ctime);
-#else
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(6,7,0)
-    ktime_get_coarse_real_ts64(&new->__i_atime);
-    ktime_get_coarse_real_ts64(&new->__i_mtime);
-    ktime_get_coarse_real_ts64(&new->__i_ctime);
-#else
-    struct timespec64       i_ttime;
-    ktime_get_coarse_real_ts64(&i_ttime);
-    inode_set_atime_to_ts(new, i_ttime);
-    inode_set_mtime_to_ts(new, i_ttime);
-    inode_set_ctime_to_ts(new, i_ttime);
-#endif
-#endif	
-#endif
+	ktime_get_coarse_real_ts64(&i_ttime);
+	inode_set_atime_to_ts(new, i_ttime);
+	inode_set_mtime_to_ts(new, i_ttime);
+	inode_set_ctime_to_ts(new, i_ttime);
 	
 	/*
 	 * It is difficult to detach an inode from a dentry without
@@ -1849,6 +1831,7 @@ static struct file *lis_get_filp( struct file_operations *f_op )
 struct inode *lis_set_up_inode(struct file *f, struct inode *inode)
 {
     struct inode	*new ;
+    struct kcompat_timespec64 i_ttime;
 
     if (inode == NULL) return(NULL) ;
 
@@ -1862,27 +1845,10 @@ struct inode *lis_set_up_inode(struct file *f, struct inode *inode)
      */
     new->i_uid   = current_fsuid();
     new->i_gid   = current_fsgid();
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
-    new->i_atime = new->i_mtime = new->i_ctime = CURRENT_TIME;
-#else
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(6,4,0)    
-    ktime_get_coarse_real_ts64(&new->i_atime);
-    ktime_get_coarse_real_ts64(&new->i_mtime);
-    ktime_get_coarse_real_ts64(&new->i_ctime);
-#else
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(6,7,0)
-    ktime_get_coarse_real_ts64(&new->__i_atime);
-    ktime_get_coarse_real_ts64(&new->__i_mtime);
-    ktime_get_coarse_real_ts64(&new->__i_ctime);
-#else
-    struct timespec64       i_ttime;
     ktime_get_coarse_real_ts64(&i_ttime);
     inode_set_atime_to_ts(new, i_ttime);
     inode_set_mtime_to_ts(new, i_ttime);
     inode_set_ctime_to_ts(new, i_ttime);
-#endif
-#endif
-#endif    
 
     return(new) ;
 }
