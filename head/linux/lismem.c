@@ -110,7 +110,7 @@ void lis_mem_init(void)
 
 	for (p = lis_slab_table; p->name != NULL; p++)
 	{
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0)  // to include Ubuntu 18.4.3
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,16,0)
             p->cache_struct = kmem_cache_create(p->name, p->size, 0,
                                 SLAB_HWCACHE_ALIGN | CACHE_OPTS, NULL);
 #else

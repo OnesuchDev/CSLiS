@@ -1516,7 +1516,7 @@ void lis_init_locks(void)
     spin_size = sizeof(*llock) - sizeof(llock->spin_lock_mem) +
 						    sizeof(spinlock_t);
     size = sem_size > spin_size ? sem_size : spin_size ;
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(4,16,0)  // to include Ubuntu 18.4.3
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,16,0)
     lis_locks_cachep =
           kmem_cache_create("lis_locks_cache", size, 0,
                             SLAB_HWCACHE_ALIGN, NULL);
