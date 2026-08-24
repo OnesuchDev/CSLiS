@@ -134,11 +134,7 @@ struct kmem_cache *lis_locks_cachep;
 
 lis_atomic_t	lis_spin_lock_count ;
 lis_atomic_t	lis_spin_lock_contention_count ;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
- spinlock_t	lis_contention_lock = SPIN_LOCK_UNLOCKED;
-#else
- DEFINE_SPINLOCK(lis_contention_lock);
-#endif
+DEFINE_SPINLOCK(lis_contention_lock);
 
 
 #define	LOCK_CONTENTION_SIZE	4	/* # locks to keep track of */
@@ -205,11 +201,7 @@ spl_track_t		*lis_spl_track_ptr = lis_spl_track ;
 /*
  * Note: this is a kernel lock, not an LiS lock.
  */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
- spinlock_t		lis_spl_track_lock = SPIN_LOCK_UNLOCKED ;
-#else
- DEFINE_SPINLOCK(lis_spl_track_lock);
-#endif
+DEFINE_SPINLOCK(lis_spl_track_lock);
 
 #if defined(CONFIG_DEV)
 #define	LOCK_ENTRY(lock,typ,fil,lin,flgs)				\
