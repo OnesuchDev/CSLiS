@@ -27,6 +27,12 @@
 #define _REENTRANT
 #define _THREAD_SAFE
 #define _XOPEN_SOURCE	500		/* single unix spec */
+#ifndef _SVID_SOURCE
+#define _SVID_SOURCE /* strtoull */
+#endif
+#ifndef _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -63,10 +69,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <getopt.h>
-#include <stdlib.h>	/* won't pick up strtoull for some reason */
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0))
-extern unsigned long long int strtoull (char *nptr, char **endptr, int base);
-#endif
+#include <stdlib.h>
 #include <sys/poll.h>
 
 #include <sys/LiS/config.h>
