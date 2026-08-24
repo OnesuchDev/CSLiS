@@ -34,21 +34,8 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-
-#include <linux/version.h>
-
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0) || (!defined(_PPC_LIS_) && !defined(_S390X_LIS_)))
-#include <signal.h>                   /* RHEL 7 requires no SIGNAL on ppc64 */
-#ifdef __KERNEL__
-#include <sys/stream.h>
-#endif /* end if kernel */
-#else  /* kernel less then Red Hat 7 release */
-#ifdef __KERNEL__
 #include <signal.h>
 #include <sys/stream.h>
-#endif
-#endif
-
 #include <sys/stropts.h>
 #include <sys/LiS/loop.h>		/* an odd place for this file */
 #include <sys/LiS/minimux.h>		/* an odd place for this file */
@@ -1556,12 +1543,10 @@ void	ioctl_test(void)
 	    xit() ;
 	}
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0) || (!defined(_PPC_LIS_) && !defined(_S390X_LIS_)))
 	signal(SIGPOLL, input_sig) ;
 	rslt = write_data(fd2, buf, lgth) ;	/* produce some input on fd1 */
 	if (rslt < 0)
 	    xit() ;
-#endif
 	sleep(1) ;		/* allow signal to happen */
 
 
