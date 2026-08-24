@@ -626,7 +626,6 @@ const char	* _RP lis_strm_name(stdata_t *head)
 {
     const char	*name ;
 
-#if 1
     if (head != NULL && head->magic != STDATA_MAGIC)
 	return(NULL) ;
     
@@ -639,14 +638,6 @@ const char	* _RP lis_strm_name(stdata_t *head)
 	&& (name = head->sd_strtab->st_rdinit->qi_minfo->mi_idname) != NULL
        )
 	return(name);
-#else
-    if (   head->sd_strtab != NULL
-	&& head->sd_strtab->st_rdinit != NULL
-	&& head->sd_strtab->st_rdinit->qi_minfo != NULL
-	&& (name = head->sd_strtab->st_rdinit->qi_minfo->mi_idname) != NULL
-       )
-	return(name);
-#endif
 
     return("(unknown)") ;
 
