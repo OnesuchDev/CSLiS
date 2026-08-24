@@ -1,11 +1,6 @@
 /*                               -*- Mode: C -*- 
- * queue.c --- streams statistics
- * Author          : Graham Wheeler, Francisco J. Ballesteros
+ * queue.c --- queue management
  * Created On      : Tue May 31 22:25:19 1994
- * Last Modified By: David Grothe
- * RCS Id          : $Id: queue.c,v 1.5 2006/06/26 14:20:53 steve Exp $
- * Purpose         : provide some queue for LiS
- * ----------------______________________________________________
  *
  *   Copyright (C) 1995  Graham Wheeler, Francisco J. Ballesteros
  *   Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
@@ -28,11 +23,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach us by email to 
- *    gram@aztec.co.za, nemo@ordago.uc3m.es
- *    dave@gcom.com
  */
 
 /*  -------------------------------------------------------------------  */

@@ -1,26 +1,12 @@
 /*                               -*- Mode: C -*- 
  * events.h --- streams events
- * Author          :  Francisco J. Ballesteros & Graham Wheeler
  * Created On      : Tue May 31 22:25:19 1994
- * Last Modified By: Francisco J. Ballesteros
- * Last Modified On: Tue Sep 26 15:20:42 1995
- * Update Count    : 2
- * RCS Id          : $Id: events.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
- * Usage           : see below :)
- * Required        : see below :)
- * Status          : ($State: Exp $) complete, untested, compiled
- * Prefix(es)      : lis
- * Requeriments    : 
- * Purpose         : provide streams events
- *                 : 
- * ----------------______________________________________________
  *
  *    Copyright (C) 1995  Graham Wheeler, Francisco J. Ballesteros
  *    Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
  *
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -36,10 +22,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach us by email to any of
- *    gram@aztec.co.za, nemo@ordago.uc3m.es
  */
 
 #ifndef _EVENTS_H

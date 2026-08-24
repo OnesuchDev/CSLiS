@@ -1,20 +1,12 @@
 /*                               -*- Mode: C -*- 
  * mdep.h --- machine (actually kernel) dependencies.
- * Author          : Francisco J. Ballesteros
  * Created On      : Tue May 31 21:40:37 1994
- * Last Modified By: David Grothe
- * RCS Id          : $Id: linux-mdep.h,v 1.2 2006/05/18 17:06:07 steve Exp $
- * Purpose         : provide kernel independence as much as possible
- *                 : This could be also considered to be en embryo for
- *                 : dki stuff,i.e. linux-dki
- * ----------------______________________________________________
  *
  *    Copyright (C) 1995  Francisco J. Ballesteros, Denis Froschauer
  *    Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
  *
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -30,11 +22,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach su by email to any of
- *    nemo@ordago.uc3m.es, 100741.1151@compuserve.com
- *    dave@gcom.com
  */
 
 #ifndef _LIS_M_DEP_H

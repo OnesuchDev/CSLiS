@@ -1,10 +1,7 @@
 /*                               -*- Mode: C -*- 
- * cred.h --- credentials
+ * cred.h --- user credentials
  * Author          : Francisco J. Ballesteros
  * Created On      : Tue May 31 21:40:37 1994
- * Last Modified By: David Grothe
- * RCS Id          : $Id: cred.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
- * Purpose         : provide user credentials
  *
  * Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
  *
@@ -25,15 +22,12 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
  */
 
 #ifndef _CRED_H
 #define _CRED_H 1
 
-/* This file has to be updated with the Linux counterpart of SVR4 <sys/cred.h>
- * header file. 
- *
+/*
  * This is in the xxx-mdep.h family of files -- DMG
  */
 

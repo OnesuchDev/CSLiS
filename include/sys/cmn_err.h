@@ -2,8 +2,6 @@
  * cmd_err.h --- 
  * Author          : Francisco J. Ballesteros, David Grothe
  * Created On      : Tue May 31 21:40:37 1994
- * Last Modified By: David Grothe
- * RCS Id          : $Id: cmn_err.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
  *
  * Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
  *
@@ -24,7 +22,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
  */
 
 

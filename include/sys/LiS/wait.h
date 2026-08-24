@@ -1,18 +1,12 @@
 /*                               -*- Mode: C -*- 
  * wait.h --- waiting for events...
- * Author          : Francisco J. Ballesteros
  * Created On      : Tue May 31 21:40:37 1994
- * Last Modified By: David Grothe
- * RCS Id          : $Id: wait.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
- * Purpose         : provide user waitentials
- * ----------------______________________________________________
  *
  *   Copyright (C) 1995  Francisco J. Ballesteros
  *   Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
  *
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -28,10 +22,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach me by email to
- *    nemo@ordago.uc3m.es
  */
 
 

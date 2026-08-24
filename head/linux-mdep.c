@@ -1,11 +1,7 @@
 /*                               -*- Mode: C -*- 
  * linux-mdep.c --- Linux kernel dependent support for CSLiS.
- * Author          : Francisco J. Ballesteros
  * Created On      : Sat Jun  4 20:56:03 1994
  * Last Modified By: Jeff L Smith
- * RCS Id          : $Id: linux-mdep.c,v 7.11 2025/06/11 15:30:00 7113 $
- * Purpose         : provide Linux kernel <-> CSLiS entry points.
- * ----------------______________________________________________
  *
  *    Copyright (C) 1995  Francisco J. Ballesteros, Denis Froschauer
  *    Copyright (C) 1997-2000
@@ -29,11 +25,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach me by email to
- *    nemo@ordago.uc3m.es, 100741.1151@compuserve.com
- *    dave@gcom.com
  *
  * Modified 2001-08-09 by Jeff Goldszer <Jeff_goldszer@cnt.com>
  *    Prevent fdetach from freeing a pipe's inodes before the pipe
