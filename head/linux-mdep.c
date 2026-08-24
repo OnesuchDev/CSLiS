@@ -134,16 +134,6 @@
 #include <linux/security.h> /* security_path_mknod */
 
 /*  -------------------------------------------------------------------  */
-/*
- * S/390 2.4 kernels export smp_num_cpus
- * other 2.4 kernels export num_online_cpus()
- */
-#if ( defined(__s390__) || defined(__s390x__) )
-#define NUM_CPUS		smp_num_cpus
-#else
-#define NUM_CPUS		num_online_cpus()
-#endif
-
 #define LIS_PATH_MAX  884   /* Length in characters for a path */
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
@@ -3808,7 +3798,7 @@ void	lis_start_qsched(void)
     int		ncpus ;
     char	name[20] ;
 
-    ncpus = NUM_CPUS ;
+    ncpus = num_present_cpus();
     lis_num_cpus = ncpus ;
     if (ncpus > LIS_NR_CPUS)
     {
