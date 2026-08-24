@@ -37,7 +37,7 @@ ifeq ($(ARCH),s390x)
 OPT += -fpic
 endif
 # How to compile
-CC += -DLiS -D__KERNEL__ -DVERSION_2 $(CCREGPARM) $(CCREGPARM2) $(XOPTS) $(OPT)
+CC += -DLiS -D__KERNEL__ -DVERSION_2 $(CCREGPARM) $(CCREGPARM2) -DSTREAMS_REGPARM=$(STREAMS_REGPARM) $(XOPTS) $(OPT)
 #
 # The object files that need to be made for all targets
 #
