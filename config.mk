@@ -177,7 +177,7 @@ ifeq ($(ARCH),ppc)
 XOPTS += -D__powerpc__ -fno-builtin -pipe -D_PPC_LIS_
 endif
 ifeq ($(ARCH),ppc64le)
-XOPTS += -D_PPC_LIS_ -D_PPC64_LIS_ -m64 -msoft-float -pipe -Wno-uninitialized -mminimal-toc -mtraceback=no -mtune=power8 -fno-unit-at-a-time
+XOPTS += -D_PPC_LIS_ -D_PPC64_LIS_ -m64 -msoft-float -pipe -mminimal-toc -mtraceback=no -mtune=power8 -fno-unit-at-a-time
 endif
 ifeq ($(ARCH),x86_64)
 #also need -mcmodel=kernel, but only on kernel modules
