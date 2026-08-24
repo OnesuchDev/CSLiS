@@ -34,7 +34,7 @@ ifeq ($(ARCH),s390x)
 XOPTS += -fpic
 endif
 
-CC += -D__KERNEL__ -DLINUX $(CCREGPARM) $(XOPTS)
+CC += -D__KERNEL__ -DLINUX $(CCREGPARM) $(CCREGPARM2) $(XOPTS)
 
 ifneq ($(MODULES),)
 MODOPT = -DMODULE
