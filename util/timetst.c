@@ -30,14 +30,9 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/ioctl.h>
-
 #include <sys/stream.h>
 #include <sys/stropts.h>
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-#include <sys/poll.h>	/* for 3.10 kernel, do not include kernel header */
-#endif
-
+#include <sys/poll.h>
 #include <sys/LiS/loop.h>		/* an odd place for this file */
 
 /************************************************************************
