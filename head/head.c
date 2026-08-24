@@ -6131,17 +6131,9 @@ err_return_point:				/* return "err" */
  * stream is outstanding at a time.  This helps to minimize the 
  * locking of the stream head structure.
  */
-#if LINUX_VERSION_CODE > KERNEL_VERSION(3,0,8)
 long lis_unlocked_ioctl (struct file *f, unsigned int cmd, unsigned long arg)
 {
     struct inode  *i = FILE_INODE(f);
-#else
-int
-lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
-	      unsigned long arg )
-{
-#endif
-
     stdata_t *hd;
     int err=0,flush_pri=0;
     cred_t creds;
@@ -6152,11 +6144,7 @@ lis_strioctl( struct inode *i, struct file *f, unsigned int cmd,
 #define RTN(v)	do { err=(v); goto return_point; } while (0)
 
     if (LIS_DEBUG_IOCTL && LIS_DEBUG_ADDRS)
-#if   LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
-        printk("lis_strioctl(i@0x%p/%d,f@0x%p/%li,cmd=0x%x,arg=0x%lx)"
-#else
-        printk("lis_unlock_ioctl(i@0x%p/%d,f@0x%p/%li,cmd=0x%x,arg=0x%lx)"
-#endif
+        printk("lis_unlocked_ioctl(i@0x%p/%d,f@0x%p/%li,cmd=0x%x,arg=0x%lx)"
 	       " << i_rdev=0x%x\n",
 	       i, (i?I_COUNT(i):0),
 	       f, (f?F_COUNT(f):0),

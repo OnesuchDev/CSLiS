@@ -346,9 +346,7 @@ int lis_strflush(struct file *f, fl_owner_t id);
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
 long lis_compat_ioctl(struct file *fp, unsigned int cmd, unsigned long arg);
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
 long lis_unlocked_ioctl (struct file *, unsigned int, unsigned long);
-#endif
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
 static struct block_device lis_tmpbd;
@@ -410,11 +408,7 @@ lis_streams_fops = {
     read:      lis_strread,		/* read    		*/
     write:     lis_strwrite,		/* write                */
     poll:      lis_poll_2_1,		/* poll  		*/
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,8)
-    ioctl:     lis_strioctl,		/* ioctl   		*/
-#else
     unlocked_ioctl: lis_unlocked_ioctl,	/*  method to replace ioctl */
-#endif
 #if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
     compat_ioctl: lis_compat_ioctl,    /* 32 over 64 bit ioctl */
 #endif
@@ -3225,11 +3219,7 @@ long lis_compat_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
   case I_UNLINK:
   case I_LIS_GETMSG:
   case I_LIS_PUTMSG:
-#if LINUX_VERSION_CODE > KERNEL_VERSION(3,0,8)
     return lis_unlocked_ioctl(fp, cmd, arg);
-#else
-    return lis_strioctl(NULL, fp, cmd, arg);
-#endif
     break;
 
   case I_STR:
@@ -3332,12 +3322,8 @@ int lis_ioctl32_str (struct file * fp, unsigned int cmd, unsigned long arg)
   par64.ic_cmd = cmd;  
 #endif  
 #endif  
-#if LINUX_VERSION_CODE > KERNEL_VERSION(3,0,8)
   rc_l = lis_unlocked_ioctl (fp, cmd, (unsigned long)&par64);
   rc = rc_l;
-#else
-  rc = lis_strioctl(NULL, fp, cmd, (unsigned long)&par64);
-#endif
 #if LINUX_VERSION_CODE < KERNEL_VERSION(5,11,0)  
   set_fs(old_fs);
 #else
