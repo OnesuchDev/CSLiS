@@ -1548,13 +1548,13 @@ fi
 if [ $KVER_MAJOR -ge 4 ]; then  # for any > 4
     if [ $KVER_MINOR -gt 4 ] || [ $KVER_MAJOR -ge 5 ]; then
         if [ "$MACHINE" = "s390x" ]; then
-            KARCHINCL3=$KSRC/arch/s390/include/uapi/asm
+            KARCHINCL3=$KSRC/arch/s390/include/uapi
             KARCHINCL4=$KSRC/arch/s390/include/generated
         elif [ "$MACHINE" = "x86_64" ]; then
             if [ $KVER_MAJOR -ge 5 ]; then
-                KARCHINCL3=$KSRC/arch/x86/include/uapi/asm
+                KARCHINCL3=$KSRC/arch/x86/include/uapi
             else
-                KARCHINCL3=$KSRC/arch/x86/include/uapi/asm
+                KARCHINCL3=$KSRC/arch/x86/include/uapi
             fi
             if [ $KVER_MAJOR -ge 5 ]; then
                 KARCHINCL4=$KBIN/arch/x86/include/generated
