@@ -1,19 +1,7 @@
 /*                               -*- Mode: C -*- 
- * <strpoll> --- poll
- * Author          : gram & nemo
  * Created On      : Mon Oct 17 11:37:12 1994
- * RCS Id          ; $Id: poll.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
- * Last Modified By: David Grothe
- * Last Modified On: 
- * Update Count    : 6
- * Status          : Debugged
- * Prefix(es)      : 
- * Requirements    :
- * Purpose         :
- *                 :
  *    Copyright (C) 1995  Graham Wheeler, Francisco J. Ballesteros
  *    Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -29,17 +17,10 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach us by email to any of
- *    gram@aztec.co.za, nemo@ordago.uc3m.es
  */
 
 #ifndef _SYS_POLL_H
 #define	_SYS_POLL_H
-
-/*  -------------------------------------------------------------------  */
-
 
 #if defined(__linux__)
 /*

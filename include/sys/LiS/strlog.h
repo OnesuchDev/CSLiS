@@ -6,18 +6,6 @@
  * strlog.h --- streams strlog cntl handling
  * Author          : Graham Wheeler
  * Created On      : Tue May 31 22:25:19 1994
- * Last Modified By: 
- * Last Modified On: 
- * Update Count    : 0
- * RCS Id          : $Id: strlog.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
- * Usage           : see below :)
- * Required        : see below :)
- * Status          : ($State: Exp $) Unknown, Use with caution!
- * Prefix(es)      : lis
- * Requeriments    : 
- * Purpose         : here you have utilites to handle str strlogs.
- *                 : 
- * ----------------______________________________________________
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -33,27 +21,10 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
  */
 
 #ifndef _STRLOG_H
 #define _STRLOG_H 1
-
-/*  -------------------------------------------------------------------  */
-/*				 Dependencies                            */
-
-
-/*  -------------------------------------------------------------------  */
-/*				   Symbols                               */
-
-/*  -------------------------------------------------------------------  */
-/*				    Types                                */
-
-/*  -------------------------------------------------------------------  */
-/*				 Glob. Vars.                             */
-
-/*  -------------------------------------------------------------------  */
-/*			Exported functions & macros                      */
 
 /*  -------------------------------------------------------------------  */
 /* strlog - send a message to STREAMS log driver

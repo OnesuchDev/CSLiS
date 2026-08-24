@@ -87,8 +87,6 @@ void lis_terminate_timers(void) ;		/* mdep rouitine */
 
 #endif				/* __KERNEL__ */
 
-
-
 #ifndef HZ
 #define	HZ	100			/* ticks per second */
 #endif
@@ -127,8 +125,5 @@ extern int	lis_mount(char *dev_name,
 			  unsigned long rwflag,
 			  void *data) ;
 extern int	lis_umount2(char *path, int flags) ;
-
-
-
 
 #endif				/* from top of file */

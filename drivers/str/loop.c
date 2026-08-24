@@ -1,19 +1,13 @@
 
 /*                               -*- Mode: C -*- 
  * loop.c --- Streams loopback driver, as of Sun manual 
- * Author          : Graham Wheeler
  * Created On      : Sat Oct  7 05:01:31 1995
- * Last Modified By: David Grothe
- * RCS Id          : $Id: loop.c,v 1.1.1.1 2005/04/12 20:27:05 ragnar Exp $
- * Purpose         : provide loopback streams driver
- * ----------------______________________________________________
  *
  *    Copyright (C) 1995  Graham Wheeler, Francisco J. Ballesteros,
  *    Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
  *
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -29,13 +23,7 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach us by email to any of
- *    gram@aztec.co.za, nemo@ordago.uc3m.es
  */
-
-/*  -------------------------------------------------------------------  */
 
 #include <sys/LiS/module.h>	/* must be VERY first include */
 

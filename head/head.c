@@ -20,13 +20,7 @@ typedef unsigned long long	__kernel_uoff_t;
 
 /*                               -*- Mode: C -*- 
  * head.c --- LiS stream head processing
- * Author          : Graham Wheeler, Francisco J. Ballesteros
  * Created On      : Tue May 31 22:25:19 1994
- * Last Modified By: John A. Boyd Jr.
- * RCS Id          : $Id: head.c,v 1.3 2006/06/19 15:56:10 steve Exp $
- * Purpose         : stream head processing stuff
- * ----------------______________________________________________
- *
  *
  *    Copyright (C) 1995  Graham Wheeler, Francisco J. Ballesteros,
  *                        Denis Froschauer
@@ -37,7 +31,6 @@ typedef unsigned long long	__kernel_uoff_t;
  *
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -53,11 +46,6 @@ typedef unsigned long long	__kernel_uoff_t;
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach us by email to any of
- *    gram@aztec.co.za, nemo@ordago.uc3m.es, 100741.1151@compuserve.com
- *
  *
  * Modified 2001-02-09 by Jeff Goldszer <Jeff_goldszer@cnt.com> 
  *                     Fixed bugs the following:
@@ -72,10 +60,7 @@ typedef unsigned long long	__kernel_uoff_t;
  * Modified 2001-08-09 by Jeff Goldszer <Jeff_goldszer@cnt.com>
  *   Prevent a streams oops when an application does a putmsg to a
  *   streams which has been hung up.
- *
  */
-
-/*  -------------------------------------------------------------------  */
 
 #if 0
 

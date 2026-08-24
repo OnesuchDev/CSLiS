@@ -1,25 +1,12 @@
 /*                               -*- Mode: C -*- 
- * ddi.h --- 
+ * ddi.h --- Linux counterpart of SVR4 <sys/ddi.h>
  * Author          : Francisco J. Ballesteros
  * Created On      : Tue May 31 21:40:37 1994
- * Last Modified By: 
- * Last Modified On: 
- * Update Count    : 0
- * RCS Id          : $Id: ddi.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
- * Usage           : see below :)
- * Required        : see below :)
- * Status          : ($State: Exp $) Unknown, Use with caution!
- * Prefix(es)      : 
- * Requeriments    : 
- * Purpose         : 
- *                 : 
  *
  * Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
  *
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
- *
- * ----------------______________________________________________
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -35,7 +22,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
  */
 
 #ifndef _DDI_H
@@ -43,9 +29,6 @@
 
 #include <sys/LiS/genconf.h>
 
-/* This file has to be updated with the Linux counterpart of SVR4 <sys/ddi.h>
- * header file. 
- */
 #ifdef makedevice
 #undef makedevice
 #endif

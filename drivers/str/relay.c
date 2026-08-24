@@ -1,17 +1,12 @@
 /*                               -*- Mode: C -*- 
- * relay.c --- A simple relay pushable module
+ * relay.c --- A simple pushable module that relays messages, useful for testing
  * Author          : Dave Grothe
  * Created On      : Dec 30, 1995
  * Last Modified By: Jeff L Smith
- * RCS Id          : $Id: relay.c,v 2022/11/07  jefsmith@us.ibm.com
- * Purpose         : relay messages just to test pushable modules
- * ----------------______________________________________________
  *
  *    Copyright (C) 1995  David Grothe <dave@gcom.com>
  *
  * Copyright 2022 - IBM Inc. All rights reserved
- * SPDX-License-Identifier: LGPL-2.1
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -27,11 +22,7 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
  */
-
-/*  -------------------------------------------------------------------  */
 
 /*
  * The module that goes by the name "relay3" is a separately loadable

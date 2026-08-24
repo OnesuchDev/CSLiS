@@ -1,12 +1,6 @@
 /*                               -*- Mode: C -*- 
  * events.c --- streams events
- * Author          : Francisco J. Ballesteros
  * Created On      : Tue May 31 22:25:19 1994
- * Last Modified By: David Grothe
- * RCS Id          : $Id: events.c,v 1.1.1.1 2005/04/12 20:27:05 ragnar Exp $
- * Purpose         : provide streams events
- *                 : 
- * ----------------______________________________________________
  *
  *    Copyright (C) 1995   Francisco J. Ballesteros, Denis Froschauer
  *    Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
@@ -29,10 +23,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach us by email to
- *    nemo@ordago.uc3m.es, 100541.1151@compuserve.com
  */
 
 /*  -------------------------------------------------------------------  */
@@ -41,9 +31,6 @@
 #include <sys/strport.h>
 #include <sys/strconfig.h>	/* config definitions */
 #include <sys/LiS/events.h>		/* module interface */
-
-/*  -------------------------------------------------------------------  */
-/*			   Local functions & macros                      */
 
 /*  -------------------------------------------------------------------  */
 /*				  Glob. Vars                             */

@@ -1,23 +1,15 @@
 /*                               -*- Mode: C -*- 
- * <strport.h> --- Linux STREAMS portability declarations. 
- * Author          : gram & nemo
+ * <strport.h> --- Linux STREAMS operating system portability declarations.
  * Created On      : Fri Mar 24 2:40:21 1995
- * RCS Id          ; $Id: strport.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
- * Last Modified By: David Grothe
  * Restrictions    : SHAREd items can be read/writen by usr
  *                 : EXPORTed items can only be read by usr
  *                 : PRIVATEd items cannot be read nor writen
- * Purpose         : All system dependent stuff goes here. The idea
- *                 : is that different versions of this file can be
- *                 : used to port STREAMS to other operating systems
- *                 : as well as providing a user-space testbed environment.
  *
  *    Copyright (C) 1995  Graham Wheeler, Francisco J. Ballesteros
  *    Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
  *
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -33,10 +25,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach us by email to any of
- *    gram@aztec.co.za, nemo@ordago.uc3m.es
  */
 
 #ifndef _STRPORT_H

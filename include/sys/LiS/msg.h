@@ -1,19 +1,12 @@
 /*                               -*- Mode: C -*- 
  * msg.h --- streams message handling
- * Author          : Graham Wheeler
  * Created On      : Tue May 31 22:25:19 1994
- * Last Modified By: David Grothe
- * RCS Id          : $Id: msg.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
- * Purpose         : provide streams message handling
- *                 : this is the main memory allocation related module.
- * ----------------______________________________________________
  *
  *   Copyright (C) 1995  Graham Wheeler
  *   Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
  *
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -29,12 +22,7 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach me by email to
- *    gram@aztec.co.za
  */
-
 
 #ifndef _MSG_H
 #define _MSG_H 1

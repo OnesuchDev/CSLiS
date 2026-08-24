@@ -1,11 +1,7 @@
 /*                               -*- Mode: C -*- 
  * strconfig.h --- configuration symbols for LiS
- * Author          : Francisco J. Ballesteros
  * Created On      : Tue May 31 21:40:37 1994
- * Last Modified By: David Grothe
- * RCS Id          : $Id: strconfig.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
- * Purpose         : just document symbols
- * ----------------______________________________________________
+ *
  *    Copyright (C) 1995  Graham Wheeler, Francisco J. Ballesteros
  *    Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
  *
@@ -26,12 +22,7 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach us by email to any of
- *    gram@aztec.co.za, nemo@ordago.uc3m.es
  */
-
 
 #ifndef _LIS_CONFIG_H
 #define _LIS_CONFIG_H 1

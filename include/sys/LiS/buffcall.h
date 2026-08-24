@@ -1,10 +1,6 @@
 /*                               -*- Mode: C -*- 
  * buffcall.h --- buffcall management 
- * Author          : Francisco J. Ballesteros & Graham Wheeler
  * Created On      : Tue May 31 21:40:37 1994
- * Last Modified By: David Grothe
- * RCS Id          : $Id: buffcall.h,v 1.1.1.1 2005/04/12 20:27:06 ragnar Exp $
- * ----------------______________________________________________
  *
  *    Copyright (C) 1995  Graham Wheeler, Francisco J. Ballesteros,
  *                        Denis Froschauer
@@ -12,7 +8,6 @@
  *
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -28,13 +23,7 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach us by email to any of
- *    gram@aztec.co.za, nemo@ordago.uc3m.es, 100741.1151@compuserve.com
  */
-
-
 
 #ifndef _BUFFCALL_H
 #define _BUFFCALL_H 1

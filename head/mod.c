@@ -1,10 +1,6 @@
 /*                               -*- Mode: C -*- 
  * mod.c --- module mgmt
- * Author          : Francisco J. Ballesteros Camara
  * Created On      : Thu Jun 29 11:03:59 1995
- * Last Modified By: John A. Boyd Jr.
- * Purpose         : provide LiS STREAMS modules glue
- * ----------------______________________________________________
  *
  *    Copyright (C) 1995  Francisco J. Ballesteros, Denis Froschauer
  *    Copyright (C) 1997  David Grothe, Gcom, Inc <dave@gcom.com>
@@ -13,7 +9,6 @@
  *
  * Copyright 2022 - IBM Inc. All rights reserved
  * SPDX-License-Identifier: LGPL-2.1
- *
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -29,10 +24,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330, Cambridge,
  * MA 02139, USA.
- * 
- *
- *    You can reach us by email to any of
- *    nemo@ordago.uc3m.es, 100741.1151@compuserve.com
  */
 
 /*  -------------------------------------------------------------------  */
