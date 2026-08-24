@@ -1373,7 +1373,7 @@ lis_free_stdata( struct stdata *hd )
 	printk("lis_free_stdata(h@0x%p/%d/%d) \"%s\"\n",
 	       hd,
 	       (hd?LIS_SD_REFCNT(hd):0),(hd?LIS_SD_OPENCNT(hd):0),
-	       (hd&&hd->sd_name?hd->sd_name:""));
+	       (hd?hd->sd_name:""));
 
     /* must assert here that every pointer in the stdata struct which
      * may hold dynamic memory is NULL.
