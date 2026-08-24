@@ -102,10 +102,6 @@ fifo_dev_t fifo_dev[FIFO__UNITS];  /* elems 0 mod minor() not used */
 
 static LIST_HEAD(free_fifos);
 static int num_free_fifos = 0;
-#if 0
-static LIST_HEAD(used_fifos);
-static int num_used_fifos = 0;
-#endif
 
 extern int fifo__0_majors[];          /* in streams.o via modconf */
 
@@ -218,9 +214,6 @@ static int fifo_alloc( int idx )
     fdp->flags |= FIFO_ALLOCATED;
 
     list_del(&(fdp->list));  num_free_fifos--;
-#if 0
-    list_add( &(fdp->list), &(used_fifos) );  num_used_fifos++;
-#endif
 
     return fdp->index;
 }
@@ -237,9 +230,6 @@ static void fifo_free( int idx )
     if (!(fdp->flags & FIFO_ALLOCATED))  return;
 
     fdp->flags &= ~FIFO_ALLOCATED;
-#if 0
-    list_del(&(fdp->list));  num_used_fifos--;
-#endif
     list_add( &(fdp->list), free_fifos.prev );  num_free_fifos++;
 }
 
