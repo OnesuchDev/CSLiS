@@ -42,7 +42,7 @@
  *   streams which has been hung up.
  */
 
-#if 0
+/*
 
 Analysis of open/close locking
 ==============================
@@ -202,7 +202,7 @@ C) Open vs Close
    close routine is entered then the close routine will find the open count to
    be non-zero and will not dismantle the stream.
 
-#endif
+*/
 
 
 /*  -------------------------------------------------------------------  */
