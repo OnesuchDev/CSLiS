@@ -89,8 +89,6 @@
 #include <linux/time.h>
 
 #include <linux/fdtable.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
-#include <linux/sched.h> // kernel_thread
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
 #include <linux/sched/signal.h>  // new place for sighand->siglock def
 #endif
@@ -116,7 +114,6 @@
 #endif
 
 #include <linux/kthread.h>
-#endif
 
 #include <linux/kprobes.h>
 
