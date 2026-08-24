@@ -3388,9 +3388,6 @@ int lis_init_module( void )
 
     lis_start_qsched() ;		/* ensure q running process going */
 
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-#endif
-
     printk(
 	"Communications Server Linux STREAMS Subsystem ready \n"
 	"Copyright (c) 1997-2006 GCOM, et al, http://github.com/IBM/CSLiS\n"
