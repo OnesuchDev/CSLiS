@@ -381,11 +381,7 @@ lis_pullupmsg(mblk_t *mp, int length)
 
     if (length <= (n = mp->b_wptr - mp->b_rptr))
     {
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-	if ((((long int) mp->b_rptr) & ALIGN_MOD) == 0)	/* aligned?  */
-#else
 	if ((((uintptr_t) mp->b_rptr) & ALIGN_MOD) == 0)	/* aligned?  */
-#endif
 	    return 1;		/* already pulled up */
 	length = n ;		/* don't make 1st bfr any smaller */
     }
