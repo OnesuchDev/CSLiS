@@ -74,22 +74,7 @@
 #include <sys/LiS/head.h>	/* stream head */
 #include <sys/stream.h>         /* LiS entry points */
 #include <linux/poll.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,14,0)
 #include <sys/osif.h>
-#else   /* On later kernels, osif.h declarations collide with sockets */
-#include <linux/interrupt.h>
-#ifdef wake_up_interruptible
-#undef wake_up_interruptible
-#endif
-#define	wake_up_interruptible		lis_wake_up_interruptible
-#define	OSIF_WAIT_Q_ARG		wait_queue_head_t *wq
-void lis_wake_up_interruptible(OSIF_WAIT_Q_ARG) _RP;
-#ifdef do_gettimeofday
-#undef do_gettimeofday
-#endif
-#define do_gettimeofday			lis_osif_do_gettimeofday
-void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
-#endif
 #include <sys/cmn_err.h>
 #include <linux/poll.h>
 #include <linux/types.h>

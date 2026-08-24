@@ -37,9 +37,8 @@
 
 #include <linux/pci.h>		/* kernel PCI header file */
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 #include <sys/osif.h>
-#else
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 18, 0)
 #define PCI_DMA_BIDIRECTIONAL   DMA_BIDIRECTIONAL
 #define PCI_DMA_TODEVICE        DMA_TO_DEVICE
 #define PCI_DMA_FROMDEVICE      DMA_FROM_DEVICE

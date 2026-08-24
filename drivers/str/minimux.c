@@ -36,9 +36,7 @@
 #include <sys/cmn_err.h>
 #include <sys/LiS/minimux.h>
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6,0,0)
 #include <sys/osif.h>
-#endif
 
 /************************************************************************
 *                             Macros                                    *
