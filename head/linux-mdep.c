@@ -152,6 +152,13 @@
 #define f_dentry f_path.dentry
 #endif
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,38)
+#define d_set_d_op(d, op) ((d)->d_op = (op))
+#endif
+#ifndef DCACHE_OP_DELETE /* not necessary on older kernels */
+#define DCACHE_OP_DELETE 0
+#endif
+
 /*  -------------------------------------------------------------------  */
 
 int lis_major;
@@ -970,16 +977,11 @@ struct dentry *lis_d_alloc_root(struct inode *i, int mode)
      *  The following also identifies the dentry as a LiS-allocated dentry.
      */
     if (d) {
-        /* already set via set_default_d_op on 6.17+ */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,17,0)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0) 
-        d_set_d_op(d, &lis_dentry_ops); 
-#else      
-	      d->d_op = &lis_dentry_ops;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
-        d->d_flags |= DCACHE_OP_DELETE; /* done automatically, so not needed, on 6.17+ */
-#endif
-#endif
+        /* already set via set_default_d_op on 6.17+ */
+        d_set_d_op(d, &lis_dentry_ops);
+        /* done automatically, so not needed, on 6.17+ */
+        d->d_flags |= DCACHE_OP_DELETE;
 #endif
     }
     return d;
@@ -1503,16 +1505,11 @@ int	lis_new_file_name_dev(struct file *f, const char *name, dev_t dev)
      *  we will do the initial setting of f_vfsmnt here.
      */
     f->f_vfsmnt = MNTGET(lis_mnt);	/* (re)mount on LiS */
-    /* already set via set_default_d_op on 6.17+ */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,17,0)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0)
+    /* already set via set_default_d_op on 6.17+ */
     d_set_d_op(new, &lis_dentry_ops);
-#else
-    new->d_op   = &lis_dentry_ops;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
-    new->d_flags |= DCACHE_OP_DELETE; /* done automatically, so not needed, on 6.17+ */
-#endif
-#endif
+    /* done automatically, so not needed, on 6.17+ */
+    new->d_flags |= DCACHE_OP_DELETE;
 #endif
     if (dev == 0)
     {					/* using old inode */
@@ -1667,17 +1664,12 @@ lis_new_inode( struct file *f, dev_t dev )
 	lis_dput(oldd) ;                        /* does mntput() if lis_mnt */
 	if (oldmnt && oldmnt != lis_mnt)
 	    MNTPUT(oldmnt) ;                    /* do it if not lis_mnt also */
-	    
-        /* already set via set_default_d_op on 6.17+ */
+
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6,17,0)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,12,0) 
-   d_set_d_op(newd, &lis_dentry_ops);
-#else
-   newd->d_op = &lis_dentry_ops;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
-   newd->d_flags |= DCACHE_OP_DELETE; /* done automatically, so not needed on 6.17+ */
-#endif
-#endif
+        /* already set via set_default_d_op on 6.17+ */
+        d_set_d_op(newd, &lis_dentry_ops);
+        /* done automatically, so not needed, on 6.17+ */
+        newd->d_flags |= DCACHE_OP_DELETE;
 #endif
 
 	d_add(newd, new) ;			/* add inode to new dentry */
