@@ -1414,16 +1414,6 @@ Native C (y) or cross-compile (n)?"
     esac
 
 #
-# See if the GNU Libc stropts.h is an old version.  If so, substitute
-# the new 2.2 version.
-#
-if grep -w -q RDNORM /usr/include/sys/bits/stropts.h 2>/dev/null; then
-    mv /usr/include/sys/bits/stropts.h /usr/include/sys/bits/stropts.h.orig
-    cp -f ./include/sys/gnu.stropts.h /usr/include/sys/bits/stropts.h
-    echo "Updated version of stropts.h installed in /usr/include/sys/bits"
-fi
-
-#
 # Verify kernel version, SMP and mod versions against the running
 # kernel if the user says that he/she intends to install on the
 # running kernel.
