@@ -71,19 +71,12 @@
 #include <linux/types.h>
 #include <linux/mm.h>
 #include <linux/file.h>
- /* In RHEL 8.5, 4.18.0-348 kernel moved definition for __invalidate_device()  */
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8, 5))  || \
-     (LINUX_VERSION_CODE > KERNEL_VERSION(4,18,0)))
-#if ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE > KERNEL_VERSION(5,14,20))) //For RHEL 9 & SLES 15 SP5 update 02-2023
 #include <linux/blkdev.h>
-#else
-#include <linux/genhd.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+#include <linux/genhd.h> /* not included by <linux/blkdev.h> on newer kernels */
 #endif
 #include <linux/blk_types.h>
-#else
 #include <linux/fs.h>		/* linux file sys externs */
-#endif
 #include <linux/vfs.h>		/* linux file sys externs */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(7,0,0)
 #include <linux/fs_context.h>
