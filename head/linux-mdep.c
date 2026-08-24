@@ -1162,13 +1162,8 @@ int lis_fs_kern_mount_sb( struct super_block *sb, void *ptr, int silent )
       return(-ENOMEM) ;
   
     isb->i_mode  = S_IFDIR | S_IRUSR | S_IWUSR ;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    isb->i_uid   = 0 ;
-    isb->i_gid   = 0 ;
-#else
     isb->i_uid   = GLOBAL_ROOT_UID;
     isb->i_gid   = GLOBAL_ROOT_GID;
-#endif
     ktime_get_coarse_real_ts64(&i_ttime);
     inode_set_atime_to_ts(isb, i_ttime);
     inode_set_mtime_to_ts(isb, i_ttime);
@@ -3660,13 +3655,8 @@ int	lis_thread_func(void *argp)
     daemonize("%s", arg->name) ;	/* make me a daemon */
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    loccred->uid = 0 ;                  /* become root */
-    loccred->euid = 0 ;                 /* become root */
-#else
     loccred->uid = GLOBAL_ROOT_UID;     /* become root */
     loccred->euid = GLOBAL_ROOT_UID;    /* become root */
-#endif
     commit_creds(loccred);
 
     func = arg->func ;
