@@ -39,11 +39,7 @@
 #define PCI_STD_NUM_BARS	6	/* Number of standard BARs */
 #endif
 #include <linux/pci.h>
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,0,0)
-#include <asm/scatterlist.h>
-#else
 #include <linux/scatterlist.h>
-#endif
 #endif
 
 #if !defined(INCL_FROM_OSIF_DRIVER)
