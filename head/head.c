@@ -1,23 +1,3 @@
-#include <sys/LiS/genconf.h>
-#include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 1, 0)
-#include <linux/kconfig.h>
-#endif
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)
-#include <linux/autoconf.h>
-#else
-#include <generated/autoconf.h>
-#endif
-
-#if defined (__KERNEL__) && LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
-/*
- * No idea what's going on here.
- * From Linux v6.19.14 include/uapi/asm-generic/posix_types.h.
- * The type is the same on 32-bit and 64-bit.
- */
-typedef unsigned long long	__kernel_uoff_t;
-#endif
-
 /*                               -*- Mode: C -*- 
  * head.c --- LiS stream head processing
  * Created On      : Tue May 31 22:25:19 1994
@@ -228,8 +208,24 @@ C) Open vs Close
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
 
-
-/* LiS implementation modules used */
+#include <sys/LiS/genconf.h>
+#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
+/*
+ * No idea what's going on here.
+ * From Linux v6.19.14 include/uapi/asm-generic/posix_types.h.
+ * The type is the same on 32-bit and 64-bit.
+ */
+typedef unsigned long long	__kernel_uoff_t;
+#endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 1, 0)
+#include <linux/kconfig.h>
+#endif
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 33)
+#include <linux/autoconf.h>
+#else
+#include <generated/autoconf.h>
+#endif
 
 #include <sys/stream.h>
 #include <linux/poll.h>
