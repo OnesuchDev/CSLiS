@@ -163,15 +163,7 @@ static void sys_timeout_fcn(ulong arg)
 #else
 static void sys_timeout_fcn(struct timer_list *tmout_tl)
 {
-#if ((LINUX_VERSION_CODE == KERNEL_VERSION(5,14,0) && (defined(RHEL_RELEASE_CODE) && \
-       RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 8))) || \
-     ((defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(10, 2))  || \
-      (LINUX_VERSION_CODE > KERNEL_VERSION(6,12,0))))
-
     struct lis_timer_list *lis_tl = timer_container_of(lis_tl,tmout_tl,tl);
-#else
-    struct lis_timer_list *lis_tl = from_timer(lis_tl,tmout_tl,tl);
-#endif
     tlist_t             *tp = (tlist_t *) lis_tl->arg ;
 #endif
 

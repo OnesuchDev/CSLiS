@@ -193,6 +193,10 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 #define DECLARE_TASKLET_OLD(n, f) DECLARE_TASKLET((n), (f), 0)
 #endif
 
+#ifndef timer_container_of
+#define timer_container_of from_timer
+#endif
+
 /*
  * Kernel loadable module support
  */
