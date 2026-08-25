@@ -40,9 +40,7 @@
 
 #if defined(_LINUX_MODULE_H)
 
-#ifndef	_STRMDBG_H
 #include <sys/LiS/strmdbg.h>	/* for debug bits */
-#endif
 
 /* local inlines for separate loadables that have included <linux/module.h> -
  * such sources are self-contained on this issue

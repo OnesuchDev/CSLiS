@@ -51,63 +51,29 @@ extern "C" {
  * miles w/o including anything else from LiS. */
 
 /* plain usr API */
-#ifndef _STRPORT_H
 #include <sys/strport.h>	/* porting structures */
-#endif
-
-#ifndef _LIS_CONFIG_H
 #include <sys/strconfig.h>	/* streams config symbols are here */
-#endif
 #ifdef __KERNEL__
-#ifndef _STR_MSG_H
 #include <sys/strmsg.h>		/* streams msgs */
 #endif
-#endif
-#ifndef _SYS_STROPTS_H
 #include <sys/stropts.h>	/* streams operations */
-#endif
-#ifndef	_DDI_H
 #include <sys/ddi.h>		/* SVR4 compatible prototypes */
-#endif
-#ifndef	DKI_H
 #include <sys/dki.h>		/* SVR4 compatible prototypes */
-#endif
 
 /*include everything exported to usr-level from LiS internal modules */
 
-#ifndef _MSG_H
 #include <sys/LiS/msg.h>	/* streams msgs management */
-#endif
-#ifndef _MSGUTL_H
 #include <sys/LiS/msgutl.h>	/* streams msg utilities  */
-#endif
-#ifndef _MOD_H
 #include <sys/LiS/mod.h>	/* streams modules */
-#endif
 #ifdef __KERNEL__
-#ifndef _QUEUE_H
 #include <sys/LiS/queue.h>	/* streams queue symbols & types */
 #endif
-#endif
-#ifndef _BUFFCALL_H
 #include <sys/LiS/buffcall.h>	/* buffcalls & mem stuff */
-#endif
-#ifndef _EVENTS_H
 #include <sys/LiS/events.h>	/* streams events */
-#endif
-#ifndef _STATS_H
 #include <sys/LiS/stats.h>	/* streams statistics */
-#endif
-#ifndef _HEAD_H
 #include <sys/LiS/head.h>	/* streams statistics */
-#endif
-#ifndef _WAIT_H
 #include <sys/LiS/wait.h>	/* timers,waits,... */
-#endif
-#ifndef	_STRMDBG_H
 #include <sys/LiS/strmdbg.h>	/* debugging stuff */
-#endif
-
 
 /* Bit flags
  */

@@ -9,9 +9,7 @@
 #ifndef _SYS_SAD_H
 #define _SYS_SAD_H
 
-#ifndef _SYS_STROPTS_H
 #include <sys/stropts.h>	/* for FMNAMESZ */
-#endif
 
 /*
  *  In LiS, the device is a simple cloneable node.
