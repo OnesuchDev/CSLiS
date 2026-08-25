@@ -155,9 +155,7 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 
 #else
 
-#if !defined(_LINUX_TYPES_H)
 #include <linux/types.h>        /* common system types */
-#endif
 
 #endif
 

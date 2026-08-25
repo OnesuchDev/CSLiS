@@ -27,15 +27,12 @@
 #ifndef _EVENTS_H
 #define _EVENTS_H 1
 
-#ifndef _SYS_TYPES_H
-#include <linux/types.h>
-#endif
-
 #ifdef __KERNEL__
 
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
 
+#include <linux/types.h>
 #include <sys/strconfig.h>	/* config definitions */
 /*  -------------------------------------------------------------------  */
 /*				    Types                                */

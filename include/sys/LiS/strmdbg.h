@@ -43,10 +43,7 @@
 #ifndef	_STRMDBG_H
 #define	_STRMDBG_H		1
 
-#ifndef _HEAD_H
 #include <sys/LiS/head.h>
-#endif
-
 
 /*
  * These bits can be set to cause the streams module to print

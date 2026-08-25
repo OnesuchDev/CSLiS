@@ -32,36 +32,16 @@
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
 
-#ifndef _STRPORT_H
 #include <sys/strport.h>	/* porting environment tailoring */
-#endif
-#ifndef _LIS_CONFIG_H
 #include <sys/strconfig.h>	/* streams config symbols are here */
-#endif
-#ifndef _STR_MSG_H
 #include <sys/strmsg.h>		/* streams msgs */
-#endif
-#ifndef _STR_OPTS_H
 #include <sys/stropts.h>	/* streams operations */
-#endif
-#ifndef _MSG_H
 #include <sys/LiS/msg.h>	/* streams msg symbols & types */
-#endif
-#ifndef _MSGUTL_H
 #include <sys/LiS/msgutl.h>	/* streams msg utilities  */
-#endif
-#ifndef _QUEUE_H
 #include <sys/LiS/queue.h>	/* streams queue symbols & types */
-#endif
-#ifndef _EVENTS_H
 #include <sys/LiS/events.h>	/* streams events  */
-#endif
-#ifndef _MOD_H
 #include <sys/LiS/mod.h>	/* streams module symbols & types */
-#endif
-#ifndef SYS_LISLOCKS_H
 #include <sys/lislocks.h>	/* lis_semaphore_t, etc */
-#endif
 #include <sys/dki.h>		/* toid_t */
 
 #ifndef RHEL_RELEASE_VERSION

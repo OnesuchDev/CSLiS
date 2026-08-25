@@ -61,10 +61,7 @@ extern "C" {
 #else
 #include <sys/types.h>
 #endif
-#ifndef _LIS_CONFIG_H
 #include <sys/strconfig.h>
-#endif
-
 
 /*  *******************************************************************  */
 /*                                 Symbols                               */

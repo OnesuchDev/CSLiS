@@ -31,22 +31,11 @@
 /*  *******************************************************************  */
 /*                               Dependencies                            */
 
-#ifndef _LIS_CONFIG_H
 #include <sys/strconfig.h>	/* streams config symbols are here */
-#endif
-#ifndef _MSG_H
 #include <sys/LiS/msg.h>	/* streams msg symbols & types */
-#endif
-#ifndef _MSGUTL_H
 #include <sys/LiS/msgutl.h>	/* streams msg utilities  */
-#endif
-#ifndef _QUEUE_H
 #include <sys/LiS/queue.h>	/* streams queue symbols & types */
-#endif
-#ifndef _MOD_H
 #include <sys/LiS/mod.h>	/* streams module symbols & types */
-#endif
-
 
 /************************************************************************
 *                          STREAMS Message Types                        *

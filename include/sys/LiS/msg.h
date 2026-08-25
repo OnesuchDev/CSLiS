@@ -30,12 +30,12 @@
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
 
-#ifndef _SYS_TYPES_H
+#ifdef __KERNEL__
 #   include <linux/types.h>
+#else
+#   include <sys/types.h>
 #endif
-#ifndef _LIS_CONFIG_H
 #include <sys/strconfig.h>	/* config definitions */
-#endif
 #include <sys/LiS/genconf.h>
 
 

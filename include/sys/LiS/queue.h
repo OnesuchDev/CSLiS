@@ -31,19 +31,10 @@
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
 
-#ifndef _LIS_CONFIG_H
 #include <sys/strconfig.h>	/* config definitions */
-#endif
-#ifndef _MSG_H
 #include <sys/LiS/msg.h>	/* streams messages*/
-#endif
-#ifndef _STRPORT_H
 #include <sys/strport.h>	/* machine-dependent porting constructs */
-#endif
-#ifndef SYS_LISLOCKS_H
 #include <sys/lislocks.h>
-#endif
-
 
 /*  -------------------------------------------------------------------  */
 /*				   Symbols                               */

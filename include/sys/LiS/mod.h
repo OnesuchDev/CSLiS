@@ -30,18 +30,10 @@
 /*  -------------------------------------------------------------------  */
 /*				 Dependencies                            */
 
-#ifndef _STRPORT_H
 #include <sys/strport.h>
-#endif
-#ifndef _LIS_CONFIG_H
 #include <sys/strconfig.h>	/* config definitions	*/
-#endif
-#ifndef _STR_OPTS_H
 #include <sys/stropts.h>	/* struct str_list	*/
-#endif
-#ifndef _SYS_SAD_H
 #include <sys/sad.h>		/* autopush defs	*/
-#endif
 
 /*  -------------------------------------------------------------------  */
 /*                                 Symbols                               */
