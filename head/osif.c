@@ -325,10 +325,10 @@ void  _RP lis_osif_pci_dma_sync_sg(struct pci_dev *hwdev,
 
 int  _RP lis_osif_pci_dma_supported(struct pci_dev *hwdev, u64 mask)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
-    return(pci_set_dma_mask(hwdev, mask)) ;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,4,0)
+    return dma_supported(hwdev == NULL ? NULL : &hwdev->dev, mask);
 #else
-    return(pci_dma_supported(hwdev, mask)) ;
+    return(pci_dma_supported(hwdev, mask));
 #endif
 }
 
