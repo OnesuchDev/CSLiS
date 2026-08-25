@@ -445,7 +445,6 @@ static void sad_cleanup_module(void)
         else
                 printk("%s: Unregistered, ready to be unloaded.\n",
 		       LIS_OBJNAME_STR);
-        return;
 }
 
 module_init(sad_init_module) ;

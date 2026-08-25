@@ -536,7 +536,6 @@ static void fifo_mod_cleanup(void)
 	cmn_err( CE_CONT,
 		 "%s - unable to unregister driver.\n",
 		 MOD_NAME );
-    return;
 }
 
 module_init(fifo_mod_init) ;

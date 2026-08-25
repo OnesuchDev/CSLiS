@@ -396,7 +396,6 @@ static void connld_cleanup_module(void)
 	cmn_err( CE_CONT,
 		 "%s - unable to unregister module.\n",
 		 MOD_NAME );
-    return;
 }
 
 module_init(connld_init_module) ;
