@@ -260,8 +260,6 @@ void  _RP lis_osif_pci_free_consistent(struct pci_dev *hwdev, size_t size,
 {
 #ifdef CONFIG_PCI
     pci_free_consistent(hwdev, size, vaddr, dma_handle);
-#else
-    return;
 #endif
 }
 #endif /* end kernel 6.0.0. check */
