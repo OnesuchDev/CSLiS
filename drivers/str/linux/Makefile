@@ -149,7 +149,7 @@ clean: common-clean $(INET_CLEAN)
 	-$(Q)rm -f .modules
 
 realclean: clean common-realclean
-	-$(Q)rm -f .depend.modules relay3.c
+	-$(Q)rm -f .depend.modules
 
 install: common-install $(INET_INST)
 	$(Q_ECHO) $(qtag_INSTALL)$(relpwd)
@@ -176,14 +176,9 @@ inet_clean:
 #
 # Rule for relay3, a special compilation of relay.c
 #
-streams-relay3.o: relay3.c
+streams-relay3.o: $(DRVRDIR)/relay.c relay3.c
 	$(Q_ECHO) $(qtag_CCm)$(relpwdtarget)
-	$(Q)$(CC) $(MODOPT) -DLIS_OBJNAME=$* -DRELAY3 -o $@ -c $<
-#	-$(Q)rm -f $<
-
-relay3.c: $(DRVRDIR)/relay.c
-#	-$(Q)rm -f $@
-	$(Q)cp $? $@
+	$(Q)$(CC) $(MODOPT) -DLIS_OBJNAME=$* -DRELAY3 -o $@ -c relay3.c
 
 #
 # Dependency stuff
@@ -191,7 +186,7 @@ relay3.c: $(DRVRDIR)/relay.c
 
 -include .depend.modules
 
-dep: relay3.c common-dep
+dep: common-dep
 	$(Q_ECHO) $(qtag_DEP)$(relpwd)
 ifneq ($(strip $(MODLS) $(TMODLS)),)
 	$(Q)$(CC) $(MODOPT) -M $(MODLS:streams-%.o=$(DRVRDIR)/%.c) \
