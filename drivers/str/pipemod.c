@@ -205,7 +205,6 @@ static void pipemod_cleanup_module(void)
 	cmn_err( CE_CONT,
 		 "%s - unable to unregister module.\n",
 		 MOD_NAME );
-    return;
 }
 
 module_init(pipemod_init_module) ;

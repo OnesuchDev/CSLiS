@@ -941,7 +941,6 @@ static void loop_cleanup_module(void)
 	printk("loop.cleanup_module: Unable to unregister driver.\n");
     else
 	printk("loop.cleanup_module: Unregistered, ready to be unloaded.\n");
-    return;
 }
 
 module_init(loop_init_module) ;

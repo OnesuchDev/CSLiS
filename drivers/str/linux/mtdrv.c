@@ -390,7 +390,6 @@ static void mtdrv_cleanup_module(void)
 	printk("mtdrv.cleanup_module: Unable to unregister driver.\n");
     else
 	printk("mtdrv.cleanup_module: Unregistered, ready to be unloaded.\n");
-    return;
 }
 
 module_init(mtdrv_init_module) ;

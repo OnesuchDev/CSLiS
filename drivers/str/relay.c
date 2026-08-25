@@ -261,7 +261,6 @@ static void __exit relay3_cleanup_module(void)
 	printk("relay3.cleanup_module: Unable to unregister module.\n");
     else
 	printk("relay3.cleanup_module: Unregistered, ready to be unloaded.\n");
-    return;
 }
 
 module_init(relay3_init_module) ;
