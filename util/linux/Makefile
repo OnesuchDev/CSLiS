@@ -5,15 +5,7 @@
 include .config_mk
 
 OPT	= -DLINUX
-ifeq ($(ARCH),ppc64le)
-	XUTILS  = test test2 fattach fdetach oc rwf mkfifo psfd pafd thrtst
-else
-ifeq ($(ARCH),x86_64)
-	XUTILS  = test test2 fattach fdetach oc rwf mkfifo psfd pafd thrtst
-else
-	XUTILS  = test test2 fattach fdetach oc rwf mkfifo psfd pafd thrtst
-endif
-endif
+XUTILS  = test test2 fattach fdetach oc rwf mkfifo psfd pafd thrtst
 
 XINST	= install_xutils
 XUNINST	= uninstall_xutils
@@ -31,15 +23,7 @@ default:
 #strtst:	../strtst.c
 #	$(CC) -o $@ $^ $(ULOPTS) -lpthread
 	
-ifeq ($(ARCH),ppc64le)
 install_xutils:	fattach fdetach
-else
-ifeq ($(ARCH),x86_64)
-install_xutils:	fattach fdetach
-else
-install_xutils:	fattach fdetach
-endif
-endif
 	$(Q)install -d $(DESTDIR)$(sbindir)
 	$(Q)install $^ $(DESTDIR)$(sbindir)
 
