@@ -199,11 +199,9 @@ loop_open(queue_t * q, dev_t * devp, int flag, int sflag, cred_t * credp)
 	return -ENODEV;
 
     loop = &loop_loop[dev];
-//    printk("loop_open: q=%p dev=%i loop=%p\n", q, dev, loop);
     *devp = makedevice(getmajor(*devp), dev);
     if (q->q_ptr)		/* already open */
     {
-//        printk("loop_open: q=%p dev=%i deny=%i\n", q, dev, loop->deny_2nd_open);
 	if (loop->deny_2nd_open)
 	    return -EBUSY;
 	return 0;		/* success */
@@ -466,9 +464,6 @@ static int _RP loop_wput(queue_t * q, mblk_t * mp)
 
     loop = (struct loop *) q->q_ptr;
 
-//    printk("loop_wput q=%p\n", q);
-//    printk("db_type = %0X\n", mp->b_datap->db_type);
-
     switch (mp->b_datap->db_type)
     {
     case M_IOCTL:
@@ -619,7 +614,6 @@ static int _RP loop_wput(queue_t * q, mblk_t * mp)
 		}
 
 	    case LOOP_DENY_OPEN:
-                printk("loop_wput: DENY_OPEN  q=%p  loop=%p\n", q, loop);
 		loop->deny_2nd_open ^= 1 ;	/* flip flag */
 		break ;
 
@@ -866,7 +860,6 @@ static int _RP loop_close(queue_t * q, int dummy, cred_t * credp)
     struct loop *loop;
     static struct loop z ;
 
-//    printk("loop_close: q=%p \n", q);
     loop = (struct loop *) q->q_ptr;
     loop->qptr = NULL;
 
