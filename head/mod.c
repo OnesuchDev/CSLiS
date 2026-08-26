@@ -678,10 +678,7 @@ lis_register_strmod(struct streamtab *strtab, const char *name)
 
 	id = lis_findmod_strtab(strtab) ;
 	if (id > 0)
-        {
-            printk("lis_register_strmod:  lis_findmod_strtab %d \n",id);
 	    return(id) ;
-        }
 
 	if ((ret = lis_down(&lis_mod_reg)) < 0)
 	    return(ret) ;
