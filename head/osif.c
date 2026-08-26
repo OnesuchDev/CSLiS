@@ -834,7 +834,7 @@ char *lis_strncpy (char *s1, const char *s2, size_t n)
  */
 unsigned _RP lis_usectohz(unsigned usec)
 {
-    return( usec / (1000000/HZ) ) ;
+    return (unsigned)usecs_to_jiffies(usec);
 }
 
 /************************************************************************

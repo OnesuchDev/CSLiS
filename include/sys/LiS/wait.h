@@ -35,11 +35,6 @@
 #include <sys/LiS/head.h>	/* stream head */
 
 /*  -------------------------------------------------------------------  */
-/*                         Shared global variables                       */
-
-#define ONESEC (1000000/HZ)	/* ? */
-
-/*  -------------------------------------------------------------------  */
 /*			Exported functions & macros                      */
 
 
