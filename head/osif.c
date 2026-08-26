@@ -542,7 +542,8 @@ void  _RP lis_osif_sti( void )
 void * _RP lis_ioremap(unsigned long offset, unsigned long size)
 {
 #if   !defined(__s390__)
-    return(ioremap(offset, size)) ;
+    /* The default changed to nocache on newer kernels */
+    return ioremap_cache(offset, size);
 #else
     return(NULL) ;
 #endif
@@ -551,10 +552,11 @@ void * _RP lis_ioremap(unsigned long offset, unsigned long size)
 void * _RP lis_ioremap_nocache(unsigned long offset, unsigned long size)
 {
 #if   !defined(__s390__)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)    
-    return(ioremap_nocache(offset, size)) ;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
+    return ioremap_nocache(offset, size);
 #else
-    return(ioremap_cache(offset, size)) ; // default behavior moved to nocache for this
+    /* The default changed to nocache on newer kernels */
+    return ioremap(offset, size);
 #endif    
 #else
     return(NULL) ;
@@ -571,10 +573,11 @@ void _RP lis_iounmap(void *ptr)
 void * _RP lis_vremap(unsigned long offset, unsigned long size)
 {
 #if   !defined(__s390__)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)    
-    return(ioremap_nocache(offset, size)) ;
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,6,0)
+    return ioremap_nocache(offset, size);
 #else
-    return(ioremap_cache(offset, size)) ; // default behavior moved to nocache for this
+    /* The default changed to nocache on newer kernels */
+    return ioremap(offset, size);
 #endif
 #else
     return(NULL) ;
