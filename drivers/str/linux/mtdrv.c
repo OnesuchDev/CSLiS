@@ -259,13 +259,8 @@ static void mtdrv_ioctl(queue_t * q, mblk_t * mp)
 	}
 	if (iocb->ioc_count != sizeof(int))
 	{
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-	    printk("mtdrv_ioctl: expected ioctl len %lu, got %d\n", sizeof(int),
+	    printk("mtdrv_ioctl: expected ioctl len %zu, got %d\n", sizeof(int),
 		   iocb->ioc_count);
-#else
-	    printk("mtdrv_ioctl: expected ioctl len %d, got %d\n", sizeof(int),
-		   iocb->ioc_count);
-#endif
 
 	    error = EINVAL;
 	    goto iocnak;

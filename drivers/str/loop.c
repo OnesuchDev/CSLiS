@@ -335,13 +335,8 @@ static int loop_iocdata(queue_t * wq, mblk_t * mp)
 
 	    if (msgdsize(dp) != sizeof(loop_xparent_t))
 	    {
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-		printk("loop_iocdata: expected %lu bytes, got %d\n",
+		printk("loop_iocdata: expected %zu bytes, got %d\n",
 		       sizeof(loop_xparent_t), msgdsize(dp));
-#else
-		printk("loop_iocdata: expected %d bytes, got %d\n",
-		       sizeof(loop_xparent_t), msgdsize(dp));
-#endif
 		return (-EINVAL);
 	    }
 
@@ -491,13 +486,8 @@ static int _RP loop_wput(queue_t * q, mblk_t * mp)
 
 		    if (iocb->ioc_count != sizeof(int))
 		    {
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-			printk("Expected ioctl len %lu, got %d\n", sizeof(int),
+			printk("Expected ioctl len %zu, got %d\n", sizeof(int),
 			       iocb->ioc_count);
-#else
-			printk("Expected ioctl len %d, got %d\n", sizeof(int),
-			       iocb->ioc_count);
-#endif
 
 			error = EINVAL;
 			goto iocnak;
@@ -566,13 +556,8 @@ static int _RP loop_wput(queue_t * q, mblk_t * mp)
 
 		    if (iocb->ioc_count != sizeof(int))
 		    {
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-			printk("Expected ioctl len %lu, got %d\n",
+			printk("Expected ioctl len %zu, got %d\n",
 			       sizeof(int), iocb->ioc_count);
-#else
-			printk("Expected ioctl len %d, got %d\n",
-			       sizeof(int), iocb->ioc_count);
-#endif
 
 			error = EINVAL;
 			goto iocnak;
