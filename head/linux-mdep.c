@@ -4095,7 +4095,21 @@ static int syscall_mknod(const char *filename, umode_t mode, unsigned int dev)
 
 int	_RP lis_mknod(char *name, int mode, dev_t dev)
 {
+#ifdef CONFIG_SPT_OPENLIS_COMPAT /* FIXME: add config option */
+    /*
+     * SPT OpenLiS changed this function to use new_encode_dev() and fixed
+     * UMKDEV() to use the new format, but that breaks binary compatibility,
+     * so we provide an option.
+     */
     return syscall_mknod(name, (umode_t)mode, new_encode_dev(dev));
+#else
+    /*
+     * We have to use old_decode_dev to preserve binary compatibility,
+     * because callers of this function use UMKDEV(), which is a macro,
+     * and which assumes the old format.
+     */
+    return syscall_mknod(name, (umode_t)mode, old_decode_dev(dev));
+#endif
 }
 
 /************************************************************************
