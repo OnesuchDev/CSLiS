@@ -21,7 +21,7 @@ MODULES	=
 #
 relparent = $(call _relpath,$(shell cd ..; pwd))
 
-CC += -D__KERNEL__ $(XOPTS) -I$(LIS_INCL)/sys/LiS
+CC += -ffreestanding -D__KERNEL__ $(XOPTS) -I$(LIS_INCL)/sys/LiS
 
 ifneq ($(MODULES),)
 MODOPT = -DMODULE
