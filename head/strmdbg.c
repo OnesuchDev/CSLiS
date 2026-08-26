@@ -80,11 +80,9 @@ mem_link_t	 lis_mem_head = {&lis_mem_head, &lis_mem_head} ;
 #if defined(CONFIG_DEV)
 #ifndef DEBUG_MASK
 #define	DEBUG_MASK	LIS_DEBUG_SAFE_BIT
-//#define        DEBUG_MASK      LIS_DEBUG_CLOSE_BIT + LIS_DEBUG_OPEN_BIT + LIS_DEBUG_IOCTL_BIT
 #endif
 #else
 #define	DEBUG_MASK	0
-//#define       DEBUG_MASK      LIS_DEBUG_FATTACH_BIT + LIS_DEBUG_IOCTL_BIT
 #endif
 #ifndef DEBUG_MASK2
 #define	DEBUG_MASK2	0
