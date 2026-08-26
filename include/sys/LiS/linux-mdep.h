@@ -592,7 +592,15 @@ extern dev_t		lis_kern_to_lis_dev(dev_t dev) ;
 /*
  * Make a dev_t as it would be in user mode.  Used to call lis_mknod()
  */
+#ifdef CONFIG_SPT_OPENLIS_COMPAT /* FIXME: add config option */
+/*
+ * SPT OpenLiS fixed UMKDEV() to use the new format, but that breaks binary
+ * compatibility since it is a macro, so we provide an option.
+ */
+#define UMKDEV(majr,minr)	lis_makedevice(majr, minr)
+#else
 #define UMKDEV(majr,minr)	(((majr) << 8) | (minr))
+#endif
 
 #define DEV_TO_INT(dev) ((int)(dev))
 #define DEV_SAME(d1,d2)	(DEV_TO_INT(d1) == DEV_TO_INT(d2))
