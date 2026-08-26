@@ -87,10 +87,6 @@ void lis_terminate_timers(void) ;		/* mdep rouitine */
 
 #endif				/* __KERNEL__ */
 
-#ifndef HZ
-#define	HZ	100			/* ticks per second */
-#endif
-
 /*
  * Convert micro-seconds to proper ticks value.  The return value of
  * this routine is suitable for use with the "timeout" function.

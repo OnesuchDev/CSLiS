@@ -831,7 +831,7 @@ lis_untmout( struct timer_list *tl)
 ************************************************************************/
 long	_RP lis_milli_to_ticks(long milli_sec)
 {
-    return(milli_sec/(1000/HZ)) ;
+    return (long)msecs_to_jiffies(milli_sec);
 }
 
 
