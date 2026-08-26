@@ -15,7 +15,7 @@ include .config_mk
 #
 -include $(SRCDIR)/drvrconf.mk
 
-OPT = -DLINUX -D__KERNEL__
+OPT = -DLINUX -ffreestanding -D__KERNEL__
 MODOPT = -DMODULE
 ifeq ($(KBUILD_NEEDS_MODNAME),y)
   MODOPT += -DKBUILD_MODNAME=$(*F:%=\"streams\"-%)
