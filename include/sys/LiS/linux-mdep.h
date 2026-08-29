@@ -90,16 +90,24 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 #define _UAPI_LINUX_OPENAT2_H /* avoid struct open_how redefinition on 7.2 */
 #endif
 
-#endif /* __KERNEL__*/
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
-/* define needed for later kernel support */
+#ifndef f_vfsmnt /* not defined in later kernels */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
 #define f_vfsmnt   __f_path.mnt
 #else
 #define f_vfsmnt   f_path.mnt
 #endif
 #endif
+
+#ifndef f_dentry /* not defined in later kernels */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
+#define f_dentry __f_path.dentry
+#else
+#define f_dentry f_path.dentry
+#endif
+#endif
+
+#endif /* __KERNEL__*/
+
 #ifdef LISAUTOCONF
 #include <sys/autoconf.h>           /* /usr/src/LiS/include/sys */
 #define _LINUX_CONFIG_H 1	    /* prevent <linux/config.h> */
