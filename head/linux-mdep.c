@@ -202,8 +202,7 @@ extern void lis_spl_init(void);			/* lislocks.c */
 extern int  lis_new_file_name_dev(struct file *f, const char *name, dev_t dev);
 static struct inode * lis_get_inode( mode_t mode, dev_t dev );
 
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-extern long sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg);
+#ifdef CONFIG_COMPAT
 typedef struct strioctl32 {
     int     ic_cmd;                 /* command */
     int     ic_timout;              /* timeout value */
@@ -324,7 +323,7 @@ extern void lis_cache_destroy(struct kmem_cache *p, lis_atomic_t *c, char *label
  * kernel should be fixed to call them when appropriate.
  */
 int lis_strflush(struct file *f, fl_owner_t id);
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
+#ifdef CONFIG_COMPAT
 long lis_compat_ioctl(struct file *fp, unsigned int cmd, unsigned long arg);
 #endif
 long lis_strioctl (struct file *, unsigned int, unsigned long);
@@ -390,7 +389,7 @@ lis_streams_fops = {
     write:     lis_strwrite,		/* write                */
     poll:      lis_poll_2_1,		/* poll  		*/
     unlocked_ioctl: lis_strioctl,	/*  method to replace ioctl */
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
+#ifdef CONFIG_COMPAT
     compat_ioctl: lis_compat_ioctl,    /* 32 over 64 bit ioctl */
 #endif
     open:      lis_stropen,		/* open                 */
@@ -3151,7 +3150,7 @@ int lis_loadable_load(const char *name)
 #endif
 }
 
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
+#ifdef CONFIG_COMPAT
 long lis_compat_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 {
   switch (cmd)
@@ -3178,14 +3177,14 @@ long lis_compat_ioctl(struct file *fp, unsigned int cmd, unsigned long arg)
 }
 #endif
 
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
+#ifdef CONFIG_COMPAT
 int lis_ioctl32_str (struct file * fp, unsigned int cmd, unsigned long arg)
 {
   strioctl_t par64;
   strioctl32_t par32;
   strioctl32_t * ptr32;
   char * data32p;
-#if (!((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 1)) || \
+#if (!((defined(CONFIG_COMPAT)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 1)) || \
      (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0)))) /* version < RHEL 9.1 or 5.18 */
   mm_segment_t old_fs;
 #else  /* for RHEL 9 and later */
@@ -3199,13 +3198,8 @@ int lis_ioctl32_str (struct file * fp, unsigned int cmd, unsigned long arg)
   ptr32 = (strioctl32_t*)arg;
   if (copy_from_user((void*)&par32,(void*)ptr32,sizeof(strioctl32_t)))
   {
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-    printk("Unable to get parameter block for 32 bit ioctl I_STR (length %lu)\n",
+    printk("Unable to get parameter block for 32 bit ioctl I_STR (length %zu)\n",
            sizeof(strioctl32_t));
-#else
-    printk("Unable to get parameter block for 32 bit ioctl I_STR (length %d)\n",
-           sizeof(strioctl32_t));
-#endif
     rc = -EFAULT;
     goto ioctl32_end;
   }
