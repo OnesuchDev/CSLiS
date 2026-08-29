@@ -126,12 +126,6 @@
 /*  -------------------------------------------------------------------  */
 #define LIS_PATH_MAX  884   /* Length in characters for a path */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6,18,0)
-#define f_dentry __f_path.dentry
-#elif LINUX_VERSION_CODE >= KERNEL_VERSION(4,0,0)
-#define f_dentry f_path.dentry
-#endif
-
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,38)
 #define d_set_d_op(d, op) ((d)->d_op = (op))
 #endif
