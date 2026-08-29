@@ -260,10 +260,7 @@ void lis_terminate_final(void);
 /*  -------------------------------------------------------------------  */
 /*				   Symbols                               */
 
-#if ((defined(_X86_64_LIS_)) && (defined(RHEL_RELEASE_CODE) && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 1)) || \
-     (LINUX_VERSION_CODE >= KERNEL_VERSION(5,18,0))) /* version >= RHEL 9 or 5.18 */
 #define I_STR32     (__SID | 48)   /* Construct an internal STREAMS `ioctl32' */
-#endif
 
 /*
  *  timing functions - these are available outside the kernel also,
