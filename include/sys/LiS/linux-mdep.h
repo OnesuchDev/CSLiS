@@ -142,7 +142,7 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 #else
 #define PIPE_SEM(inode)         (&(inode).i_rwsem)
 #endif
-#if LINUX_VERSION_CODE > KERNEL_VERSION(5,10,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
 #define PIPE_WAIT(inode)        (&(inode).i_pipe->rd_wait)
 #else
 #define PIPE_WAIT(inode)        (&(inode).i_pipe->wait)
