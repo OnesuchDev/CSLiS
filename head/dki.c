@@ -86,7 +86,7 @@ volatile int	  lis_tlist_handle ;	/* next handle to use */
  *
  * Caller has timer list locked
  */
-static INLINE void enter_timer_in_list(tlist_t *tp)
+static inline void enter_timer_in_list(tlist_t *tp)
 {
     tlist_t	**headp = (tlist_t **) &lis_tlist_heads[tp->handle % THASH] ;
 
@@ -100,7 +100,7 @@ static INLINE void enter_timer_in_list(tlist_t *tp)
  *   0 - was not found on list
  *   1 - successfully removed
  */
-static INLINE int remove_timer_from_list(tlist_t *tp)
+static inline int remove_timer_from_list(tlist_t *tp)
 {
     tlist_t	*t ;
     tlist_t	*nxt ;
@@ -135,7 +135,7 @@ static INLINE int remove_timer_from_list(tlist_t *tp)
     return 0;
 }
 
-static INLINE tlist_t *alloc_timer(char *file_name, int line_nr)
+static inline tlist_t *alloc_timer(char *file_name, int line_nr)
 {
     tlist_t	*t ;
     tlist_t	**headp = (tlist_t **) &lis_tlist_heads[0] ;
@@ -200,7 +200,7 @@ static void sys_timeout_fcn(struct timer_list *tmout_tl)
  *
  * Caller has timer list locked
  */
-static INLINE tlist_t *find_timer_by_handle(int handle)
+static inline tlist_t *find_timer_by_handle(int handle)
 {
     tlist_t	*tp = NULL ;
     tlist_t	**headp = (tlist_t **) &lis_tlist_heads[handle % THASH] ;
@@ -221,7 +221,7 @@ static INLINE tlist_t *find_timer_by_handle(int handle)
  *
  * Caller has locked the timer list.
  */
-static INLINE int alloc_handle(void)
+static inline int alloc_handle(void)
 {
     tlist_t	*tp = NULL ;
     int		 handle ;

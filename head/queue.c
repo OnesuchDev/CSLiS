@@ -373,7 +373,7 @@ void lis_clr_q_flags(ulong flags, int both_qs, ...)
  *
  * This routine assumes that LIS_QISRLOCK has been done before calling it.
  */
-static INLINE struct qband *
+static inline struct qband *
 find_qband(queue_t *q, int msg_class)
 {
     struct qband	*qp ;
@@ -430,7 +430,7 @@ find_qband(queue_t *q, int msg_class)
  * pswp is the caller's value from holding the isr lock on the queue.  We may
  * need to release and reacquire that lock if we decide to call qenable.
  */
-static INLINE void
+static inline void
 updatequeue(queue_t *q, mblk_t *mp, int from_insq, lis_flags_t *pswp,
 		int band_ptrs)
 {
@@ -503,7 +503,7 @@ updatequeue(queue_t *q, mblk_t *mp, int from_insq, lis_flags_t *pswp,
  *
  * This routine assumes that LIS_QISRLOCK has been done before calling it.
  */
-static INLINE mblk_t *
+static inline mblk_t *
 find_q_spot_head(queue_t *q, mblk_t *mp)
 {
     uchar	 msg_class ;
@@ -547,7 +547,7 @@ find_q_spot_head(queue_t *q, mblk_t *mp)
 
 } /* find_q_spot_head */
 
-static INLINE mblk_t *
+static inline mblk_t *
 find_q_spot_tail(queue_t *q, mblk_t *mp)
 {
     uchar	 msg_class ;
@@ -609,7 +609,7 @@ find_q_spot_tail(queue_t *q, mblk_t *mp)
  *
  * This routine assumes that LIS_QISRLOCK has been done before calling it.
  */
-static INLINE void
+static inline void
 ins_before(queue_t *q, mblk_t *before_msg, mblk_t *mp)
 {
     LisUpCount(MSGSQD) ;			/* one more msg queued */
@@ -646,7 +646,7 @@ ins_before(queue_t *q, mblk_t *before_msg, mblk_t *mp)
 /*  -------------------------------------------------------------------  */
 /* chk_band - check a queue band for back-enable possibilities
  */
-static INLINE void
+static inline void
 chk_band(queue_t *q, struct qband *qp)
 {
     if (qp->qb_count <= qp->qb_hiwat)
@@ -673,7 +673,7 @@ chk_band(queue_t *q, struct qband *qp)
  * Performed for a message that was just removed from a queue, or is
  * just about to be.
  */
-static INLINE void
+static inline void
 adjust_q_count(queue_t *q, mblk_t *mp, int band_ptrs)
 {
     q->q_flag &= ~QWANTR;		/* no implicit qenable now */
@@ -737,7 +737,7 @@ adjust_q_count(queue_t *q, mblk_t *mp, int band_ptrs)
  *
  * This routine assumes that LIS_QISRLOCK has been done before calling it.
  */
-static INLINE mblk_t *
+static inline mblk_t *
 rmv_msg(queue_t *q, mblk_t *mp)
 {
     if (mp == NULL)			/* no message */
