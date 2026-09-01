@@ -1992,7 +1992,7 @@ elif [ -e ${KBIN}/include2/asm/mach-generic ]; then
 elif [ -e $KSRC/arch/x86/ ] && [ "$MACHINE" = "x86_64" ] \
           && [ ${KVER_MAJOR} -ge 3  ]; then
        if [ ${KVER_MAJOR} -ge 5 ]; then
-            KINCL_MACH_GENERIC="-I/usr/src/include" 
+            KINCL_MACH_GENERIC="" 
        else
             KINCL_MACH_GENERIC="-I${KSRC}/arch/x86/include"
        fi
