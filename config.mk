@@ -236,7 +236,6 @@ XOPTS += -I$(LIS_INCL)
 #
 CCSTRCONF := $(XOPTS)
 CCUSEROPT := $(CCSTRCONF)
-CCUSEROPT += -I$(KINCL) 
 #
 # the following (set by Configure) should all be to kernel-version-specific
 # directories
