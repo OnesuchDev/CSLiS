@@ -89,7 +89,7 @@
 #include <linux/time.h>
 
 #include <linux/fdtable.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,12,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4,11,0)
 #include <linux/sched/signal.h>  // new place for sighand->siglock def
 #endif
 

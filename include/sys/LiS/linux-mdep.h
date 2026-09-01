@@ -170,6 +170,7 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 #include <linux/kdev_t.h>	/* 1.3.xx needs this */
 #include <linux/sched.h>	/* sleep,wake,... */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)
+/* Before Linux 4.19, task_pgrp was in <linux/sched.h> */
 #include <linux/sched/signal.h> /* task_pgrp, used in head.c */
 #endif
 #include <linux/wait.h>
