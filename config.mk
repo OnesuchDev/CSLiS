@@ -235,7 +235,6 @@ XOPTS += -I$(LIS_INCL)
 # This is required for distros that enforce user-kernel boundary
 #
 CCSTRCONF := $(XOPTS)
-CCSTRCONF += -I/usr/src/include -I$(KINCL)
 CCUSEROPT := $(CCSTRCONF)
 CCUSEROPT += -I$(KINCL) 
 #
