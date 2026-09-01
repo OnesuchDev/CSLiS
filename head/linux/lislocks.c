@@ -40,6 +40,9 @@
 #define	SAVE_FLAGS(x)
 #endif
 
+/* In head/osif.c - we don't want to include osif.h here */
+extern void lis_osif_do_gettimeofday( struct timeval *tp ) _RP;
+
 struct kmem_cache *lis_locks_cachep;
 
 #define FL	char *file, int line
@@ -676,15 +679,7 @@ static void track_wakup_time(lis_semaphore_t *lsem)
     histogram_bucket_t *h = lis_sem_hist ;
     int		   interval ;		/* in micro seconds */
     struct timeval x ;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
-    do_gettimeofday(&x) ;
-#else
-    struct timespec64 now;
-
-    ktime_get_real_ts64(&now);
-    x.tv_sec = now.tv_sec;
-    x.tv_usec = now.tv_nsec/1000;
-#endif    
+    lis_osif_do_gettimeofday(&x) ;
     interval =  (x.tv_sec * 1000000 + x.tv_usec) -
 		(lsem->up_time.tv_sec * 1000000 + lsem->up_time.tv_usec) ;
 
@@ -1349,15 +1344,7 @@ void	_RP lis_up_fcn(lis_semaphore_t *lsem, FL)
     SET_UPSEM                           /* most recent "up" */
     lsem->taskp      = NULL ;
     if (LIS_DEBUG_SEMTIME) {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(5,0,0)
-        do_gettimeofday(&lsem->up_time) ;
-#else
-        struct timespec64 now;
-
-        ktime_get_real_ts64(&now);
-        lsem->up_time.tv_sec = now.tv_sec;
-        lsem->up_time.tv_usec = now.tv_nsec/1000;
-#endif
+        lis_osif_do_gettimeofday(&lsem->up_time) ;
     }
     up(sem) ;
 }
