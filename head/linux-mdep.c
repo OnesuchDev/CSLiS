@@ -3043,7 +3043,7 @@ int      _RP lis_in_interrupt(void)
     return(in_atomic() || irqs_disabled()) ;
 }
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 /************************************************************************
 *                         Kernel Mutex                                  *
 *************************************************************************
@@ -3066,7 +3066,7 @@ void _RP lis_kernel_up(struct mutex *mut)
 /************************************************************************
 *                         Kernel Mutex                                  *
 *************************************************************************
-*  ... 4.12 kernel and higher                                           *
+*  ... 4.7 kernel and higher                                            *
 * These routines are used with doing a down/up on a kernel RW semaphore *
 * lis_down/up are used for LiS type semaphores.                         *
 *                                                                       *

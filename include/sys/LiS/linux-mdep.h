@@ -137,7 +137,7 @@ extern char *lis_strncpy (char *s1, const char *s2, size_t n);
 #define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 #define PIPE_SEM(inode)         (&(inode).i_mutex)
 #else
 #define PIPE_SEM(inode)         (&(inode).i_rwsem)
@@ -377,7 +377,7 @@ extern int	lis_in_interrupt(void) _RP ;
 void lis_gettimeofday(struct timeval *tv)_RP;
 
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,12,0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(4,7,0)
 /* lock inodes...
  *
  * Must use kernel mutex routine directly since the inode mutex is a
