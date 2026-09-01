@@ -245,7 +245,11 @@ int	lis_own_spl(void) _RP;		/* do I own the global spl lock? */
 *									*
 ************************************************************************/
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(5,10,0)
+/*
+ * struct timeval is only defined in userland on 5.6+. The definition is the
+ * same for kernels up to 7.2.2.
+ */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,6,0)
     struct timeval {
        __kernel_old_time_t  tv_sec;  /* seconds */
        __kernel_suseconds_t tv_usec; /* micro secs */
