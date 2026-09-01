@@ -46,16 +46,6 @@
 #endif
 
 /*
- * INLINE and STATIC
- */
-#ifndef INLINE
-#define	INLINE	
-#endif
-#ifndef STATIC
-#define	STATIC	static
-#endif
-
-/*
  * <linux/types.h> does not have intptr_t before kernel 6.5.
  * For user level pgms, stdint.h supplies these
  */

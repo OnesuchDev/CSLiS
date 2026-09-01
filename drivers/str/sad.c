@@ -54,21 +54,12 @@
 #define SAD_N_MINOR 4
 #endif
 
-
-#ifndef STATIC
-#define STATIC static
-#endif
-#ifndef INLINE
-#define INLINE inline
-#endif
+static int _RP sad_open(queue_t *, dev_t *, int, int, cred_t *);
+static int _RP sad_close(queue_t *, int, cred_t *);
+static int _RP sad_wput(queue_t *, mblk_t *);
 
 
-STATIC int _RP sad_open(queue_t *, dev_t *, int, int, cred_t *);
-STATIC int _RP sad_close(queue_t *, int, cred_t *);
-STATIC int _RP sad_wput(queue_t *, mblk_t *);
-
-
-STATIC struct module_info sad_minfo = 
+static struct module_info sad_minfo =
 {
 	0,		/* Module ID number		*/
 	"sad",		/* Module name			*/
@@ -78,7 +69,7 @@ STATIC struct module_info sad_minfo =
 	0		/* Low water mark ignored	*/
 };
 
-STATIC struct qinit sad_rinit = 
+static struct qinit sad_rinit =
 {
 	NULL,		/* No read put		*/
 	NULL,		/* No read service	*/
@@ -89,7 +80,7 @@ STATIC struct qinit sad_rinit =
 	NULL		/* No statistics	*/
 };
 
-STATIC struct qinit sad_winit = 
+static struct qinit sad_winit =
 {
 	sad_wput,	/* Write put		*/
 	NULL,		/* No write service	*/
@@ -134,7 +125,7 @@ struct priv
 /*
  *  Per stream storage
  */
-STATIC struct priv sad_sad[SAD_N_MINOR];
+static struct priv sad_sad[SAD_N_MINOR];
 
 
 /****************************************************************************/
@@ -143,7 +134,7 @@ STATIC struct priv sad_sad[SAD_N_MINOR];
 /*                                                                          */
 /****************************************************************************/
 
-STATIC void sad_copyio(struct priv *p, mblk_t *mp, int type,
+static void sad_copyio(struct priv *p, mblk_t *mp, int type,
 		       caddr_t uaddr, size_t size)
 {
 	struct copyreq *req;
@@ -160,7 +151,7 @@ STATIC void sad_copyio(struct priv *p, mblk_t *mp, int type,
 	putnext(p->rq, mp);
 }
 
-STATIC void sad_iocdata(struct priv *p, mblk_t *mp)
+static void sad_iocdata(struct priv *p, mblk_t *mp)
 {
 	struct copyresp *res = (struct copyresp *)mp->b_rptr;
 	mblk_t *bp = mp->b_cont;
@@ -275,7 +266,7 @@ ioctl_done:	iocp = (struct iocblk *)mp->b_rptr;
 /*                                                                          */
 /****************************************************************************/
 
-STATIC INLINE void sad_do_ioctl(struct priv *p, mblk_t *mp)
+static inline void sad_do_ioctl(struct priv *p, mblk_t *mp)
 {
 	struct iocblk *iocp;
 	mblk_t *dp;
@@ -338,7 +329,7 @@ nak_it:		mp->b_datap->db_type = M_IOCNAK;
 /*                                                                          */
 /****************************************************************************/
 
-STATIC int _RP sad_open(queue_t *q, dev_t *devp, int flag, int sflag, cred_t *crp)
+static int _RP sad_open(queue_t *q, dev_t *devp, int flag, int sflag, cred_t *crp)
 {
 	dev_t i;
 
@@ -363,7 +354,7 @@ STATIC int _RP sad_open(queue_t *q, dev_t *devp, int flag, int sflag, cred_t *cr
 	return 0;
 }
 
-STATIC int _RP sad_close(queue_t *q, int flag, cred_t *crp)
+static int _RP sad_close(queue_t *q, int flag, cred_t *crp)
 {
 	struct priv *p = q->q_ptr;
 
@@ -376,7 +367,7 @@ STATIC int _RP sad_close(queue_t *q, int flag, cred_t *crp)
 	return 0;
 }
 
-STATIC int _RP sad_wput(queue_t *q, mblk_t *mp)
+static int _RP sad_wput(queue_t *q, mblk_t *mp)
 {
 	struct priv *p;
 
