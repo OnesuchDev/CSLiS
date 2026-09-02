@@ -813,14 +813,23 @@ extern lis_atomic_t	lis_runq_req_cnt ;
 #define	bcopy(src,dst,n)	memcpy(dst,src,n)
 
 /*  -------------------------------------------------------------------  */
-/*
- *  d_count is atomic in 2.4 kernels and int in earlier ones
- */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,0,101)
-#define	D_COUNT(d)	((d) ? atomic_read((atomic_t *)&((d)->d_count)) : -1)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3,11,0)
+#define d_count lis_kcompat_d_count /* avoid conflict if it got backported */
+static inline unsigned d_count(const struct dentry *dentry)
+{
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,38)
+	unsigned ret;
+
+	spin_lock(&dentry->d_lock);
+	ret = dentry->d_count;
+	spin_unlock(&dentry->d_lock);
+	return ret;
 #else
-#define D_COUNT(d)  ((d) ? d_count(d) : -1)
+	return atomic_read(&dentry->d_count);
 #endif
+}
+#endif
+#define D_COUNT(d)  ((d) ? d_count(d) : -1)
 #define FILE_D_COUNT(f) D_COUNT((f)->f_dentry)
 /*  -------------------------------------------------------------------  */
 
