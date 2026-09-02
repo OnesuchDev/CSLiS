@@ -523,8 +523,6 @@ void	open_close_test(void)
 	ioc.ic_dp	  = NULL;
 	ioc.ic_cmd 	  = LOOP_DENY_OPEN ;
 	ioc.ic_len	  = 0 ;
-
-        print("loop.2: ioctl LOOP_DENY_OPEN\n");
 	rslt = ioctl(fd2, I_STR, &ioc) ;
 	if (rslt < 0)
 	{
