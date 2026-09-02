@@ -282,8 +282,6 @@ extern lis_semaphore_t   lis_stdata_sem;        /* for stdata list locking */
 extern lis_atomic_t      lis_open_cnt;
 extern lis_atomic_t      lis_close_cnt;
 
-extern lis_atomic_t      lis_mnt_cnt;
-
 #if defined(CONFIG_DEV)
 extern stdata_t *lis_head_get_fcn(stdata_t *hd, const char *file, int line);
 extern stdata_t *lis_head_put_fcn(stdata_t *hd, const char *file, int line);

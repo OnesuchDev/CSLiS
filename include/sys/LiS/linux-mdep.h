@@ -833,48 +833,16 @@ static inline unsigned d_count(const struct dentry *dentry)
 #define FILE_D_COUNT(f) D_COUNT((f)->f_dentry)
 /*  -------------------------------------------------------------------  */
 
-#include <linux/mount.h>
-#if LINUX_VERSION_CODE <= KERNEL_VERSION(2,6,37)
-
-#define	MNT_COUNT(m)	atomic_read(&((m)->mnt_count))
-
-#else  /* 2.6.38+ kernel, so test for which to read */
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-
-#ifdef CONFIG_SMP
-#define	MNT_COUNT(m)	atomic_read(&((m)->mnt_longterm))
-#else
-#define	MNT_COUNT(m)	atomic_read(&((m)->mnt_count))
-#endif  
-#else    /* For 3.10 and above, count is not used any more */
-#define MNT_COUNT(m)   D_COUNT(m->mnt_root)  
-#endif  /* test for 3.10 kernel */
-
-#endif  /* change needed for mnt_count change in 2.6.38 kernel */
-
 #define FILE_MNT(f)	((f) ? (f)->f_vfsmnt : (struct vfsmount *)NULL)
 #define FILE_MNTGET(f)  MNTGET(FILE_MNT((f)))
 #define FILE_MNTPUT(f)  MNTPUT(FILE_MNT((f)))
 
 extern struct vfsmount *lis_mnt;
-extern lis_atomic_t     lis_mnt_cnt;
-
-static inline
-void lis_mnt_cnt_sync(void)
-{
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    if (lis_mnt)
-	K_ATOMIC_SET(&lis_mnt_cnt,MNT_COUNT(lis_mnt));
-#endif
-}
 
 static inline
 struct vfsmount *lis_mntget(struct vfsmount *m)
 {
     struct vfsmount *mm = (m ? mntget(m) : NULL) ;
-
-    lis_mnt_cnt_sync();
 
     return(mm) ;
 }
@@ -885,22 +853,10 @@ void lis_mntput(struct vfsmount *m)
     if (m == NULL)
 	return;
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    if (MNT_COUNT(m) > 0)
-          mntput(m) ;
-#else
-    if (may_umount(m))
-        mntput(m);
-#endif
-    
-    lis_mnt_cnt_sync() ;
-
+    mntput(m);
 }
 
 #if defined(CONFIG_DEV)
-extern void
-lis_mnt_cnt_sync_fcn(const char *file, int line, const char *fn);
-
 extern struct vfsmount *
 lis_mntget_fcn(struct vfsmount *m, 
 	       const char *file, int line, const char *fn);
@@ -909,11 +865,9 @@ extern void
 lis_mntput_fcn(struct vfsmount *m, 
 	       const char *file, int line, const char *fn);
 
-#define MNTSYNC()      lis_mnt_cnt_sync_fcn(__LIS_FILE__,__LINE__,__FUNCTION__)
 #define	MNTGET(m)      lis_mntget_fcn((m),__LIS_FILE__,__LINE__,__FUNCTION__)
 #define	MNTPUT(m)      lis_mntput_fcn((m),__LIS_FILE__,__LINE__,__FUNCTION__)
 #else
-#define MNTSYNC()      lis_mnt_cnt_sync()
 #define MNTGET(m)      lis_mntget((m))
 #define MNTPUT(m)      lis_mntput((m))
 #endif  /* CONFIG_DEV  */
