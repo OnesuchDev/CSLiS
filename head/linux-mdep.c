@@ -221,8 +221,6 @@ lis_semaphore_t			lis_runq_sems[LIS_NR_CPUS] ;
 lis_semaphore_t			lis_runq_kill_sems[LIS_NR_CPUS] ;
 extern volatile unsigned long	lis_runq_wakeups[LIS_NR_CPUS] ; /* head.c */
 int				lis_runq_sched ;     /* q's are scheduled */
-lis_atomic_t                    lis_mnt_cnt;   /* for lis_mnt only, for now */
-int                             lis_mnt_init_cnt;  /* initial/final value */
 lis_spin_lock_t			lis_task_lock ; /* for creds operations */
 /*
  * The following for counting kmem_cache allocations
@@ -490,72 +488,6 @@ lis_file_system_ops =
 #define	LIS_SB_MAGIC	( ('L' << 16) | ('i' << 8) | 'S' )
 
 struct vfsmount		*lis_mnt ;
-
-#if defined(CONFIG_DEV)
-void lis_mnt_cnt_sync_fcn(const char *file, int line, const char *fn)
-{
-    lis_mnt_cnt_sync();
-
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	printk("lis_mnt_cnt_sync() >> [%d] {%s@%d,%s()}\n",
-	       K_ATOMIC_READ(&lis_mnt_cnt), file, line, fn);
-}
-
-struct vfsmount *lis_mntget_fcn(struct vfsmount *m,
-				const char *file, int line, const char *fn)
-{
-    struct vfsmount *mm = (m ? mntget(m) : NULL) ;
-
-    lis_mnt_cnt_sync();
-
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-    {
-	if (mm == NULL)
-	    printk("lis_mntget(NULL) {%s@%d,%s()}\n", file,line,fn) ;
-	else
-	    printk("lis_mntget(m@0x%p/++%d) \"%s\"%s {%s@%d,%s()}\n",
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-                   mm, MNT_COUNT(mm), mm->mnt_devname,
-#else
-		   mm, MNT_COUNT(mm), mm->mnt_root->d_name.name,
-#endif
-		   (lis_mnt && mm == lis_mnt?" <lis_mnt>":""),
-		   file,line,fn) ;
-    }
-
-    return(mm) ;
-}
-
-void lis_mntput_fcn(struct vfsmount *m,
-		    const char *file, int line, const char *fn)
-{
-    if (m == NULL)
-    {
-	if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	    printk("lis_mntput(NULL) {%s@%d,%s()}\n", file,line,fn) ;
-	return ;
-    }
-
-    if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	printk("lis_mntput(m@0x%p/%d%s) \"%s\"%s {%s@%d,%s()}\n",
-	       m,
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-                   MNT_COUNT(m), (MNT_COUNT(m)>0?"--":""), m->mnt_devname,
-#else
-                   MNT_COUNT(m), (MNT_COUNT(m)>0?"--":""), m->mnt_root->d_name.name,
-#endif
-	       (lis_mnt && m == lis_mnt?" <lis_mnt>":""),
-	       file,line,fn) ;
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-    if (MNT_COUNT(m) > 0)
-	mntput(m) ;
-#else
-        MNTPUT(m);
-#endif
-    lis_mnt_cnt_sync_fcn(file, line, fn) ;
-}
-#endif
 
 /*
  * Super block operations
@@ -1082,7 +1014,6 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
       struct dentry *d_mount;
 
       lis_head_get(head);                  /* bumps refcnt */
-      MNTSYNC();
 
       sb->s_root = d_mount = lis_d_alloc_root(igrab(i_mount),
 					      LIS_D_ALLOC_ROOT_MOUNT);
@@ -1120,7 +1051,6 @@ int lis_fs_fattach_sb( struct super_block *sb, void *ptr, int silent )
        */
       allow_write_access(file);
 
-      MNTSYNC();
 
       return(0);
   } else
@@ -1296,7 +1226,6 @@ void lis_super_umount_begin( struct super_block *sb )
     struct dentry *d_umount = (data ? data->dentry : NULL);
     struct inode *i_umount  = (d_umount ? d_umount->d_inode : NULL);
 
-    MNTSYNC();
 
     /*
      *  If put_super() was called first, 'd_umount' has been partially
@@ -1354,7 +1283,6 @@ void lis_super_umount_begin( struct super_block *sb )
 	data->head  = NULL;
     }
 
-    MNTSYNC();
 }
 
 void lis_super_put_super( struct super_block *sb )
@@ -1363,7 +1291,6 @@ void lis_super_put_super( struct super_block *sb )
     struct dentry *d_umount = (data ? data->dentry : NULL);
     struct inode *i_umount  = (d_umount ? d_umount->d_inode : NULL);
 
-    MNTSYNC();
 
     if (data && data->file) {
 	if (LIS_DEBUG_FATTACH)
@@ -1398,7 +1325,6 @@ void lis_super_put_super( struct super_block *sb )
 #endif
     S_FS_INFO(sb) = NULL;
 
-    MNTSYNC();
 }
 
 /************************************************************************
@@ -1658,13 +1584,12 @@ lis_new_inode( struct file *f, dev_t dev )
  *  operating system object usage counts decremented.
  *
  *  NB - the counts passed in here may or may not be useful; they're
- *  here for possible future use as much as anything (currently, only
- *  oldmnt_cnt is being used).
+ *  here for possible future use as much as anything.
  */
 void lis_cleanup_file_opening(struct file *f, stdata_t *head,
 			       int open_fail,
 			       struct dentry *oldd, int oldd_cnt,
-			       struct vfsmount *oldmnt, int oldmnt_cnt)
+			       struct vfsmount *oldmnt)
 {
     if (open_fail) {
 	/*
@@ -1691,17 +1616,10 @@ void lis_cleanup_file_opening(struct file *f, stdata_t *head,
         }
 #endif
 	if (LIS_DEBUG_VOPEN || LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS)
-	    printk("    error %d >> oldmnt@0x%p/%d %c oldmnt_cnt %d\n",
+	    printk("    error %d >> oldmnt@0x%p\n",
 		   open_fail,
-		   oldmnt, MNT_COUNT(oldmnt),
-		   (MNT_COUNT(oldmnt) < oldmnt_cnt ? '<' :
-		    MNT_COUNT(oldmnt) > oldmnt_cnt ? '>' : '='),
-		   oldmnt_cnt);
-	if (MNT_COUNT(oldmnt) < oldmnt_cnt)
-	    (void)MNTGET(oldmnt);
-	else
-	if (MNT_COUNT(oldmnt) > oldmnt_cnt)
-	    MNTPUT(oldmnt);
+		   oldmnt);
+        (void)MNTGET(oldmnt); /* FIXME: should this be removed? */
     } else {
 	/*
 	 *  open OK - these are extra
@@ -1903,7 +1821,6 @@ int lis_get_fifo( struct file **f )
     char	name[48] ;
     int		error;
 
-    MNTSYNC();
 
     if (!(*f = lis_get_filp(&lis_streams_fops)))
 	return(-ENFILE) ;
@@ -1921,7 +1838,6 @@ int lis_get_fifo( struct file **f )
 	}
     }
 
-    MNTSYNC();
 
     return(error);
 }
@@ -2321,7 +2237,6 @@ int lis_fattach( struct file *f, struct filename *path)
     stdata_t *head = FILE_STR(f);
     int result;
 
-    MNTSYNC();
 
     if (head && head->magic == STDATA_MAGIC) {
 	lis_fattach_t *data = lis_fattach_new(f, path);
@@ -2358,7 +2273,6 @@ int lis_fattach( struct file *f, struct filename *path)
     } else
 	result = -EINVAL;  /* f must be a STREAM */
 
-    MNTSYNC();
 
     return(result);
 }
@@ -2860,7 +2774,7 @@ void lis_tq_free_passfp( unsigned long arg )
 		       (d&&D_IS_LIS(d)?" <LiS>":""),
 		       i, (i?I_COUNT(i):0),
 		       (i&&I_IS_LIS(i)?" <LiS>":""));
-		printk(" m@0x%p/%d", m, (m?MNT_COUNT(m):0));
+		printk(" m@0x%p", m);
 		printk("\n");
 	    }
         }
@@ -3359,8 +3273,6 @@ int lis_init_module( void )
 #if defined(MODULE)
 		lis_file_system_ops.owner = THIS_MODULE;
 #endif
-		lis_mnt_init_cnt = MNT_COUNT(lis_mnt);
-		MNTSYNC();
 		err = 0 ;
 	    }
 	}
@@ -3441,11 +3353,6 @@ static void __exit _lis_cleanup_module( void )
 #endif          /* S390 or S390X or PPC64 or X86_64 */
 
     __unregister_chrdev(lis_major,0,1024,"streams");
-    MNTSYNC();
-    if (lis_mnt && MNT_COUNT(lis_mnt) > lis_mnt_init_cnt) {
-	printk("LiS mount count is %d, should be %d\n",
-	       MNT_COUNT(lis_mnt), lis_mnt_init_cnt);
-    }
    /* If 3.0 kernel, use invalidate_dev() instead */
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,8)
@@ -3504,8 +3411,7 @@ static void __exit _lis_cleanup_module( void )
     }
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,10,0)
   /*  On 3.10 and above, regardless of counts, see if mntput can be called */
-    if (may_umount(lis_mnt))
-        mntput(lis_mnt);
+  mntput(lis_mnt);
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)

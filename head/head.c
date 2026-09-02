@@ -4126,7 +4126,7 @@ lis_stropen( struct inode *i, struct file *f )
     struct dentry   *from;
     struct dentry   *oldd;
     struct vfsmount *oldmnt;
-    int oldd_cnt, oldmnt_cnt;
+    int oldd_cnt;
 
     CHECK_INO(i,"stropen");		/* may return */
 
@@ -4147,22 +4147,20 @@ lis_stropen( struct inode *i, struct file *f )
     oldd       = lis_dget(f->f_dentry);
     oldd_cnt   = D_COUNT(oldd)-1;
     oldmnt     = FILE_MNTGET(f);
-    oldmnt_cnt = MNT_COUNT(oldmnt)-1;
 
    if (LIS_DEBUG_OPEN || LIS_DEBUG_REFCNTS)
     {
 	printk("lis_stropen(i@0x%p/%d,f@0x%p/%d)#%ld\n"
 	       "    << i_rdev=(%d,%d) f_mode=0%o f_flags=0x%x"
-	       " <%d LiS mount(s), %d open stream(s)>\n",
+	       " <%d open stream(s)>\n",
 	       i, I_COUNT(i), f, f_count, this_open,
 	       getmajor(GET_I_RDEV(i)),
 	       getminor(GET_I_RDEV(i)), f->f_mode, f->f_flags,
-	       K_ATOMIC_READ(&lis_mnt_cnt),
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;
 
 	if (LIS_DEBUG_REFCNTS) {
-	    printk("    << d@0x%p/%d m@0x%p/%d\n",
-		   oldd, oldd_cnt, oldmnt, oldmnt_cnt);
+	    printk("    << d@0x%p/%d m@0x%p\n",
+		   oldd, oldd_cnt, oldmnt);
 	}
     }
 
@@ -4647,7 +4645,7 @@ successful_rtn:					/* returning success */
 	if ((err = lis_fifo_open_sync(i,f)) < 0)
 	    goto error_rtn;
     lis_cleanup_file_opening(f, head, 0,
-			     oldd, oldd_cnt, oldmnt, oldmnt_cnt);
+			     oldd, oldd_cnt, oldmnt);
 
     /*
      * Increment our open count for the first open of the file.  For
@@ -4686,20 +4684,19 @@ successful_rtn:					/* returning success */
 	       head->sd_rq, head->sd_wq);
 	if (LIS_DEBUG_ADDRS || LIS_DEBUG_REFCNTS) {
 #if LINUX_VERSION_CODE < KERNEL_VERSION(3,10,0)
-	    printk("    >> d@0x%p/%d m@0x%p/%d\n",
+	    printk("    >> d@0x%p/%d m@0x%p\n",
 		   f->f_dentry, D_COUNT(f->f_dentry),
-		   f->f_vfsmnt, MNT_COUNT(f->f_vfsmnt));
+		   f->f_vfsmnt));
 #else
-            printk("    >> d@0x%p/%d m@0x%p/%d\n",
+            printk("    >> d@0x%p/%d m@0x%p\n",
                    f->f_dentry, D_COUNT(f->f_dentry),
-                   f->f_path.mnt, MNT_COUNT(f->f_vfsmnt));
+                   f->f_path.mnt);
 #endif
 	}
 	lis_print_stream(head) ;
 	printk("lis_stropen(i@0x%p/%d,f@0x%p/%d)#%ld done OK...\n"
-	       "    >> <%d LiS mount(s), %d open stream(s)>\n",
+	       "    >> <%d open stream(s)>\n",
 	       i, I_COUNT(i), f, f_count, this_open,
-	       K_ATOMIC_READ(&lis_mnt_cnt),
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;
     }
 
@@ -4725,9 +4722,8 @@ error_rtn:				/* come here if fail */
 
 	printk("lis_stropen(%s)#%ld "
 	       " >> ERROR (%d)\n"
-	       "    >> <%d LiS mount(s), %d open stream(s)>\n",
+	       "    >> <%d open stream(s)>\n",
 	       name, this_open, err,
-	       K_ATOMIC_READ(&lis_mnt_cnt),
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;
     }
 
@@ -4736,7 +4732,7 @@ error_rtn:				/* come here if fail */
     if (head)			        /* a head was used */
     {
 	lis_cleanup_file_opening(f, head, err,
-				 oldd, oldd_cnt, oldmnt, oldmnt_cnt);
+				 oldd, oldd_cnt, oldmnt);
 	if (hd_locked)			/* have opening semaphore */
 	{
 	    release_sd_opening_sem(head) ;
@@ -7649,7 +7645,7 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
         printk("lis_doclose(i@0x%p/%d,f@0x%p/%li,h@0x%p/%d/%d.%d,...)#%ld/%d\n"
 	       "    << \"%s\" "
 	       "d@0x%p/%d "
-	       "<%d LiS mount(s), %d open stream(s)>\n",
+	       "<%d open stream(s)>\n",
 	       i, (i?I_COUNT(i):0),
 	       f, (f?F_COUNT(f):0),
 	       head,
@@ -7658,7 +7654,6 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
 	       head->sd_name,
 	       (f?f->f_dentry:NULL),
 	       (f&&f->f_dentry?D_COUNT(f->f_dentry):0),
-	       K_ATOMIC_READ(&lis_mnt_cnt),
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;
 	lis_print_stream(head) ;
     }
@@ -7786,9 +7781,8 @@ lis_doclose( struct inode *i, struct file *f, stdata_t *head, cred_t *creds )
 
     if (LIS_DEBUG_CLOSE || LIS_DEBUG_REFCNTS)
 	printk("lis_doclose(...)#%ld/%d"
-	       " >> <%d LiS mount(s), %d open stream(s)>\n",
+	       " >> <%d open stream(s)>\n",
 	       this_doclose, K_ATOMIC_READ(&lis_close_cnt),
-	       K_ATOMIC_READ(&lis_mnt_cnt),
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;
 
 
@@ -7819,11 +7813,10 @@ lis_strclose(struct inode *i, struct file *f)
 	printk("lis_strclose(i@0x%p/%d,f@0x%p/%li)#%ld i_rdev=(%d,%d)\n"
 	       "    << "
 	       "d@0x%p/%d "
-	       "<%d LiS mount(s), %d open stream(s)>\n",
+	       "<%d open stream(s)>\n",
 	       i, I_COUNT(i), f, F_COUNT(f), this_close,
 	       getmajor(GET_I_RDEV(i)), getminor(GET_I_RDEV(i)),
 	       f->f_dentry, D_COUNT(f->f_dentry),
-	       K_ATOMIC_READ(&lis_mnt_cnt),
 	       K_ATOMIC_READ(&lis_stdata_cnt)) ;
 
     if (!I_COUNT(i))
