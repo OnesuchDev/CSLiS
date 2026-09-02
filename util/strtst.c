@@ -5702,7 +5702,7 @@ int	mt_ioctl(int fd, int cmd, int arg)
 
 void	*mt_thread(void *arg)
 {
-    intptr_t	thrno = (intptr_t) arg ;
+    unsigned long thrno = (unsigned long) arg ;
     int		state = 0 ;
     int		prev_state ;
     int		fd = -1 ;
@@ -5710,12 +5710,8 @@ void	*mt_thread(void *arg)
     int		ctl_fd ;
     char	buf[300] ;
 
-    print("%s: Thread%d: Starting up\n", now(), thrno) ;
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
+    print("%s: Thread%lu: Starting up\n", now(), thrno) ;
     sprintf(buf, "/dev/mtdrv.%lu", thrno) ;
-#else
-    sprintf(buf, "/dev/mtdrv.%d", thrno) ;
-#endif
     ctl_fd = open(buf, O_RDWR, 0) ;
     if (ctl_fd < 0)
     {
@@ -5723,13 +5719,13 @@ void	*mt_thread(void *arg)
 	mt_set_state(-1) ;
     }
 
-    print("%s: Thread%d: opened %s\n", now(), thrno, buf) ;
+    print("%s: Thread%lu: opened %s\n", now(), thrno, buf) ;
 
     do
     {
 	prev_state = state ;
 	state = mt_get_state() ;
-	print("%s: Thread%d: state %d\n", now(), thrno, state) ;
+	print("%s: Thread%lu: state %d\n", now(), thrno, state) ;
 	switch (state)
 	{
 	case 0:				/* initial idle state */
@@ -5763,7 +5759,7 @@ void	*mt_thread(void *arg)
 
 	    mt_set_state(2) ;
 
-	    print("%s: Thread%d: opening mtdrv.3\n", now(), thrno) ;
+	    print("%s: Thread%lu: opening mtdrv.3\n", now(), thrno) ;
 	    fd = open("/dev/mtdrv.3", O_RDWR, 0) ;
 	    if (fd < 0)
 	    {
@@ -5772,7 +5768,7 @@ void	*mt_thread(void *arg)
 		break ;
 	    }
 
-	    print("%s: Thread%d: mtdrv.3 opened fd=%d\n", now(), thrno, fd) ;
+	    print("%s: Thread%lu: mtdrv.3 opened fd=%d\n", now(), thrno, fd) ;
 	    break ;
 
 	case 2:
@@ -5795,7 +5791,7 @@ void	*mt_thread(void *arg)
 	    }
 
 	    sleep(1) ;
-	    print("%s: Thread%d: opening mtdrv.3\n", now(), thrno) ;
+	    print("%s: Thread%lu: opening mtdrv.3\n", now(), thrno) ;
 	    fd = open("/dev/mtdrv.3", O_RDWR, 0) ;
 	    if (fd < 0)
 	    {
@@ -5804,7 +5800,7 @@ void	*mt_thread(void *arg)
 		break ;
 	    }
 
-	    print("%s: Thread%d: mtdrv.3 opened fd=%d\n", now(), thrno, fd) ;
+	    print("%s: Thread%lu: mtdrv.3 opened fd=%d\n", now(), thrno, fd) ;
 	    mt_set_state(3) ;
 	    break ;
 
@@ -5823,7 +5819,7 @@ void	*mt_thread(void *arg)
 	    if (thrno == 1)
 	    {
 		sleep(2) ;
-		print("%s: Thread%d: close fd=%d\n", now(), thrno, fd) ;
+		print("%s: Thread%lu: close fd=%d\n", now(), thrno, fd) ;
 		close(fd) ;
 		fd = -1 ;
 		break ;
@@ -5836,11 +5832,11 @@ void	*mt_thread(void *arg)
 		break ;
 	    }
 
-	    print("%s: Thread%d: opening mtdrv_clone\n", now(), thrno) ;
+	    print("%s: Thread%lu: opening mtdrv_clone\n", now(), thrno) ;
 	    fdc = open("/dev/mtdrv_clone", O_RDWR, 0) ;
 	    if (fdc >= 0)
 	    {
-		print("%s: Thread%d: "
+		print("%s: Thread%lu: "
 			"mtdrv_clone opened dev 3 but should have failed\n",
 			now(), thrno) ;
 		mt_set_state(-1) ;
@@ -5849,7 +5845,7 @@ void	*mt_thread(void *arg)
 
 	    if (errno != EBUSY)
 	    {
-		print("%s: Thread%d: "
+		print("%s: Thread%lu: "
 			"mtdrv_clone failed opening dev 3 "
 			"but with wrong errno %d\n",
 			now(), thrno, errno) ;
@@ -5857,11 +5853,11 @@ void	*mt_thread(void *arg)
 		break ;
 	    }
 
-	    print("%s: Thread%d: mtdrv_clone "
+	    print("%s: Thread%lu: mtdrv_clone "
 		  "got expected EBUSY return opening dev 3\n",
 		    now(), thrno, fdc) ;
 	    sleep(1) ;
-	    print("%s: Thread%d: close fd=%d\n", now(), thrno, fd) ;
+	    print("%s: Thread%lu: close fd=%d\n", now(), thrno, fd) ;
 	    close(fd) ;
 	    fd = -1 ;
 	    fdc = -1 ;
@@ -5896,7 +5892,7 @@ void	*mt_thread(void *arg)
 
 	    mt_set_state(5) ;
 
-	    print("%s: Thread%d: opening mtdrv.3\n", now(), thrno) ;
+	    print("%s: Thread%lu: opening mtdrv.3\n", now(), thrno) ;
 	    fd = open("/dev/mtdrv.3", O_RDWR, 0) ;	/* open will sleep */
 	    if (fd < 0)
 	    {
@@ -5905,7 +5901,7 @@ void	*mt_thread(void *arg)
 		break ;
 	    }
 
-	    print("%s: Thread%d: mtdrv.3 opened fd=%d\n", now(), thrno, fd) ;
+	    print("%s: Thread%lu: mtdrv.3 opened fd=%d\n", now(), thrno, fd) ;
 	    break ;
 
 	case 5:
@@ -5936,11 +5932,11 @@ void	*mt_thread(void *arg)
 		break ;
 	    }
 
-	    print("%s: Thread%d: opening mtdrv_clone\n", now(), thrno) ;
+	    print("%s: Thread%lu: opening mtdrv_clone\n", now(), thrno) ;
 	    fdc = open("/dev/mtdrv_clone", O_RDWR, 0) ;
 	    if (fdc >= 0)
 	    {
-		print("%s: Thread%d: "
+		print("%s: Thread%lu: "
 			"mtdrv_clone opened dev 3 but should have failed\n",
 			now(), thrno) ;
 		mt_set_state(-1) ;
@@ -5949,7 +5945,7 @@ void	*mt_thread(void *arg)
 
 	    if (errno != EBUSY)
 	    {
-		print("%s: Thread%d: "
+		print("%s: Thread%lu: "
 			"mtdrv_clone failed opening dev 3 "
 			"but with wrong errno %d\n",
 			now(), thrno, errno) ;
@@ -5957,11 +5953,11 @@ void	*mt_thread(void *arg)
 		break ;
 	    }
 
-	    print("%s: Thread%d: mtdrv_clone "
+	    print("%s: Thread%lu: mtdrv_clone "
 		  "got expected EBUSY return opening dev 3\n",
 		    now(), thrno, fdc) ;
 
-	    print("%s: Thread%d: close fd=%d\n", now(), thrno, fdc) ;
+	    print("%s: Thread%lu: close fd=%d\n", now(), thrno, fdc) ;
 	    close(fdc) ;
 	    fdc = -1 ;
 	    sleep(1) ;			/* give thread 1 some time */
@@ -5976,11 +5972,11 @@ void	*mt_thread(void *arg)
 
     } while (state >= 0) ;
 
-    print("%s: Thread%d: close fd=%d\n", now(), thrno, fd) ;
+    print("%s: Thread%lu: close fd=%d\n", now(), thrno, fd) ;
     close(fd) ;
     fd = -1 ;
     close(ctl_fd) ;
-    print("%s: Thread%d: Exiting\n", now(), thrno) ;
+    print("%s: Thread%lu: Exiting\n", now(), thrno) ;
     pthread_mutex_unlock(&mt_quit) ;	/* awaken parent */
 
     return((void *)0) ;
