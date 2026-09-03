@@ -395,7 +395,7 @@ static void apush_free(autopush_t *a)
 	for (i = 0; i < a->push.npush; ++i) {
 		LISASSERT(a->push.mod[i] > 0);
 		LISASSERT(a->push.mod[i] < MAX_STRMOD);
-		LISASSERT((uintptr_t)apush_nref[a->push.mod[i]] > 0);
+		LISASSERT(apush_nref[a->push.mod[i]] > 0);
 
 		--apush_nref[a->push.mod[i]];
 	}
