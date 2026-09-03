@@ -160,11 +160,7 @@ static void sad_iocdata(struct priv *p, mblk_t *mp)
 	int err = 0, ret = 0;
 
 	if (res->cp_rval != 0) {
-#if (defined(_S390X_LIS_) || defined(_PPC64_LIS_) || defined(_X86_64_LIS_))
-		err = -(long int)res->cp_rval;
-#else
-		err = (int)(-(intptr_t)res->cp_rval);
-#endif
+		err = -(int)((intptr_t)res->cp_rval);
 		ret = -1;
 		goto ioctl_done;
 	}
